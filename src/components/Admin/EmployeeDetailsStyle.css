@@ -1,0 +1,21 @@
+.details-modal-overlay {
+  z-index: 1100; /* Plus élevé que le modal normal */
+}
+
+/* Style pour l'overlay des détails */
+.modal-overlay.details-modal-overlay {
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1500; /* Très élevé pour être au-dessus des autres modals */
+}
+
+.employee-details-modal {
+  max-width: 600px; /* Plus large pour les détails */
+}
+
+/* Ajuster le style pour l'affichage du nom */
+.employee-main-info h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  word-break: break-word;
+  color: var(--text-primary);
+}

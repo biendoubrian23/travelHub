@@ -1,0 +1,46 @@
+/* Styles supplémentaires pour le système d'invitation */
+
+.invitation-link {
+  font-family: monospace;
+  font-size: 12px;
+  word-break: break-all;
+  max-width: 300px;
+  display: inline-block;
+}
+
+.invitation-actions {
+  margin: 15px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.employee-success-icon {
+  font-size: 48px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.agency-name {
+  color: #007AFF;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.credential-item .invitation-link {
+  color: #666;
+  background: #F8F9FA;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #E5E5E7;
+}
+
+.btn-outline {
+  background: transparent;
+  color: #007AFF;
+  border: 2px solid #007AFF;
+}
+
+.btn-outline:hover {
+  background: #007AFF;
+  color: white;
+}

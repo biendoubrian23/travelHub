@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import './EmployeeManagement.css';
+import './EmployeeDetailsStyle.css';
 import { 
   Users, 
   Plus, 
@@ -14,19 +15,20 @@ import {
   Eye,
   EyeOff,
   Copy,
-  Check
+  Check,
+  Clock,
+  Send
 } from 'lucide-react';
 
 const EmployeeManagement = () => {
   const { userProfile, agency, isAgencyOwner } = useAuth();
   const [employees, setEmployees] = useState([]);
+  const [invitations, setInvitations] = useState([]); // Nouveau state pour les invitations
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
-  // Formulaire nouvel employé
   const [newEmployee, setNewEmployee] = useState({
     firstName: '',
     lastName: '',
@@ -43,7 +45,8 @@ const EmployeeManagement = () => {
   const [filters, setFilters] = useState({
     role: 'all',
     status: 'all',
-    search: ''
+    search: '',
+    view: 'employees' // 'employees' ou 'invitations'
   });
 
   const roles = [
@@ -56,6 +59,7 @@ const EmployeeManagement = () => {
   useEffect(() => {
     if (agency) {
       loadEmployees();
+      loadInvitations();
     }
   }, [agency]);
 
@@ -64,30 +68,27 @@ const EmployeeManagement = () => {
       setError(''); // Effacer les erreurs précédentes
       console.log('🔄 Chargement des employés pour l\'agence:', agency.id);
       
-      // Première tentative avec jointure inner
+      // Effectuer une jointure avec la table users pour récupérer les informations complètes
       let { data, error } = await supabase
         .from('agency_employees')
         .select(`
           *,
-          users!inner(id, full_name, email)
+          user:users(id, full_name, email)
         `)
         .eq('agency_id', agency.id)
         .order('created_at', { ascending: false });
-
-      // Si échec avec jointure inner, essayer avec jointure left
-      if (error || !data || data.length === 0) {
-        console.log('🔄 Tentative avec jointure left...');
-        const result = await supabase
-          .from('agency_employees')
-          .select(`
-            *,
-            users(id, full_name, email)
-          `)
-          .eq('agency_id', agency.id)
-          .order('created_at', { ascending: false });
-        
-        data = result.data;
-        error = result.error;
+      
+      // Assurer que les données sont bien formatées
+      if (data) {
+        data = data.map(employee => {
+          // S'assurer que les propriétés first_name et last_name sont définies
+          if (employee.user && employee.user.full_name) {
+            const nameParts = employee.user.full_name.split(' ');
+            employee.first_name = nameParts[0] || '';
+            employee.last_name = nameParts.slice(1).join(' ') || '';
+          }
+          return employee;
+        });
       }
 
       // Si toujours pas de données, chercher tous les employés de l'agence
@@ -117,6 +118,29 @@ const EmployeeManagement = () => {
       setEmployees([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadInvitations = async () => {
+    try {
+      console.log('🔄 Chargement des invitations pour l\'agence:', agency.id);
+      
+      const { data, error } = await supabase
+        .from('agency_employee_invitations')
+        .select('*')
+        .eq('agency_id', agency.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('❌ Erreur lors du chargement des invitations:', error);
+        setInvitations([]);
+      } else {
+        console.log('✅ Invitations chargées:', data?.length || 0, data);
+        setInvitations(data || []);
+      }
+    } catch (error) {
+      console.error('❌ Erreur générale lors du chargement des invitations:', error);
+      setInvitations([]);
     }
   };
 
@@ -163,75 +187,62 @@ const EmployeeManagement = () => {
     setError('');
 
     try {
-      // 1. Générer les identifiants SIMPLES
+      // Générer l'email automatiquement
       const email = `${newEmployee.firstName.toLowerCase()}.${newEmployee.lastName.toLowerCase()}@${agency.name.toLowerCase().replace(/\s+/g, '')}.travelhub.cm`;
-      const password = Math.random().toString(36).slice(-8) + 'A1!';
       
       console.log('📧 Email généré:', email);
-      console.log('🔑 Mot de passe généré:', password);
+      console.log('� Création de l\'invitation...');
 
-      // 2. Créer d'abord un utilisateur avec l'agence associée
-      console.log('🔄 Création de l\'utilisateur...');
-      
-      // Trouver le rôle correspondant pour définir le bon userRole
-      const selectedRole = roles.find(r => r.value === newEmployee.role);
-      const userRole = selectedRole ? selectedRole.userRole : 'agency_employee';
-      
-      const { data: userData, error: userError } = await supabase
-        .from('users')
+      // Créer l'invitation directement dans la table
+      const { data: invitationData, error: invitationError } = await supabase
+        .from('agency_employee_invitations')
         .insert({
+          agency_id: agency.id,
           email: email,
-          full_name: `${newEmployee.firstName} ${newEmployee.lastName}`,
+          first_name: newEmployee.firstName,
+          last_name: newEmployee.lastName,
           phone: newEmployee.phone,
           date_of_birth: newEmployee.dateOfBirth || null,
-          role: userRole, // ✅ RÔLE SPÉCIFIQUE SELON LE POSTE
-          is_active: true // ✅ STATUT ACTIF DÈS LA CRÉATION
+          employee_role: newEmployee.role,
+          notes: newEmployee.notes,
+          invited_by: userProfile.id
         })
         .select()
         .single();
 
-      if (userError) {
-        console.error('❌ Erreur création utilisateur:', userError);
-        throw new Error(`Erreur de création de l'utilisateur: ${userError.message}`);
+      if (invitationError) {
+        console.error('❌ Erreur création invitation:', invitationError);
+        
+        // Gestion spécifique des erreurs
+        if (invitationError.message.includes('duplicate') || invitationError.code === '23505') {
+          throw new Error(`Une invitation existe déjà pour l'email ${email}`);
+        }
+        if (invitationError.message.includes('foreign key') || invitationError.code === '23503') {
+          throw new Error('Erreur de référence - vérifiez les données de l\'agence');
+        }
+        
+        throw new Error(invitationError.message);
       }
 
-      // 3. Créer l'enregistrement employé avec référence utilisateur ET agence
-      console.log('🔄 Création de l\'employé d\'agence...');
-      const { error: employeeError } = await supabase
-        .from('agency_employees')
-        .insert({
-          agency_id: agency.id, // ✅ LIEN AVEC L'AGENCE
-          user_id: userData.id, // ✅ LIEN AVEC L'UTILISATEUR
-          employee_role: newEmployee.role, // ✅ RÔLE DANS L'AGENCE
-          notes: newEmployee.notes, // ✅ NOTES OPTIONNELLES
-          created_by: userProfile.id, // ✅ QUI A CRÉÉ L'EMPLOYÉ
-          generated_by: userProfile.id, // ✅ PATRON QUI A GÉNÉRÉ LE COMPTE
-          generated_email: email, // ✅ EMAIL GÉNÉRÉ
-          temp_password: password, // ✅ MOT DE PASSE TEMPORAIRE
-          phone: newEmployee.phone, // ✅ TÉLÉPHONE (existe dans agency_employees)
-          date_of_birth: newEmployee.dateOfBirth || null, // ✅ DATE DE NAISSANCE (existe dans agency_employees)
-          is_active: true, // ✅ STATUT ACTIF EXPLICITE
-          hire_date: new Date().toISOString().split('T')[0] // ✅ DATE D'EMBAUCHE (aujourd'hui)
-        });
+      console.log('✅ Invitation créée:', invitationData);
 
-      if (employeeError) {
-        console.error('❌ Erreur création employé:', employeeError);
-        throw new Error(`Erreur de création de l'employé: ${employeeError.message}`);
-      }
-
-      console.log('✅ Employé créé avec succès');
-
-      // 4. Afficher les identifiants dans la popup
+      // Construire le lien d'invitation
+      const invitationLink = `${window.location.origin}/invitation?token=${invitationData.invitation_token}`;
+      
+      // Afficher les détails de l'invitation
       setGeneratedCredentials({
         firstName: newEmployee.firstName,
         lastName: newEmployee.lastName,
         email: email,
-        password: password,
         role: newEmployee.role,
-        phone: newEmployee.phone
+        phone: newEmployee.phone,
+        invitationLink: invitationLink,
+        agencyName: agency.name, // Utiliser directement agency.name
+        isInvitation: true // Flag pour identifier que c'est une invitation
       });
 
-      // 5. Réinitialiser le formulaire et recharger
+      // Fermer le modal et réinitialiser
+      setShowAddModal(false);
       setNewEmployee({
         firstName: '',
         lastName: '',
@@ -241,12 +252,12 @@ const EmployeeManagement = () => {
         notes: ''
       });
 
-      setSuccess('Employé créé avec succès !');
-      await loadEmployees();
+      setSuccess('Invitation envoyée avec succès !');
+      await loadInvitations(); // Recharger les invitations
 
     } catch (error) {
       console.error('💥 Erreur complète:', error);
-      setError(error.message || 'Erreur lors de la création de l\'employé');
+      setError(error.message || 'Erreur lors de la création de l\'invitation');
     } finally {
       setLoading(false);
     }
@@ -334,7 +345,30 @@ const EmployeeManagement = () => {
   });
 
   // Fonction pour ouvrir le modal de détails
-  const openEmployeeDetails = (employee) => {
+  const openEmployeeDetails = async (employee) => {
+    // Si l'employé n'a pas de nom complet, essayons de le récupérer depuis la base de données
+    if ((!employee.first_name || !employee.last_name) && employee.user_id) {
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('full_name, email')
+          .eq('id', employee.user_id)
+          .single();
+          
+        if (data && !error) {
+          const nameParts = data.full_name.split(' ');
+          employee.first_name = nameParts[0] || '';
+          employee.last_name = nameParts.slice(1).join(' ') || '';
+          employee.user = {
+            full_name: data.full_name,
+            email: data.email
+          };
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des détails utilisateur:', error);
+      }
+    }
+    
     setSelectedEmployee(employee);
   };
 
@@ -383,8 +417,91 @@ const EmployeeManagement = () => {
         </div>
       )}
 
-      {/* Popup des identifiants générés - Version améliorée */}
-      {generatedCredentials && (
+      {/* Popup d'invitation envoyée - Version améliorée */}
+      {generatedCredentials && generatedCredentials.isInvitation && (
+        <div className="modal-overlay">
+          <div className="modal credentials-modal">
+            <div className="modal-header">
+              <h2>Invitation envoyée avec succès!</h2>
+              <button 
+                onClick={() => setGeneratedCredentials(null)}
+                className="close-btn"
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="modal-content">
+              <div className="employee-success-icon">✉️</div>
+              
+              <div className="employee-info-summary">
+                <h3>{generatedCredentials.firstName} {generatedCredentials.lastName}</h3>
+                <p className="employee-role">{getRoleLabel(generatedCredentials.role)}</p>
+                <p className="agency-name">{generatedCredentials.agencyName}</p>
+              </div>
+              
+              <div className="credentials-card">
+                <h4>Invitation créée</h4>
+                <div className="credential-group">
+                  <div className="credential-item">
+                    <label>Email d'invitation</label>
+                    <div className="credential-value">
+                      <span>{generatedCredentials.email}</span>
+                      <button 
+                        onClick={() => copyToClipboard(generatedCredentials.email, 'email')}
+                        className="copy-btn"
+                        title="Copier l'email"
+                      >
+                        {copiedField === 'email' ? <Check size={16} /> : <Copy size={16} />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="credential-item">
+                    <label>Lien d'invitation</label>
+                    <div className="credential-value">
+                      <span className="invitation-link">{generatedCredentials.invitationLink}</span>
+                      <button 
+                        onClick={() => copyToClipboard(generatedCredentials.invitationLink, 'link')}
+                        className="copy-btn"
+                        title="Copier le lien"
+                      >
+                        {copiedField === 'link' ? <Check size={16} /> : <Copy size={16} />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="invitation-actions">
+                <button 
+                  onClick={() => window.open(`mailto:${generatedCredentials.email}?subject=Invitation à rejoindre ${generatedCredentials.agencyName}&body=Bonjour ${generatedCredentials.firstName},\n\nVous êtes invité à rejoindre l'agence ${generatedCredentials.agencyName} en tant que ${getRoleLabel(generatedCredentials.role)}.\n\nCliquez sur ce lien pour créer votre compte :\n${generatedCredentials.invitationLink}\n\nCordialement`)}
+                  className="btn btn-outline"
+                >
+                  <Send size={16} />
+                  Envoyer par email
+                </button>
+              </div>
+              
+              <div className="credentials-note">
+                <strong>Important :</strong> Partagez ce lien d'invitation avec l'employé. 
+                Il aura 7 jours pour créer son compte.
+              </div>
+              
+              <div className="modal-actions">
+                <button 
+                  onClick={() => setGeneratedCredentials(null)}
+                  className="btn btn-primary"
+                >
+                  Fermer et continuer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Popup des identifiants générés - Version originale pour les comptes directs */}
+      {generatedCredentials && !generatedCredentials.isInvitation && (
         <div className="modal-overlay">
           <div className="modal credentials-modal">
             <div className="modal-header">
@@ -461,8 +578,6 @@ const EmployeeManagement = () => {
           </div>
         </div>
       )}
-
-      {/* Filtres et recherche */}
       <div className="filters-section">
         <div className="search-filters">
           <div className="search-box">
@@ -544,14 +659,14 @@ const EmployeeManagement = () => {
                   <td className="employee-name">
                     <div className="name-cell">
                       <strong>
-                        {employee.users?.full_name || employee.user?.full_name || 
+                        {employee.user?.full_name || 
                          `${employee.first_name || ''} ${employee.last_name || ''}`.trim() || 
                          'Nom non disponible'}
                       </strong>
                     </div>
                   </td>
                   <td className="employee-email">
-                    {employee.users?.email || employee.user?.email || employee.generated_email || 'Email non disponible'}
+                    {employee.user?.email || employee.generated_email || 'Email non disponible'}
                   </td>
                   <td className="employee-role">
                     <span 
@@ -726,8 +841,8 @@ const EmployeeManagement = () => {
       )}
 
       {/* Modal de détails de l'employé */}
-      {selectedEmployee && (
-        <div className="modal-overlay">
+      {selectedEmployee && !showAddModal && !generatedCredentials && (
+        <div className="modal-overlay details-modal-overlay">
           <div className="modal employee-details-modal">
             <div className="modal-header">
               <h2>Détails de l'employé</h2>
@@ -746,12 +861,12 @@ const EmployeeManagement = () => {
                 </div>
                 <div className="employee-main-info">
                   <h3>
-                    {selectedEmployee.users?.full_name || selectedEmployee.user?.full_name || 
+                    {selectedEmployee.user?.full_name || 
                      `${selectedEmployee.first_name || ''} ${selectedEmployee.last_name || ''}`.trim() || 
                      'Nom non disponible'}
                   </h3>
                   <p className="employee-email-detail">
-                    {selectedEmployee.users?.email || selectedEmployee.user?.email || selectedEmployee.generated_email || 'Email non disponible'}
+                    {selectedEmployee.user?.email || selectedEmployee.generated_email || 'Email non disponible'}
                   </p>
                   <div className="status-role-badges">
                     <span 

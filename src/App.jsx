@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Sidebar from './components/Sidebar/Sidebar';
 import Dashboard from './components/Dashboard/Dashboard';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
+import InvitationPage from './components/Auth/InvitationPage';
 import EmployeeManagement from './components/Admin/EmployeeManagement';
 import './App.css';
 
@@ -19,8 +20,18 @@ function LoadingSpinner() {
 function AppContent() {
   const { user, loading, userProfile, agency } = useAuth();
   
+  // Vérifier si on est sur une page d'invitation
+  const urlParams = new URLSearchParams(window.location.search);
+  const invitationToken = urlParams.get('token');
+  const isInvitationPage = window.location.pathname === '/invitation' || invitationToken;
+  
   if (loading) {
     return <LoadingSpinner />;
+  }
+
+  // Page d'invitation - accessible sans authentification
+  if (isInvitationPage) {
+    return <InvitationPage />;
   }
 
   if (!user || !userProfile) {
