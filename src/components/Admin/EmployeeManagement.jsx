@@ -3,6 +3,14 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import './EmployeeManagement.css';
 import './EmployeeDetailsStyle.css';
+import './EmployeeDetailsEnhanced.css';
+import './EmployeePhoneStyles.css';
+import './EmployeeDetailsEnhanced.css';
+import './InvitationsTableStyles.css';
+import './UnifiedTableStyles.css';
+import './IOSModalStyles.css';
+import './StatusBadgesHarmonization.css';
+import './NoHoverTableStyles.css';
 import { 
   Users, 
   Plus, 
@@ -137,12 +145,43 @@ const EmployeeManagement = () => {
       } else {
         console.log('✅ Invitations chargées:', data?.length || 0, data);
         setInvitations(data || []);
+        
+        // Vérifier s'il y a de nouvelles invitations acceptées
+        const recentlyAccepted = data?.filter(inv => 
+          inv.status === 'accepted' && 
+          new Date(inv.accepted_at) > new Date(Date.now() - 5 * 60 * 1000) // 5 minutes
+        );
+        
+        if (recentlyAccepted?.length > 0) {
+          console.log('🎉 Nouvelles invitations acceptées détectées, rechargement des employés...');
+          // Recharger les employés après un court délai pour laisser le temps aux triggers
+          setTimeout(() => {
+            loadEmployees();
+          }, 2000);
+        }
       }
     } catch (error) {
       console.error('❌ Erreur générale lors du chargement des invitations:', error);
       setInvitations([]);
     }
   };
+
+  // Fonction pour rafraîchir automatiquement les données
+  const refreshData = useCallback(async () => {
+    await Promise.all([loadEmployees(), loadInvitations()]);
+  }, [agency]);
+
+  // Polling pour détecter les nouveaux employés créés via invitation
+  useEffect(() => {
+    if (!agency) return;
+    
+    const interval = setInterval(() => {
+      // Recharger discrètement toutes les 30 secondes
+      refreshData();
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, [agency, refreshData]);
 
   const generateEmployeeCredentials = async (firstName, lastName) => {
     try {
@@ -328,7 +367,7 @@ const EmployeeManagement = () => {
     }
   };
 
-  // Fonction de filtrage
+  // Fonction de filtrage pour employés
   const filteredEmployees = employees.filter(employee => {
     const matchesRole = filters.role === 'all' || employee.employee_role === filters.role;
     const matchesStatus = filters.status === 'all' || 
@@ -337,9 +376,31 @@ const EmployeeManagement = () => {
     
     const name = `${employee.users?.full_name || employee.user?.full_name || `${employee.first_name || ''} ${employee.last_name || ''}`.trim()}`.toLowerCase();
     const email = (employee.users?.email || employee.user?.email || employee.generated_email || '').toLowerCase();
+    const phone = (employee.phone || '').toLowerCase();
     const matchesSearch = filters.search === '' || 
       name.includes(filters.search.toLowerCase()) ||
-      email.includes(filters.search.toLowerCase());
+      email.includes(filters.search.toLowerCase()) ||
+      phone.includes(filters.search.toLowerCase());
+
+    return matchesRole && matchesStatus && matchesSearch;
+  });
+
+  // Fonction de filtrage pour invitations
+  const filteredInvitations = invitations.filter(invitation => {
+    const matchesRole = filters.role === 'all' || invitation.employee_role === filters.role;
+    
+    // Pour les invitations, on considère "active" = "accepted", "inactive" = "pending/expired"
+    const matchesStatus = filters.status === 'all' || 
+      (filters.status === 'active' && invitation.status === 'accepted') ||
+      (filters.status === 'inactive' && (invitation.status === 'pending' || invitation.status === 'expired'));
+    
+    const name = `${invitation.first_name || ''} ${invitation.last_name || ''}`.trim().toLowerCase();
+    const email = (invitation.email || '').toLowerCase();
+    const phone = (invitation.phone || '').toLowerCase();
+    const matchesSearch = filters.search === '' || 
+      name.includes(filters.search.toLowerCase()) ||
+      email.includes(filters.search.toLowerCase()) ||
+      phone.includes(filters.search.toLowerCase());
 
     return matchesRole && matchesStatus && matchesSearch;
   });
@@ -370,6 +431,25 @@ const EmployeeManagement = () => {
     }
     
     setSelectedEmployee(employee);
+  };
+
+  // Fonction pour ouvrir le modal de détails d'une invitation
+  const openInvitationDetails = (invitation) => {
+    setSelectedEmployee({
+      ...invitation,
+      isInvitation: true,
+      full_name: `${invitation.first_name || ''} ${invitation.last_name || ''}`.trim(),
+      email: invitation.email,
+      role: invitation.employee_role,
+      created_at: invitation.created_at,
+      status: invitation.status,
+      phone: invitation.phone,
+      date_of_birth: invitation.date_of_birth,
+      notes: invitation.notes,
+      invited_by: invitation.invited_by,
+      accepted_at: invitation.accepted_at,
+      expires_at: invitation.expires_at
+    });
   };
 
   if (!isAgencyOwner()) {
@@ -416,6 +496,8 @@ const EmployeeManagement = () => {
           <button onClick={() => setSuccess('')}>×</button>
         </div>
       )}
+
+
 
       {/* Popup d'invitation envoyée - Version améliorée */}
       {generatedCredentials && generatedCredentials.isInvitation && (
@@ -583,7 +665,7 @@ const EmployeeManagement = () => {
           <div className="search-box">
             <input
               type="text"
-              placeholder="Rechercher par nom ou email..."
+              placeholder="Rechercher par nom, email ou téléphone..."
               value={filters.search}
               onChange={(e) => setFilters({...filters, search: e.target.value})}
               className="search-input"
@@ -615,60 +697,76 @@ const EmployeeManagement = () => {
         </div>
         
         <div className="results-count">
-          {filteredEmployees.length} employé(s) {filters.search || filters.role !== 'all' || filters.status !== 'all' ? 'trouvé(s)' : 'au total'}
+          {filteredEmployees.length + filteredInvitations.length} personne(s) {filters.search || filters.role !== 'all' || filters.status !== 'all' ? 'trouvée(s)' : 'au total'}
         </div>
       </div>
 
-      {/* Tableau des employés */}
+      {/* Tableau unifié des employés et invitations */}
       <div className="employees-table-container">
         {loading ? (
           <div className="loading-state">
             <div className="spinner"></div>
             <p>Chargement des employés...</p>
           </div>
-        ) : filteredEmployees.length === 0 ? (
-          <div className="empty-state">
-            <Users size={48} />
-            <h3>{employees.length === 0 ? 'Aucun employé' : 'Aucun résultat'}</h3>
-            <p>
-              {employees.length === 0 
-                ? 'Commencez par ajouter des employés à votre agence.'
-                : 'Aucun employé ne correspond aux critères de recherche.'
-              }
-            </p>
-          </div>
+        ) : (filteredEmployees.length === 0 && filteredInvitations.length === 0) ? (
+          (employees.length === 0 && invitations.length === 0) ? (
+            <div className="empty-state">
+              <Users size={48} />
+              <h3>Aucun employé</h3>
+              <p>Commencez par ajouter des employés à votre agence.</p>
+            </div>
+          ) : (
+            <div className="empty-state">
+              <Users size={48} />
+              <h3>Aucun résultat</h3>
+              <p>Aucune personne ne correspond aux critères de recherche.</p>
+            </div>
+          )
         ) : (
-          <table className="employees-table">
+          <table className="unified-table">
             <thead>
               <tr>
                 <th>Nom complet</th>
                 <th>Email</th>
+                <th>Téléphone</th>
                 <th>Rôle</th>
                 <th>Statut</th>
-                <th>Date d'embauche</th>
-                <th>Actions</th>
+                <th>Date</th>
+                <th>Invitation</th>
               </tr>
             </thead>
             <tbody>
+              {/* Afficher les employés filtrés */}
               {filteredEmployees.map(employee => (
                 <tr 
-                  key={employee.id} 
-                  className="employee-row"
+                  key={`employee-${employee.id}`} 
+                  className="table-row employee-row"
                   onClick={() => openEmployeeDetails(employee)}
                 >
-                  <td className="employee-name">
-                    <div className="name-cell">
-                      <strong>
-                        {employee.user?.full_name || 
-                         `${employee.first_name || ''} ${employee.last_name || ''}`.trim() || 
-                         'Nom non disponible'}
-                      </strong>
+                  <td className="name-cell">
+                    <div className="user-info">
+                      <div className="user-avatar">
+                        <Users size={20} />
+                      </div>
+                      <div className="user-details">
+                        <span className="user-name">
+                          {employee.user?.full_name || 
+                           `${employee.first_name || ''} ${employee.last_name || ''}`.trim() || 
+                           'Nom non disponible'}
+                        </span>
+                        <span className="user-type">Employé</span>
+                      </div>
                     </div>
                   </td>
-                  <td className="employee-email">
+                  <td className="email-cell">
                     {employee.user?.email || employee.generated_email || 'Email non disponible'}
                   </td>
-                  <td className="employee-role">
+                  <td className="phone-cell">
+                    <span className="phone-number">
+                      {employee.phone || 'Non renseigné'}
+                    </span>
+                  </td>
+                  <td className="role-cell">
                     <span 
                       className="role-badge" 
                       style={{ backgroundColor: getRoleColor(employee.employee_role) }}
@@ -676,21 +774,21 @@ const EmployeeManagement = () => {
                       {getRoleLabel(employee.employee_role)}
                     </span>
                   </td>
-                  <td className="employee-status">
+                  <td className="status-cell">
                     <span 
                       className={`status-badge ${employee.is_active ? 'active' : 'inactive'}`}
                     >
                       {employee.is_active ? 'Actif' : 'Inactif'}
                     </span>
                   </td>
-                  <td className="employee-hire-date">
-                    {new Date(employee.hire_date).toLocaleDateString('fr-FR')}
+                  <td className="date-cell">
+                    {employee.hire_date ? new Date(employee.hire_date).toLocaleDateString('fr-FR') : 'Non définie'}
                   </td>
-                  <td className="employee-actions" onClick={(e) => e.stopPropagation()}>
+                  <td className="actions-cell" onClick={(e) => e.stopPropagation()}>
                     <div className="action-buttons">
                       <button 
                         onClick={() => handleToggleActive(employee.id, employee.is_active)}
-                        className={`btn btn-sm ${employee.is_active ? 'btn-warning' : 'btn-success'}`}
+                        className={`action-btn ${employee.is_active ? 'warning' : 'success'}`}
                         title={employee.is_active ? 'Désactiver' : 'Activer'}
                       >
                         {employee.is_active ? <UserX size={16} /> : <UserCheck size={16} />}
@@ -698,7 +796,7 @@ const EmployeeManagement = () => {
                       
                       <button 
                         onClick={() => setEditingEmployee(employee)}
-                        className="btn btn-sm btn-outline"
+                        className="action-btn primary"
                         title="Modifier"
                       >
                         <Edit size={16} />
@@ -706,11 +804,81 @@ const EmployeeManagement = () => {
                       
                       <button 
                         onClick={() => handleDeleteEmployee(employee.id)}
-                        className="btn btn-sm btn-danger"
+                        className="action-btn danger"
                         title="Supprimer"
                       >
                         <Trash2 size={16} />
                       </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              
+              {/* Afficher les invitations filtrées */}
+              {filteredInvitations.map(invitation => (
+                <tr 
+                  key={`invitation-${invitation.id}`} 
+                  className={`table-row invitation-row ${invitation.status}`}
+                  onClick={() => openInvitationDetails(invitation)}
+                >
+                  <td className="name-cell">
+                    <div className="user-info">
+                      <div className="user-avatar invitation">
+                        <Mail size={20} />
+                      </div>
+                      <div className="user-details">
+                        <span className="user-name">
+                          {`${invitation.first_name || ''} ${invitation.last_name || ''}`.trim() || 'Nom non renseigné'}
+                        </span>
+                        <span className="user-type">Invitation</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="email-cell">
+                    {invitation.email}
+                  </td>
+                  <td className="phone-cell">
+                    <span className="phone-number">
+                      {invitation.phone || 'Non renseigné'}
+                    </span>
+                  </td>
+                  <td className="role-cell">
+                    <span 
+                      className="role-badge" 
+                      style={{ backgroundColor: getRoleColor(invitation.employee_role) }}
+                    >
+                      {getRoleLabel(invitation.employee_role)}
+                    </span>
+                  </td>
+                  <td className="status-cell">
+                    <span className="status-badge invitation-badge">
+                      <Mail size={14} />
+                      {invitation.is_active ? "Actif" : "Inactif"}
+                    </span>
+                  </td>
+                  <td className="date-cell">
+                    {new Date(invitation.created_at).toLocaleDateString('fr-FR')}
+                  </td>
+                  <td className="actions-cell" onClick={(e) => e.stopPropagation()}>
+                    <div className="action-buttons">
+                      {invitation.status === 'pending' && (
+                        <span className="status-badge inactive">
+                          <Clock size={14} />
+                          En attente
+                        </span>
+                      )}
+                      {invitation.status === 'accepted' && (
+                        <span className="status-badge active">
+                          <UserCheck size={14} />
+                          Acceptée
+                        </span>
+                      )}
+                      {invitation.status === 'expired' && (
+                        <span className="status-badge inactive">
+                          <UserX size={14} />
+                          Expirée
+                        </span>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -840,12 +1008,14 @@ const EmployeeManagement = () => {
         </div>
       )}
 
-      {/* Modal de détails de l'employé */}
+      {/* Modal de détails de l'employé ou invitation */}
       {selectedEmployee && !showAddModal && !generatedCredentials && (
         <div className="modal-overlay details-modal-overlay">
           <div className="modal employee-details-modal">
             <div className="modal-header">
-              <h2>Détails de l'employé</h2>
+              <h2>
+                {selectedEmployee.isInvitation ? 'Détails de l\'invitation' : 'Détails de l\'employé'}
+              </h2>
               <button 
                 onClick={() => setSelectedEmployee(null)}
                 className="close-btn"
@@ -857,28 +1027,54 @@ const EmployeeManagement = () => {
             <div className="modal-content">
               <div className="employee-details-header">
                 <div className="employee-avatar">
-                  <Users size={52} />
+                  {selectedEmployee.isInvitation ? <Mail size={52} /> : <Users size={52} />}
                 </div>
                 <div className="employee-main-info">
                   <h3>
-                    {selectedEmployee.user?.full_name || 
-                     `${selectedEmployee.first_name || ''} ${selectedEmployee.last_name || ''}`.trim() || 
-                     'Nom non disponible'}
+                    {selectedEmployee.isInvitation 
+                      ? selectedEmployee.full_name || 'Nom non disponible'
+                      : (selectedEmployee.user?.full_name || 
+                         `${selectedEmployee.first_name || ''} ${selectedEmployee.last_name || ''}`.trim() || 
+                         'Nom non disponible')
+                    }
                   </h3>
                   <p className="employee-email-detail">
-                    {selectedEmployee.user?.email || selectedEmployee.generated_email || 'Email non disponible'}
+                    {selectedEmployee.email || 'Email non disponible'}
                   </p>
                   <div className="status-role-badges">
-                    <span 
-                      className={`status-badge ${selectedEmployee.is_active ? 'active' : 'inactive'}`}
-                    >
-                      {selectedEmployee.is_active ? 'Actif' : 'Inactif'}
-                    </span>
+                    {selectedEmployee.isInvitation ? (
+                      <>
+                        {selectedEmployee.status === 'pending' && (
+                          <span className="status-badge pending">
+                            <Clock size={14} />
+                            En attente
+                          </span>
+                        )}
+                        {selectedEmployee.status === 'accepted' && (
+                          <span className="status-badge accepted">
+                            <UserCheck size={14} />
+                            Acceptée
+                          </span>
+                        )}
+                        {selectedEmployee.status === 'expired' && (
+                          <span className="status-badge expired">
+                            <UserX size={14} />
+                            Expirée
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      <span 
+                        className={`status-badge ${selectedEmployee.is_active ? 'active' : 'inactive'}`}
+                      >
+                        {selectedEmployee.is_active ? 'Actif' : 'Inactif'}
+                      </span>
+                    )}
                     <span 
                       className="role-badge" 
-                      style={{ backgroundColor: getRoleColor(selectedEmployee.employee_role) }}
+                      style={{ backgroundColor: getRoleColor(selectedEmployee.role || selectedEmployee.employee_role) }}
                     >
-                      {getRoleLabel(selectedEmployee.employee_role)}
+                      {getRoleLabel(selectedEmployee.role || selectedEmployee.employee_role)}
                     </span>
                   </div>
                 </div>
@@ -887,28 +1083,87 @@ const EmployeeManagement = () => {
               <div className="employee-details-grid">
                 <div className="detail-section">
                   <h4>📋 Informations générales</h4>
-                  <div className="detail-row">
-                    <span className="label">Date d'embauche</span>
-                    <span>{new Date(selectedEmployee.hire_date).toLocaleDateString('fr-FR')}</span>
-                  </div>
+                  {selectedEmployee.isInvitation ? (
+                    <>
+                      <div className="detail-row">
+                        <span className="label">Prénom</span>
+                        <span>{selectedEmployee.first_name || 'Non renseigné'}</span>
+                      </div>
+                      <div className="detail-row">
+                        <span className="label">Nom</span>
+                        <span>{selectedEmployee.last_name || 'Non renseigné'}</span>
+                      </div>
+                      <div className="detail-row">
+                        <span className="label">Email d'invitation</span>
+                        <span>{selectedEmployee.email}</span>
+                      </div>
+                      <div className="detail-row">
+                        <span className="label">Statut de l'invitation</span>
+                        <span>
+                          {selectedEmployee.status === 'pending' && 'En attente'}
+                          {selectedEmployee.status === 'accepted' && 'Acceptée'}
+                          {selectedEmployee.status === 'expired' && 'Expirée'}
+                        </span>
+                      </div>
+                      <div className="detail-row">
+                        <span className="label">Date d'invitation</span>
+                        <span>{new Date(selectedEmployee.created_at).toLocaleDateString('fr-FR')}</span>
+                      </div>
+                      {selectedEmployee.accepted_at && (
+                        <div className="detail-row">
+                          <span className="label">Date d'acceptation</span>
+                          <span>{new Date(selectedEmployee.accepted_at).toLocaleDateString('fr-FR')}</span>
+                        </div>
+                      )}
+                      {selectedEmployee.expires_at && (
+                        <div className="detail-row">
+                          <span className="label">Date d'expiration</span>
+                          <span>{new Date(selectedEmployee.expires_at).toLocaleDateString('fr-FR')}</span>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <div className="detail-row">
+                        <span className="label">Date d'embauche</span>
+                        <span>{selectedEmployee.hire_date ? new Date(selectedEmployee.hire_date).toLocaleDateString('fr-FR') : 'Non définie'}</span>
+                      </div>
+                      <div className="detail-row">
+                        <span className="label">Statut</span>
+                        <span>{selectedEmployee.is_active ? 'Actif' : 'Inactif'}</span>
+                      </div>
+                      {selectedEmployee.created_at && (
+                        <div className="detail-row">
+                          <span className="label">Créé le</span>
+                          <span>{new Date(selectedEmployee.created_at).toLocaleDateString('fr-FR')}</span>
+                        </div>
+                      )}
+                      {selectedEmployee.updated_at && selectedEmployee.updated_at !== selectedEmployee.created_at && (
+                        <div className="detail-row">
+                          <span className="label">Dernière modification</span>
+                          <span>{new Date(selectedEmployee.updated_at).toLocaleDateString('fr-FR')}</span>
+                        </div>
+                      )}
+                      {selectedEmployee.salary_fcfa && (
+                        <div className="detail-row">
+                          <span className="label">Salaire</span>
+                          <span>{selectedEmployee.salary_fcfa.toLocaleString()} FCFA</span>
+                        </div>
+                      )}
+                    </>
+                  )}
                   <div className="detail-row">
                     <span className="label">Rôle</span>
-                    <span>{getRoleLabel(selectedEmployee.employee_role)}</span>
+                    <span>{getRoleLabel(selectedEmployee.role || selectedEmployee.employee_role)}</span>
                   </div>
                   <div className="detail-row">
-                    <span className="label">Statut</span>
-                    <span>{selectedEmployee.is_active ? 'Actif' : 'Inactif'}</span>
+                    <span className="label">Téléphone</span>
+                    <span>{selectedEmployee.phone || 'Non renseigné'}</span>
                   </div>
-                  {selectedEmployee.created_at && (
+                  {selectedEmployee.date_of_birth && (
                     <div className="detail-row">
-                      <span className="label">Créé le</span>
-                      <span>{new Date(selectedEmployee.created_at).toLocaleDateString('fr-FR')}</span>
-                    </div>
-                  )}
-                  {selectedEmployee.updated_at && selectedEmployee.updated_at !== selectedEmployee.created_at && (
-                    <div className="detail-row">
-                      <span className="label">Dernière modification</span>
-                      <span>{new Date(selectedEmployee.updated_at).toLocaleDateString('fr-FR')}</span>
+                      <span className="label">Date de naissance</span>
+                      <span>{new Date(selectedEmployee.date_of_birth).toLocaleDateString('fr-FR')}</span>
                     </div>
                   )}
                 </div>
@@ -922,7 +1177,7 @@ const EmployeeManagement = () => {
                   </div>
                 )}
 
-                {selectedEmployee.permissions && selectedEmployee.permissions.length > 0 && (
+                {!selectedEmployee.isInvitation && selectedEmployee.permissions && selectedEmployee.permissions.length > 0 && (
                   <div className="detail-section">
                     <h4>🔐 Permissions spéciales</h4>
                     <div className="permissions-list">
@@ -938,7 +1193,10 @@ const EmployeeManagement = () => {
                 {!selectedEmployee.notes && (!selectedEmployee.permissions || selectedEmployee.permissions.length === 0) && (
                   <div className="detail-section">
                     <div className="notes-content" style={{ fontStyle: 'italic', color: 'var(--text-secondary)' }}>
-                      Aucune note ou permission spéciale configurée pour cet employé.
+                      {selectedEmployee.isInvitation 
+                        ? 'Aucune note ajoutée à cette invitation.'
+                        : 'Aucune note ou permission spéciale configurée pour cet employé.'
+                      }
                     </div>
                   </div>
                 )}
@@ -946,26 +1204,30 @@ const EmployeeManagement = () => {
             </div>
 
             <div className="modal-actions">
-              <button 
-                onClick={() => {
-                  setSelectedEmployee(null);
-                  setEditingEmployee(selectedEmployee);
-                }}
-                className="btn btn-primary"
-              >
-                <Edit size={18} />
-                Modifier
-              </button>
-              <button 
-                onClick={() => {
-                  handleToggleActive(selectedEmployee.id, selectedEmployee.is_active);
-                  setSelectedEmployee(null);
-                }}
-                className={`btn ${selectedEmployee.is_active ? 'btn-warning' : 'btn-success'}`}
-              >
-                {selectedEmployee.is_active ? <UserX size={18} /> : <UserCheck size={18} />}
-                {selectedEmployee.is_active ? 'Désactiver' : 'Activer'}
-              </button>
+              {!selectedEmployee.isInvitation && (
+                <>
+                  <button 
+                    onClick={() => {
+                      setSelectedEmployee(null);
+                      setEditingEmployee(selectedEmployee);
+                    }}
+                    className="btn btn-primary"
+                  >
+                    <Edit size={18} />
+                    Modifier
+                  </button>
+                  <button 
+                    onClick={() => {
+                      handleToggleActive(selectedEmployee.id, selectedEmployee.is_active);
+                      setSelectedEmployee(null);
+                    }}
+                    className={`btn ${selectedEmployee.is_active ? 'btn-warning' : 'btn-success'}`}
+                  >
+                    {selectedEmployee.is_active ? <UserX size={18} /> : <UserCheck size={18} />}
+                    {selectedEmployee.is_active ? 'Désactiver' : 'Activer'}
+                  </button>
+                </>
+              )}
               <button 
                 onClick={() => setSelectedEmployee(null)}
                 className="btn btn-outline"

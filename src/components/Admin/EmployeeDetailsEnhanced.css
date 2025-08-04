@@ -1,0 +1,270 @@
+/* Styles améliorés pour les détails des employés */
+
+/* Téléphone avec style monospace pour meilleure lisibilité */
+.employee-phone {
+  color: var(--text);
+  font-size: 14px;
+  font-family: 'Courier New', Consolas, monospace;
+  font-weight: 500;
+}
+
+/* Badge de salaire avec style distinctif */
+.salary-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.salary-badge::before {
+  content: '💰';
+  font-size: 16px;
+}
+
+/* Améliorations du modal de détails */
+.employee-details-modal {
+  max-width: 800px;
+  width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.employee-details-header {
+  background: linear-gradient(135deg, var(--primary), #0EA5E9);
+  color: white;
+  padding: 30px;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  position: relative;
+}
+
+.employee-avatar {
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.employee-main-info h3 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.employee-email-detail {
+  font-size: 16px;
+  opacity: 0.9;
+  margin: 0 0 16px 0;
+}
+
+/* Sections d'informations avec icônes */
+.detail-section h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 20px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-section h4::before {
+  font-size: 20px;
+}
+
+.detail-section h4[data-section="general"]::before {
+  content: '📋';
+}
+
+.detail-section h4[data-section="contact"]::before {
+  content: '📞';
+}
+
+.detail-section h4[data-section="work"]::before {
+  content: '💼';
+}
+
+.detail-section h4[data-section="notes"]::before {
+  content: '📝';
+}
+
+.detail-section h4[data-section="permissions"]::before {
+  content: '🔐';
+}
+
+/* Ligne de détail améliorée */
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  margin-bottom: 8px;
+  background: var(--background);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.detail-row:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.detail-row .label {
+  font-weight: 600;
+  color: var(--text-secondary);
+  flex: 1;
+  font-size: 15px;
+}
+
+.detail-row span:last-child {
+  color: var(--text);
+  font-weight: 500;
+  text-align: right;
+  flex: 1;
+}
+
+/* Badges de statut et rôle dans les détails */
+.status-role-badges {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.status-badge, .role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.active {
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: white;
+}
+
+.status-badge.inactive {
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+  color: white;
+}
+
+/* Notes avec style amélioré */
+.notes-content {
+  background: linear-gradient(135deg, #F8FAFC, #E2E8F0);
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  color: var(--text);
+  line-height: 1.6;
+  border: 1px solid var(--border);
+  font-size: 15px;
+  min-height: 60px;
+  position: relative;
+}
+
+.notes-content::before {
+  content: '"';
+  position: absolute;
+  top: -10px;
+  left: 10px;
+  font-size: 60px;
+  color: var(--primary);
+  opacity: 0.3;
+  font-family: serif;
+}
+
+/* Badges de permissions */
+.permissions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.permission-badge {
+  background: linear-gradient(135deg, #6366F1, #4F46E5);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+/* Actions du modal */
+.modal-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+  padding: 20px 30px;
+  border-top: 1px solid var(--border);
+  background: var(--background);
+}
+
+.modal-actions .btn {
+  padding: 12px 24px;
+  border-radius: var(--radius-lg);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.modal-actions .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive pour les détails */
+@media (max-width: 768px) {
+  .employee-details-modal {
+    width: 95vw;
+    max-height: 95vh;
+  }
+  
+  .employee-details-header {
+    padding: 20px;
+  }
+  
+  .employee-main-info h3 {
+    font-size: 22px;
+  }
+  
+  .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .detail-row span:last-child {
+    text-align: left;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+  
+  .status-role-badges {
+    justify-content: center;
+  }
+}

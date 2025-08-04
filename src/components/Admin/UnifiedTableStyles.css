@@ -1,0 +1,439 @@
+/* Design iOS/Apple pour le tableau unifié */
+
+/* Variables de couleurs inspirées d'iOS */
+:root {
+  --ios-blue: #007AFF;
+  --ios-green: #34C759;
+  --ios-orange: #FF9500;
+  --ios-red: #FF3B30;
+  --ios-purple: #AF52DE;
+  --ios-gray: #8E8E93;
+  --ios-light-gray: #F2F2F7;
+  --ios-background: #FFFFFF;
+  --ios-secondary-background: #F8F9FA;
+  --ios-text-primary: #000000;
+  --ios-text-secondary: #6D6D70;
+  --ios-separator: rgba(60, 60, 67, 0.12);
+  --ios-shadow: rgba(0, 0, 0, 0.1);
+}
+
+/* Container principal */
+.employees-table-container {
+  background: var(--ios-background);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px var(--ios-shadow);
+  margin: 20px 0;
+}
+
+/* Tableau unifié style iOS */
+.unified-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--ios-background);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* En-têtes de colonnes */
+.unified-table thead {
+  background: var(--ios-light-gray);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.unified-table th {
+  padding: 16px 20px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--ios-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: none;
+  background: var(--ios-light-gray);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.unified-table th:first-child {
+  padding-left: 24px;
+  border-radius: 0;
+}
+
+.unified-table th:last-child {
+  padding-right: 24px;
+  border-radius: 0;
+}
+
+/* Lignes du tableau */
+.table-row {
+  background: var(--ios-background);
+  border: none;
+  transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+}
+
+.table-row:hover {
+  background: var(--ios-secondary-background);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.table-row:active {
+  transform: translateY(0);
+  transition: all 0.1s;
+}
+
+/* Séparateur subtil entre les lignes */
+.table-row:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 24px;
+  right: 24px;
+  height: 1px;
+  background: var(--ios-separator);
+}
+
+/* Cellules */
+.unified-table td {
+  padding: 16px 20px;
+  vertical-align: middle;
+  border: none;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.unified-table td:first-child {
+  padding-left: 24px;
+}
+
+.unified-table td:last-child {
+  padding-right: 24px;
+}
+
+/* Cellule nom avec avatar */
+.name-cell .user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--ios-blue), var(--ios-purple));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.user-avatar.invitation {
+  background: linear-gradient(135deg, var(--ios-orange), var(--ios-red));
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.user-name {
+  font-weight: 600;
+  color: var(--ios-text-primary);
+  font-size: 16px;
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
+
+.user-type {
+  font-size: 13px;
+  color: var(--ios-text-secondary);
+  font-weight: 500;
+}
+
+/* Cellule email */
+.email-cell {
+  color: var(--ios-text-secondary);
+  font-family: 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
+  font-size: 14px;
+}
+
+/* Cellule téléphone */
+.phone-cell .phone-number {
+  font-family: 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
+  background: var(--ios-light-gray);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--ios-text-primary);
+  font-weight: 500;
+}
+
+/* Badges de rôle */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+  text-transform: capitalize;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Badges de statut */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.status-badge.active {
+  background: var(--ios-green);
+  color: white;
+}
+
+.status-badge.inactive {
+  background: var(--ios-gray);
+  color: white;
+}
+
+.status-badge.pending {
+  background: var(--ios-orange);
+  color: white;
+}
+
+.status-badge.accepted {
+  background: var(--ios-green);
+  color: white;
+}
+
+.status-badge.expired {
+  background: var(--ios-red);
+  color: white;
+}
+
+/* Cellule date */
+.date-cell {
+  color: var(--ios-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Actions */
+.actions-cell {
+  text-align: right;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.action-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.action-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn:active {
+  transform: scale(0.95);
+}
+
+.action-btn.primary {
+  background: var(--ios-blue);
+  color: white;
+}
+
+.action-btn.success {
+  background: var(--ios-green);
+  color: white;
+}
+
+.action-btn.warning {
+  background: var(--ios-orange);
+  color: white;
+}
+
+.action-btn.danger {
+  background: var(--ios-red);
+  color: white;
+}
+
+/* Badge invitation */
+.invitation-badge {
+  background: linear-gradient(135deg, var(--ios-orange), var(--ios-red));
+  color: white;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Lignes d'invitation avec style distinctif */
+.invitation-row {
+  background: linear-gradient(90deg, rgba(255, 149, 0, 0.05) 0%, var(--ios-background) 10%);
+  border-left: 3px solid var(--ios-orange);
+  margin-left: -3px;
+}
+
+.invitation-row:hover {
+  background: linear-gradient(90deg, rgba(255, 149, 0, 0.1) 0%, var(--ios-secondary-background) 10%);
+}
+
+.invitation-row.pending {
+  border-left-color: var(--ios-orange);
+}
+
+.invitation-row.accepted {
+  border-left-color: var(--ios-green);
+  background: linear-gradient(90deg, rgba(52, 199, 89, 0.05) 0%, var(--ios-background) 10%);
+}
+
+.invitation-row.accepted:hover {
+  background: linear-gradient(90deg, rgba(52, 199, 89, 0.1) 0%, var(--ios-secondary-background) 10%);
+}
+
+.invitation-row.expired {
+  border-left-color: var(--ios-red);
+  background: linear-gradient(90deg, rgba(255, 59, 48, 0.05) 0%, var(--ios-background) 10%);
+  opacity: 0.8;
+}
+
+.invitation-row.expired:hover {
+  background: linear-gradient(90deg, rgba(255, 59, 48, 0.1) 0%, var(--ios-secondary-background) 10%);
+}
+
+/* État vide */
+.empty-state {
+  text-align: center;
+  padding: 80px 40px;
+  background: var(--ios-background);
+}
+
+.empty-state svg {
+  color: var(--ios-gray);
+  margin-bottom: 20px;
+}
+
+.empty-state h3 {
+  color: var(--ios-text-primary);
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.empty-state p {
+  color: var(--ios-text-secondary);
+  font-size: 16px;
+  margin: 0;
+}
+
+/* État de chargement */
+.loading-state {
+  text-align: center;
+  padding: 80px 40px;
+  background: var(--ios-background);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--ios-light-gray);
+  border-top: 3px solid var(--ios-blue);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-state p {
+  color: var(--ios-text-secondary);
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .unified-table th,
+  .unified-table td {
+    padding: 12px 16px;
+  }
+  
+  .unified-table th:first-child,
+  .unified-table td:first-child {
+    padding-left: 20px;
+  }
+  
+  .unified-table th:last-child,
+  .unified-table td:last-child {
+    padding-right: 20px;
+  }
+  
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
+  }
+  
+  .user-name {
+    font-size: 15px;
+  }
+  
+  .action-buttons {
+    gap: 6px;
+  }
+  
+  .action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+  }
+}
+
+/* Mode sombre (optionnel) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ios-background: #1C1C1E;
+    --ios-secondary-background: #2C2C2E;
+    --ios-light-gray: #3A3A3C;
+    --ios-text-primary: #FFFFFF;
+    --ios-text-secondary: #EBEBF5;
+    --ios-separator: rgba(84, 84, 88, 0.65);
+  }
+}

@@ -1,0 +1,406 @@
+/* Styles iOS pour les modales */
+
+/* Variables spécifiques aux modales iOS */
+:root {
+  --ios-modal-backdrop: rgba(0, 0, 0, 0.4);
+  --ios-modal-background: #FFFFFF;
+  --ios-modal-radius: 20px;
+  --ios-modal-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  --ios-button-radius: 12px;
+  --ios-input-radius: 10px;
+  --ios-divider: rgba(60, 60, 67, 0.08);
+}
+
+/* Overlay avec effet iOS */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--ios-modal-backdrop);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: modalOverlayFadeIn 0.3s ease-out;
+}
+
+@keyframes modalOverlayFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
+
+/* Modale principale style iOS */
+.modal {
+  background: var(--ios-modal-background);
+  border-radius: var(--ios-modal-radius);
+  box-shadow: var(--ios-modal-shadow);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  animation: modalSlideIn 0.3s ease-out;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Header de la modale */
+.modal-header {
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--ios-divider);
+  position: relative;
+  background: var(--ios-background);
+}
+
+.modal-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ios-text-primary);
+  margin: 0;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: var(--ios-light-gray);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--ios-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: scale(1.05);
+}
+
+/* Contenu de la modale */
+.modal-content {
+  padding: 20px 24px;
+  max-height: calc(90vh - 160px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Modale de détails employé style iOS */
+.employee-details-modal {
+  max-width: 600px;
+}
+
+.employee-details-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 32px;
+  padding: 20px;
+  background: var(--ios-light-gray);
+  border-radius: 16px;
+}
+
+.employee-avatar {
+  width: 80px;
+  height: 80px;
+  background: var(--ios-blue);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.employee-main-info h3 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ios-text-primary);
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+}
+
+.employee-email-detail {
+  font-size: 16px;
+  color: var(--ios-text-secondary);
+  margin: 0 0 12px 0;
+}
+
+.status-role-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Grille de détails iOS */
+.employee-details-grid {
+  display: grid;
+  gap: 24px;
+}
+
+.detail-section {
+  background: var(--ios-background);
+  border: 1px solid var(--ios-divider);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.detail-section h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ios-text-primary);
+  margin: 0;
+  padding: 16px 20px;
+  background: var(--ios-light-gray);
+  border-bottom: 1px solid var(--ios-divider);
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--ios-divider);
+  min-height: 48px;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row .label {
+  font-weight: 500;
+  color: var(--ios-text-primary);
+  font-size: 15px;
+}
+
+.detail-row span:last-child {
+  color: var(--ios-text-secondary);
+  font-size: 15px;
+  text-align: right;
+  flex: 1;
+  margin-left: 16px;
+}
+
+.notes-content {
+  padding: 16px 20px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ios-text-primary);
+}
+
+/* Actions de la modale */
+.modal-actions {
+  padding: 20px 24px 24px;
+  border-top: 1px solid var(--ios-divider);
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  background: var(--ios-background);
+}
+
+/* Boutons style iOS */
+.btn {
+  padding: 12px 24px;
+  border-radius: var(--ios-button-radius);
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+  min-height: 44px;
+}
+
+.btn-primary {
+  background: var(--ios-blue);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #0056D6;
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--ios-blue);
+  border: 1.5px solid var(--ios-blue);
+}
+
+.btn-outline:hover {
+  background: var(--ios-blue);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.btn-success {
+  background: var(--ios-green);
+  color: white;
+}
+
+.btn-success:hover {
+  background: #2FB04A;
+  transform: translateY(-1px);
+}
+
+.btn-warning {
+  background: var(--ios-orange);
+  color: white;
+}
+
+.btn-warning:hover {
+  background: #E6820C;
+  transform: translateY(-1px);
+}
+
+/* Status badges améliorés */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: none;
+}
+
+.status-badge.active {
+  background: rgba(52, 199, 89, 0.15);
+  color: var(--ios-green);
+}
+
+.status-badge.inactive {
+  background: rgba(142, 142, 147, 0.15);
+  color: var(--ios-gray);
+}
+
+.status-badge.pending {
+  background: rgba(255, 149, 0, 0.15);
+  color: var(--ios-orange);
+}
+
+.status-badge.accepted {
+  background: rgba(52, 199, 89, 0.15);
+  color: var(--ios-green);
+}
+
+.status-badge.expired {
+  background: rgba(255, 59, 48, 0.15);
+  color: var(--ios-red);
+}
+
+.status-badge.invitation-badge {
+  background: rgba(0, 122, 255, 0.15);
+  color: var(--ios-blue);
+}
+
+/* Permissions list */
+.permissions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px 20px;
+}
+
+.permission-badge {
+  background: rgba(175, 82, 222, 0.15);
+  color: var(--ios-purple);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modal {
+    margin: 20px;
+    max-width: calc(100vw - 40px);
+  }
+  
+  .employee-details-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+  
+  .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 16px 20px;
+  }
+  
+  .detail-row span:last-child {
+    text-align: left;
+    margin-left: 0;
+    color: var(--ios-text-primary);
+    font-weight: 500;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Smooth scroll pour le contenu */
+.modal-content {
+  scroll-behavior: smooth;
+}
+
+.modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}

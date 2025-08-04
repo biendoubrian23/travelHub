@@ -1,0 +1,35 @@
+/* Styles pour la colonne téléphone et améliorations mineures */
+
+.employee-phone {
+  color: var(--text);
+  font-size: 14px;
+  font-family: 'Courier New', Consolas, monospace;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+/* S'assurer que la table gère bien la nouvelle colonne */
+.employees-table th:nth-child(3),
+.employees-table td:nth-child(3) {
+  min-width: 120px;
+  width: 150px;
+}
+
+/* Style pour les détails d'employé */
+.employee-details-modal .detail-row .label {
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 140px;
+}
+
+.employee-details-modal .detail-row span:last-child {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* Amélioration visuelle du téléphone dans les détails */
+.employee-details-modal .detail-row:has(.label:contains("Téléphone")) span:last-child {
+  font-family: 'Courier New', Consolas, monospace;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}

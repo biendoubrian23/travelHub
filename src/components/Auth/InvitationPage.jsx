@@ -82,6 +82,29 @@ const InvitationPage = () => {
     setError('');
 
     try {
+      console.log('🔄 Tentative de création de compte pour:', invitation.email);
+      console.log('📋 Données envoyées:', {
+        email: invitation.email,
+        full_name: `${invitation.first_name} ${invitation.last_name}`,
+        phone: invitation.phone,
+        agency_id: invitation.agency_id,
+        employee_role: invitation.employee_role,
+        invitation_token: token
+      });
+
+      // Calculer le rôle système basé sur employee_role
+      const systemRole = (() => {
+        switch(invitation.employee_role) {
+          case 'admin': return 'agency_admin';
+          case 'manager': return 'agency_manager';
+          case 'employee': return 'agency_employee';
+          case 'driver': return 'agency_driver';
+          default: return 'agency_employee';
+        }
+      })();
+
+      console.log('🎭 Rôle système calculé:', systemRole);
+
       // 1. Créer le compte utilisateur via Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: invitation.email,
@@ -90,6 +113,7 @@ const InvitationPage = () => {
           data: {
             full_name: `${invitation.first_name} ${invitation.last_name}`,
             phone: invitation.phone,
+            role: systemRole,  // ⭐ AJOUTER LE RÔLE ICI
             agency_id: invitation.agency_id,
             employee_role: invitation.employee_role,
             invitation_token: token
@@ -97,7 +121,12 @@ const InvitationPage = () => {
         }
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        console.error('❌ Erreur Auth:', authError);
+        console.error('📊 Code erreur:', authError.status);
+        console.error('📝 Message:', authError.message);
+        throw authError;
+      }
 
       if (authData.user) {
         // 2. Marquer l'invitation comme acceptée

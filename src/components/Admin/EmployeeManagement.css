@@ -43,6 +43,115 @@
   font-size: 14px;
 }
 
+/* Section Invitations Récentes */
+.recent-invitations {
+  background: var(--surface);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+  margin-bottom: var(--spacing-xl);
+}
+
+.recent-invitations h3 {
+  margin: 0 0 var(--spacing-md) 0;
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.invitations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.invitation-card {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  transition: all 0.2s ease;
+}
+
+.invitation-card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.invitation-card.accepted {
+  border-color: var(--success);
+  background: var(--success-background, #f0f9f0);
+}
+
+.invitation-card.pending {
+  border-color: var(--warning);
+  background: var(--warning-background, #fff8e1);
+}
+
+.invitation-card.expired {
+  border-color: var(--error);
+  background: var(--error-background, #fef0f0);
+  opacity: 0.8;
+}
+
+.invitation-info h4 {
+  margin: 0 0 var(--spacing-xs) 0;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.invitation-email {
+  margin: 0 0 var(--spacing-xs) 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.invitation-role {
+  background: var(--primary-light);
+  color: var(--primary);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.invitation-status {
+  margin-top: var(--spacing-sm);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-badge.pending {
+  background: var(--warning-light);
+  color: var(--warning);
+}
+
+.status-badge.accepted {
+  background: var(--success-light);
+  color: var(--success);
+}
+
+.status-badge.expired {
+  background: var(--error-light);
+  color: var(--error);
+}
+
+.invitation-success {
+  margin-top: var(--spacing-xs);
+  color: var(--success);
+  font-size: 12px;
+  font-weight: 500;
+}
+
 /* Filtres et recherche */
 .filters-section {
   background: var(--surface);
@@ -158,6 +267,12 @@
 .employee-email {
   color: var(--text-secondary);
   font-size: 14px;
+}
+
+.employee-phone {
+  color: var(--text);
+  font-size: 14px;
+  font-family: monospace;
 }
 
 .role-badge {

@@ -1,0 +1,82 @@
+/* Styles complémentaires pour harmoniser le design iOS */
+
+/* Amélioration des badges de statut dans les actions */
+.actions-cell .status-badge {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.actions-cell .status-badge.inactive {
+  background: rgba(142, 142, 147, 0.12);
+  color: #8E8E93;
+}
+
+.actions-cell .status-badge.active {
+  background: rgba(52, 199, 89, 0.12);
+  color: #34C759;
+}
+
+/* Badge "Invitation" dans la colonne Statut */
+.status-cell .invitation-badge {
+  background: rgba(0, 122, 255, 0.12);
+  color: #007AFF;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Harmonisation des couleurs de statut */
+.status-badge.pending {
+  background: rgba(255, 149, 0, 0.12);
+  color: #FF9500;
+}
+
+.status-badge.accepted {
+  background: rgba(52, 199, 89, 0.12);
+  color: #34C759;
+}
+
+.status-badge.expired {
+  background: rgba(255, 59, 48, 0.12);
+  color: #FF3B30;
+}
+
+/* Amélioration de la cellule d'actions */
+.actions-cell {
+  padding: 8px 16px !important;
+}
+
+.actions-cell .action-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Transition douce pour les badges */
+.status-badge {
+  transition: all 0.2s ease;
+}
+
+.status-badge:hover {
+  transform: scale(1.02);
+}
+
+/* Responsive pour les badges */
+@media (max-width: 768px) {
+  .actions-cell .status-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+  
+  .status-cell .invitation-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+}

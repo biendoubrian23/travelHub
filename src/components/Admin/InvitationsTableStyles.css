@@ -1,0 +1,198 @@
+/* Styles pour les tableaux d'invitations */
+
+/* Section invitations */
+.invitations-table-section {
+  margin: 20px 0;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.invitations-table-section h3 {
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Tableau des invitations en mode principal */
+.invitations-table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.invitations-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.invitations-table thead {
+  background: var(--primary-color);
+  color: white;
+}
+
+.invitations-table th {
+  padding: 16px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.invitations-table tbody tr {
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s ease;
+}
+
+.invitations-table tbody tr:hover {
+  background-color: var(--hover-bg);
+  cursor: pointer;
+}
+
+.invitations-table td {
+  padding: 16px 12px;
+  vertical-align: middle;
+}
+
+/* Styles spécifiques pour les cellules d'invitation */
+.invitation-lastname strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.invitation-firstname {
+  color: var(--text-secondary);
+}
+
+.invitation-phone .phone-number {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  background: var(--light-bg);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.invitation-status {
+  text-align: center;
+}
+
+.invitation-role .role-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: white;
+}
+
+.invitation-date {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* Invitations affichées comme employés (quand aucun employé) */
+.invitations-as-employees {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.empty-employees-header {
+  text-align: center;
+  padding: 40px 20px 20px;
+  background: var(--light-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.empty-employees-header svg {
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.empty-employees-header h3 {
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.empty-employees-header p {
+  color: var(--text-secondary);
+  margin-bottom: 0;
+}
+
+/* Styles pour les lignes d'invitation dans le tableau employés */
+.invitation-row {
+  background: linear-gradient(90deg, rgba(33, 150, 243, 0.05) 0%, rgba(255, 255, 255, 1) 10%);
+  border-left: 4px solid var(--primary-color);
+}
+
+.invitation-row:hover {
+  background: linear-gradient(90deg, rgba(33, 150, 243, 0.1) 0%, var(--hover-bg) 10%);
+}
+
+.invitation-row.pending {
+  border-left-color: #ff9800;
+}
+
+.invitation-row.accepted {
+  border-left-color: #4caf50;
+}
+
+.invitation-row.expired {
+  border-left-color: #f44336;
+  opacity: 0.7;
+}
+
+/* Status badges pour invitations */
+.invitation-row .status-badge.pending {
+  background: #ff9800;
+  color: white;
+}
+
+.invitation-row .status-badge.accepted {
+  background: #4caf50;
+  color: white;
+}
+
+.invitation-row .status-badge.expired {
+  background: #f44336;
+  color: white;
+}
+
+/* Modal styles pour invitations */
+.employee-details-modal .employee-details-header .employee-avatar svg[data-lucide="mail"] {
+  color: var(--primary-color);
+}
+
+.invitation-detail-section {
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.05) 0%, rgba(255, 255, 255, 1) 50%);
+  border: 1px solid rgba(33, 150, 243, 0.1);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .invitations-table-container {
+    font-size: 0.9rem;
+  }
+  
+  .invitations-table th,
+  .invitations-table td {
+    padding: 12px 8px;
+  }
+  
+  .empty-employees-header {
+    padding: 30px 15px 15px;
+  }
+}
+
+/* Variables CSS pour cohérence */
+:root {
+  --invitation-pending-color: #ff9800;
+  --invitation-accepted-color: #4caf50;
+  --invitation-expired-color: #f44336;
+}
