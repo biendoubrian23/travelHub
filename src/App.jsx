@@ -6,6 +6,18 @@ import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import InvitationPage from './components/Auth/InvitationPage';
 import EmployeeManagement from './components/Admin/EmployeeManagement';
+import BusManagement from './components/Bus/BusManagement';
+import TripsManagement from './components/Trips/TripsManagement';
+import TripsCalendar from './components/Trips/TripsCalendar';
+import BookingsManagement from './components/Bookings/BookingsManagement';
+import BookingsCalendar from './components/Bookings/BookingsCalendar';
+import { 
+  useRolePermissions, 
+  RoleBasedHeader, 
+  ConditionalTab,
+  EmployeeManagementComponent
+} from './components/RoleBasedComponents';
+import './components/EmployeeManagement.css';
 import './App.css';
 
 function LoadingSpinner() {
@@ -74,6 +86,7 @@ function AuthPages() {
 
 function MainApp() {
   const { userProfile, agency, hasPermission, signOut } = useAuth();
+  const { currentRole, canViewTab, isPatron } = useRolePermissions();
   const [activeRoute, setActiveRoute] = useState('dashboard');
 
   const handleLogout = async () => {
@@ -95,39 +108,109 @@ function MainApp() {
   }
 
   const renderContent = () => {
-    switch (activeRoute) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'trips':
-        return <div className="page-placeholder">
-          <h2 className="text-title">Gestion des Trajets</h2>
-          <p className="text-caption">Page en cours de développement...</p>
-        </div>;
-      case 'bookings':
-        return <div className="page-placeholder">
-          <h2 className="text-title">Gestion des Réservations</h2>
-          <p className="text-caption">Page en cours de développement...</p>
-        </div>;
-      case 'customers':
-        return <div className="page-placeholder">
-          <h2 className="text-title">Gestion des Clients</h2>
-          <p className="text-caption">Page en cours de développement...</p>
-        </div>;
-      case 'employees':
-        return <EmployeeManagement />;
-      case 'activity':
-        return <div className="page-placeholder">
-          <h2 className="text-title">Activité</h2>
-          <p className="text-caption">Page en cours de développement...</p>
-        </div>;
-      case 'settings':
-        return <div className="page-placeholder">
-          <h2 className="text-title">Paramètres</h2>
-          <p className="text-caption">Page en cours de développement...</p>
-        </div>;
-      default:
-        return <Dashboard />;
-    }
+    const getPageTitle = () => {
+      const titles = {
+        'dashboard': 'Dashboard',
+        'trips': 'Gestion des Trajets',
+        'bookings': 'Gestion des Réservations',
+        'buses': 'Gestion des Bus',
+        'customers': 'Gestion des Clients',
+        'employees': 'Gestion des Employés',
+        'activity': 'Activité',
+        'settings': 'Paramètres'
+      };
+      return titles[activeRoute] || 'Dashboard';
+    };
+
+    const content = (() => {
+      switch (activeRoute) {
+        case 'dashboard':
+          return <Dashboard />;
+        case 'trips':
+          return (
+            <ConditionalTab tabName="trips" fallback={<div className="access-denied">
+              <h3>🔒 Accès Restreint</h3>
+              <p>Vous n'avez pas accès à cette section.</p>
+            </div>}>
+              <TripsCalendar />
+            </ConditionalTab>
+          );
+        case 'bookings':
+          return (
+            <ConditionalTab tabName="bookings" fallback={<div className="access-denied">
+              <h3>🔒 Accès Restreint</h3>
+              <p>Vous n'avez pas accès à cette section.</p>
+            </div>}>
+              <BookingsCalendar />
+            </ConditionalTab>
+          );
+        case 'buses':
+          return (
+            <ConditionalTab tabName="buses" fallback={<div className="access-denied">
+              <h3>🔒 Accès Restreint</h3>
+              <p>Vous n'avez pas accès à cette section.</p>
+            </div>}>
+              <BusManagement />
+            </ConditionalTab>
+          );
+        case 'customers':
+          return (
+            <ConditionalTab tabName="customers" fallback={<div className="access-denied">
+              <h3>🔒 Accès Restreint</h3>
+              <p>Vous n'avez pas accès à cette section.</p>
+            </div>}>
+              <div className="page-placeholder">
+                <h2 className="text-title">Gestion des Clients</h2>
+                <p className="text-caption">Page en cours de développement...</p>
+              </div>
+            </ConditionalTab>
+          );
+        case 'employees':
+          return <EmployeeManagement />;
+        case 'activity':
+          return (
+            <ConditionalTab tabName="activity" fallback={<div className="access-denied">
+              <h3>🔒 Accès Restreint</h3>
+              <p>Vous n'avez pas accès à cette section.</p>
+            </div>}>
+              <div className="page-placeholder">
+                <h2 className="text-title">Activité</h2>
+                <p className="text-caption">Page en cours de développement...</p>
+              </div>
+            </ConditionalTab>
+          );
+        case 'settings':
+          return (
+            <ConditionalTab tabName="settings" fallback={<div className="access-denied">
+              <h3>🔒 Accès Restreint</h3>
+              <p>Vous n'avez pas accès à cette section.</p>
+            </div>}>
+              <div className="page-placeholder">
+                <h2 className="text-title">Paramètres</h2>
+                <p className="text-caption">Page en cours de développement...</p>
+              </div>
+            </ConditionalTab>
+          );
+        case 'test-roles':
+          return (
+            <div style={{ padding: '20px' }}>
+              <h2>🧪 Test du Système de Rôles</h2>
+              <p>Vérifiez les fonctionnalités selon votre rôle actuel.</p>
+            </div>
+          );
+        default:
+          return <Dashboard />;
+      }
+    })();
+
+    return (
+      <div className="main-content-wrapper">
+        <RoleBasedHeader currentModule={getPageTitle()} />
+        <div className="page-content">
+          {content}
+        </div>
+      </div>
+    );
   };
 
   return (

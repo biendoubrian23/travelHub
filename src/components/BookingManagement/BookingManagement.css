@@ -1,0 +1,491 @@
+/* Style iOS épuré pour la gestion des réservations */
+
+.booking-management {
+  padding: 20px;
+  background: #FAFAFA;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Header */
+.booking-header {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.booking-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1D1D1F;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* Statistiques financières */
+.financial-stats,
+.employee-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.stat-card.revenue .stat-icon {
+  background: #007AFF;
+}
+
+.stat-card.payments .stat-icon {
+  background: #FF9500;
+}
+
+.stat-card.refunds .stat-icon {
+  background: #FF3B30;
+}
+
+.stat-card.bookings .stat-icon {
+  background: #34C759;
+}
+
+.stat-card.customers .stat-icon {
+  background: #5856D6;
+}
+
+.stat-card.satisfaction .stat-icon {
+  background: #FFD60A;
+  color: #1D1D1F;
+}
+
+.stat-icon {
+  font-size: 32px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  color: white;
+}
+
+.stat-info h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #8E8E93;
+  margin: 0 0 4px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1D1D1F;
+  margin: 0 0 4px 0;
+}
+
+.stat-change {
+  font-size: 12px;
+  color: #8E8E93;
+}
+
+.stat-change.positive {
+  color: #34C759;
+}
+
+.stat-change.warning {
+  color: #FF9500;
+}
+
+/* Vue conducteur - Passagers */
+.driver-passenger-view {
+  max-width: 900px;
+}
+
+.passenger-header {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+}
+
+.passenger-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1D1D1F;
+  margin: 0 0 12px 0;
+}
+
+.trip-info {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.route {
+  font-size: 16px;
+  font-weight: 600;
+  color: #007AFF;
+}
+
+.passenger-count {
+  font-size: 14px;
+  color: #8E8E93;
+  padding: 4px 12px;
+  background: #F2F2F7;
+  border-radius: 12px;
+}
+
+/* Recherche passagers */
+.passenger-search {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #E5E5EA;
+  font-size: 16px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.filter-select {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #E5E5EA;
+  background: white;
+  font-size: 14px;
+  color: #1D1D1F;
+  min-width: 150px;
+}
+
+/* Liste passagers */
+.passenger-list {
+  display: grid;
+  gap: 12px;
+}
+
+.passenger-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
+}
+
+.passenger-card:hover {
+  transform: translateY(-2px);
+}
+
+.passenger-card.confirmed {
+  border-left: 4px solid #34C759;
+}
+
+.passenger-card.pending {
+  border-left: 4px solid #FF9500;
+}
+
+.passenger-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.passenger-main h4 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1D1D1F;
+  margin: 0 0 4px 0;
+}
+
+.passenger-main .phone {
+  font-size: 14px;
+  color: #8E8E93;
+  margin: 0 0 4px 0;
+}
+
+.passenger-main .seat {
+  font-size: 14px;
+  color: #007AFF;
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
+  display: inline-block;
+}
+
+.passenger-status {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+.checkin-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #E8F5E8;
+  color: #34C759;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.passenger-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Liste réservations */
+.booking-list {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #F2F2F7;
+}
+
+.list-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1D1D1F;
+  margin: 0;
+}
+
+.bookings-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.booking-card {
+  border: 1px solid #F2F2F7;
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.2s ease;
+}
+
+.booking-card:hover {
+  border-color: var(--role-primary, #007AFF);
+  transform: translateY(-2px);
+}
+
+.booking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.booking-id {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.id-label {
+  font-size: 12px;
+  color: #8E8E93;
+  font-weight: 600;
+}
+
+.id-value {
+  font-size: 14px;
+  color: #1D1D1F;
+  font-weight: 700;
+}
+
+.booking-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.passenger-details h4 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1D1D1F;
+  margin: 0 0 4px 0;
+}
+
+.passenger-details .phone {
+  font-size: 14px;
+  color: #8E8E93;
+  margin: 0 0 4px 0;
+}
+
+.passenger-details .trip {
+  font-size: 14px;
+  color: #007AFF;
+  margin: 0;
+}
+
+.financial-details {
+  text-align: right;
+}
+
+.financial-details .price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1D1D1F;
+  margin-bottom: 4px;
+}
+
+.payment-status {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.payment-status.paid {
+  background: #E8F5E8;
+  color: #34C759;
+}
+
+.payment-status.pending {
+  background: #FFF3E0;
+  color: #FF9500;
+}
+
+.booking-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Status badges */
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.confirmed {
+  background: #E8F5E8;
+  color: #34C759;
+}
+
+.status-badge.pending {
+  background: #FFF3E0;
+  color: #FF9500;
+}
+
+.status-badge.cancelled {
+  background: #FFEBEB;
+  color: #FF3B30;
+}
+
+/* Action buttons */
+.action-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn.primary {
+  background: var(--role-primary, #007AFF);
+  color: white;
+}
+
+.action-btn.secondary {
+  background: #F2F2F7;
+  color: var(--role-primary, #007AFF);
+}
+
+.action-btn.danger {
+  background: #FF3B30;
+  color: white;
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .booking-management {
+    padding: 16px;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+  
+  .header-actions {
+    justify-content: center;
+  }
+  
+  .financial-stats,
+  .employee-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .passenger-search {
+    flex-direction: column;
+  }
+  
+  .booking-details {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .financial-details {
+    text-align: left;
+  }
+  
+  .passenger-actions,
+  .booking-actions {
+    flex-direction: column;
+  }
+}

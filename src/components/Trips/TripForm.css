@@ -1,0 +1,407 @@
+/* Style pour le formulaire de trajet - Design iOS moderne */
+
+.trip-form {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Header du formulaire */
+.form-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f2f2f7;
+}
+
+.form-header h2 {
+  margin: 0 0 8px 0;
+  color: #1d1d1f;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.form-header p {
+  margin: 0;
+  color: #8e8e93;
+  font-size: 16px;
+}
+
+/* Sections du formulaire */
+.form-section {
+  margin-bottom: 30px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  color: #1d1d1f;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Grille du formulaire */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+/* Labels */
+.form-label {
+  color: #1d1d1f;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.required {
+  color: #ff3b30;
+}
+
+/* Inputs */
+.form-input,
+.form-select,
+.form-textarea {
+  padding: 12px 16px;
+  border: 1px solid #e5e5ea;
+  border-radius: 12px;
+  font-size: 16px;
+  font-family: inherit;
+  transition: all 0.2s;
+  background: white;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #007AFF;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.form-input:disabled {
+  background: #f2f2f7;
+  color: #8e8e93;
+  cursor: not-allowed;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Affichage de la durée */
+.duration-display {
+  background: #f0f9ff;
+  border: 1px solid #b3e5fc;
+  border-radius: 12px;
+  padding: 12px 16px;
+  text-align: center;
+}
+
+.duration-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #007AFF;
+}
+
+/* Affichage de la capacité */
+.capacity-display {
+  background: #f8f9fa;
+  border: 1px solid #e5e5ea;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.capacity-number {
+  font-size: 28px;
+  font-weight: 700;
+  color: #007AFF;
+  margin-bottom: 4px;
+}
+
+.capacity-label {
+  color: #8e8e93;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Options de statut */
+.status-options {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.status-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #f8f9fa;
+  border: 1px solid #e5e5ea;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.status-option:hover {
+  background: #f0f9ff;
+  border-color: #007AFF;
+}
+
+.status-option.selected {
+  background: #007AFF;
+  color: white;
+  border-color: #007AFF;
+}
+
+.status-option input[type="radio"] {
+  display: none;
+}
+
+.status-icon {
+  font-size: 16px;
+}
+
+.status-text {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Grille des services */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.service-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid #e5e5ea;
+}
+
+.service-checkbox:hover {
+  background: #f0f9ff;
+  border-color: #007AFF;
+}
+
+.service-checkbox.checked {
+  background: #e3f2fd;
+  border-color: #007AFF;
+}
+
+.service-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #007AFF;
+}
+
+.service-icon {
+  font-size: 18px;
+}
+
+.service-label {
+  color: #1d1d1f;
+  font-size: 14px;
+  font-weight: 500;
+  flex: 1;
+}
+
+/* Validation */
+.validation-info {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+}
+
+.validation-info.error {
+  background: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.validation-info.success {
+  background: #d4edda;
+  border-color: #c3e6cb;
+}
+
+.validation-text {
+  font-size: 12px;
+  color: #856404;
+  margin: 0;
+}
+
+.validation-info.error .validation-text {
+  color: #721c24;
+}
+
+.validation-info.success .validation-text {
+  color: #155724;
+}
+
+/* Texte d'aide */
+.help-text {
+  font-size: 12px;
+  color: #8e8e93;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.help-text.info {
+  color: #007AFF;
+}
+
+.help-text.warning {
+  color: #ff9500;
+}
+
+/* Actions du formulaire */
+.form-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #f2f2f7;
+}
+
+.btn-cancel {
+  background: #f2f2f7;
+  color: #8e8e93;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 16px;
+}
+
+.btn-cancel:hover {
+  background: #e5e5ea;
+  color: #1d1d1f;
+  transform: translateY(-1px);
+}
+
+.btn-submit {
+  background: #007AFF;
+  color: white;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 16px;
+}
+
+.btn-submit:hover {
+  background: #0056CC;
+  transform: translateY(-1px);
+}
+
+.btn-submit:disabled {
+  background: #8e8e93;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Loading state */
+.form-loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.form-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 30px;
+  height: 30px;
+  border: 3px solid #f2f2f7;
+  border-top: 3px solid #007AFF;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .trip-form {
+    padding: 20px;
+    margin: 15px;
+    border-radius: 12px;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .status-options {
+    flex-direction: column;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-header h2 {
+    font-size: 24px;
+  }
+  
+  .section-title {
+    font-size: 16px;
+  }
+  
+  .form-input,
+  .form-select,
+  .form-textarea {
+    font-size: 16px; /* Évite le zoom sur iOS */
+  }
+  
+  .capacity-number {
+    font-size: 24px;
+  }
+}

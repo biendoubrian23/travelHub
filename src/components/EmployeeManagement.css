@@ -1,0 +1,235 @@
+/* Styles pour la gestion des employés - Design iOS */
+
+.employee-management {
+  padding: 24px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  margin: 16px 0;
+}
+
+.management-header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.management-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #1d1d1f;
+}
+
+.management-header p {
+  font-size: 16px;
+  color: #86868b;
+  margin: 0;
+}
+
+/* Actions de création de rôles */
+.role-creation-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.create-role-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 56px;
+}
+
+.create-role-btn.manager {
+  background: linear-gradient(135deg, #007AFF 0%, #0056CC 100%);
+  color: white;
+}
+
+.create-role-btn.employee {
+  background: linear-gradient(135deg, #34C759 0%, #28A745 100%);
+  color: white;
+}
+
+.create-role-btn.driver {
+  background: linear-gradient(135deg, #FF9500 0%, #E6830D 100%);
+  color: white;
+}
+
+.create-role-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.create-role-btn:active {
+  transform: translateY(0);
+}
+
+/* Informations sur les permissions */
+.role-permissions-info {
+  background: #f5f5f7;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.role-permissions-info h4 {
+  margin: 0 0 16px 0;
+  color: #1d1d1f;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.role-permissions-info ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.role-permissions-info li {
+  padding: 8px 0;
+  font-size: 15px;
+  color: #424245;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Section employés existants */
+.existing-employees {
+  border-top: 1px solid #e5e5e7;
+  padding-top: 24px;
+}
+
+.existing-employees h3 {
+  margin: 0 0 16px 0;
+  color: #1d1d1f;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* Section de gestion d'équipe dans les actions rapides */
+.employee-management-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e5e7;
+}
+
+.employee-management-section h5 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.employee-management-btn {
+  width: 100%;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #6A4C93 0%, #5A3D7C 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.employee-management-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 12px rgba(106, 76, 147, 0.3);
+}
+
+/* Accès refusé */
+.access-denied {
+  text-align: center;
+  padding: 40px 20px;
+  background: #fff5f5;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  margin: 16px 0;
+}
+
+.access-denied h3 {
+  margin: 0 0 8px 0;
+  color: #dc2626;
+  font-size: 18px;
+}
+
+.access-denied p {
+  margin: 0;
+  color: #7f1d1d;
+  font-size: 14px;
+}
+
+/* Actions rapides mises à jour */
+.quick-action-btn.btn-secondary {
+  background: linear-gradient(135deg, #8e8e93 0%, #6d6d70 100%);
+  color: white;
+}
+
+.quick-action-btn.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(142, 142, 147, 0.3);
+}
+
+/* Design responsive */
+@media (max-width: 768px) {
+  .role-creation-actions {
+    grid-template-columns: 1fr;
+  }
+  
+  .employee-management {
+    padding: 16px;
+    margin: 8px 0;
+  }
+  
+  .management-header h2 {
+    font-size: 24px;
+  }
+  
+  .create-role-btn {
+    min-height: 48px;
+    font-size: 15px;
+  }
+}
+
+/* Animation d'apparition */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.employee-management {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.role-creation-actions .create-role-btn {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.role-creation-actions .create-role-btn:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.role-creation-actions .create-role-btn:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.role-creation-actions .create-role-btn:nth-child(3) {
+  animation-delay: 0.3s;
+}

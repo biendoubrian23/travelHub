@@ -156,6 +156,93 @@
   box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
 }
 
+/* Badge de rôle utilisateur */
+.user-role-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  margin-bottom: var(--spacing-sm);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.role-icon {
+  font-size: 16px;
+}
+
+.role-label {
+  text-transform: capitalize;
+}
+
+/* Badge sur les éléments de navigation */
+.nav-badge {
+  margin-left: auto;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* Animation pour les changements de rôle */
+.sidebar-header {
+  transition: all 0.3s ease;
+}
+
+.user-info {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Styles pour les différents rôles */
+.nav-item[data-role="patron"] {
+  border-left: 3px solid #8B5CF6;
+}
+
+.nav-item[data-role="manager"] {
+  border-left: 3px solid #007AFF;
+}
+
+.nav-item[data-role="employee"] {
+  border-left: 3px solid #34C759;
+}
+
+.nav-item[data-role="driver"] {
+  border-left: 3px solid #FF9500;
+}
+
+/* Message d'accès restreint */
+.access-denied {
+  text-align: center;
+  padding: 40px 20px;
+  background: #fff5f5;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  margin: 16px;
+}
+
+.access-denied h3 {
+  margin: 0 0 8px 0;
+  color: #dc2626;
+  font-size: 18px;
+}
+
+.access-denied p {
+  margin: 0;
+  color: #7f1d1d;
+  font-size: 14px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .sidebar {
@@ -166,5 +253,10 @@
   
   .sidebar.open {
     transform: translateX(0);
+  }
+  
+  .user-role-badge {
+    font-size: 12px;
+    padding: 6px 10px;
   }
 }

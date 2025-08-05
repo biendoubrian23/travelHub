@@ -1,0 +1,633 @@
+/* Style pour les détails du trajet - Design iOS moderne */
+
+.trip-detail {
+  padding: 20px;
+  background: #f8f9fa;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Header */
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.btn-back {
+  background: #007AFF;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-back:hover {
+  background: #0056CC;
+  transform: translateY(-1px);
+}
+
+.trip-title {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.trip-title h1 {
+  margin: 0;
+  color: #1d1d1f;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  width: fit-content;
+}
+
+.status-badge.status-scheduled {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.status-badge.status-in_progress {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.status-badge.status-completed {
+  background: #e8f5e8;
+  color: #2e7d32;
+}
+
+.status-badge.status-cancelled {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.status-badge.status-delayed {
+  background: #fce4ec;
+  color: #ad1457;
+}
+
+.header-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.btn-map {
+  background: #e8f5e8;
+  color: #2e7d32;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-map:hover {
+  background: #c8e6c9;
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: #007AFF;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background: #0056CC;
+  transform: translateY(-1px);
+}
+
+/* Contenu principal */
+.detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.detail-section {
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.detail-section h2 {
+  margin: 0 0 20px 0;
+  color: #1d1d1f;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* Grille des détails */
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.detail-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e5e5ea;
+}
+
+.card-header {
+  background: #e5e5ea;
+  padding: 15px 20px;
+  border-bottom: 1px solid #d1d1d6;
+}
+
+.card-header h3 {
+  margin: 0;
+  color: #1d1d1f;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.card-content {
+  padding: 20px;
+}
+
+/* Visualisation de la route */
+.route-visual {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.route-point {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.point-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.point-icon.departure {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.point-icon.arrival {
+  background: #e8f5e8;
+  color: #2e7d32;
+}
+
+.point-info {
+  flex: 1;
+}
+
+.city-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin-bottom: 4px;
+}
+
+.datetime-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.date {
+  font-size: 14px;
+  color: #8e8e93;
+  text-transform: capitalize;
+}
+
+.time {
+  font-size: 16px;
+  font-weight: 600;
+  color: #007AFF;
+}
+
+.route-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 20px;
+}
+
+.progress-line {
+  width: 4px;
+  height: 60px;
+  background: #e5e5ea;
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-fill {
+  width: 100%;
+  background: linear-gradient(180deg, #007AFF, #34c759);
+  border-radius: 2px;
+  transition: height 0.3s ease;
+}
+
+.progress-info {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.distance {
+  font-size: 14px;
+  color: #8e8e93;
+  margin-bottom: 4px;
+}
+
+.duration {
+  font-size: 16px;
+  font-weight: 600;
+  color: #34c759;
+  margin-bottom: 4px;
+}
+
+.current-progress {
+  font-size: 12px;
+  color: #007AFF;
+  background: #f0f9ff;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* Informations de base */
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #f2f2f7;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-row .label {
+  color: #8e8e93;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.info-row .value {
+  color: #1d1d1f;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.info-row .value.price {
+  color: #34c759;
+  font-size: 16px;
+}
+
+.info-row .value.revenue {
+  color: #007AFF;
+}
+
+.info-row .value.max-revenue {
+  color: #8e8e93;
+}
+
+/* Bus */
+.bus-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.bus-main-info {
+  text-align: center;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f2f2f7;
+}
+
+.bus-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1d1d1f;
+  margin-bottom: 4px;
+}
+
+.bus-plate {
+  font-size: 14px;
+  color: #8e8e93;
+  font-family: monospace;
+  background: #f2f2f7;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.bus-specs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.spec-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.spec-label {
+  color: #8e8e93;
+  font-size: 14px;
+}
+
+.spec-value {
+  color: #1d1d1f;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* Conducteur */
+.driver-profile {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.driver-avatar {
+  width: 60px;
+  height: 60px;
+  background: #ff9500;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+  font-weight: 600;
+}
+
+.driver-details {
+  flex: 1;
+}
+
+.driver-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin-bottom: 4px;
+}
+
+.driver-phone {
+  font-size: 14px;
+  color: #8e8e93;
+  font-family: monospace;
+  margin-bottom: 4px;
+}
+
+.driver-experience {
+  font-size: 12px;
+  color: #8e8e93;
+}
+
+.driver-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-contact {
+  background: #34c759;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.btn-contact:hover {
+  background: #28a745;
+  transform: translateY(-1px);
+}
+
+/* Réservations */
+.reservations-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.seats-stats {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-number {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.stat-item.occupied .stat-number {
+  color: #ff9500;
+}
+
+.stat-item.available .stat-number {
+  color: #34c759;
+}
+
+.stat-item.total .stat-number {
+  color: #007AFF;
+}
+
+.stat-label {
+  color: #8e8e93;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.occupancy-visual {
+  text-align: center;
+}
+
+.occupancy-bar-large {
+  width: 100%;
+  height: 12px;
+  background: #e5e5ea;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.occupancy-fill-large {
+  height: 100%;
+  background: linear-gradient(90deg, #34c759, #007AFF);
+  transition: width 0.3s ease;
+}
+
+.occupancy-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+/* Dernières réservations */
+.recent-bookings h3 {
+  margin: 0 0 15px 0;
+  color: #1d1d1f;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.bookings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.booking-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #f2f2f7;
+}
+
+.booking-passenger {
+  flex: 1;
+}
+
+.passenger-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin-bottom: 2px;
+}
+
+.booking-time {
+  font-size: 12px;
+  color: #8e8e93;
+}
+
+.booking-details {
+  text-align: right;
+}
+
+.seat-number {
+  font-size: 14px;
+  font-weight: 600;
+  color: #007AFF;
+  margin-bottom: 2px;
+}
+
+.booking-status {
+  font-size: 12px;
+  color: #34c759;
+}
+
+/* Notes */
+.notes-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.notes-section,
+.observations-section {
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e5e5ea;
+}
+
+.notes-section h3,
+.observations-section h3 {
+  margin: 0 0 12px 0;
+  color: #1d1d1f;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.notes-section p,
+.observations-section p {
+  margin: 0;
+  color: #1d1d1f;
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .trip-detail {
+    padding: 15px;
+  }
+  
+  .detail-header {
+    flex-direction: column;
+    gap: 20px;
+    align-items: stretch;
+  }
+  
+  .header-actions {
+    justify-content: center;
+  }
+  
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .driver-profile {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .seats-stats {
+    flex-direction: column;
+    gap: 15px;
+  }
+}

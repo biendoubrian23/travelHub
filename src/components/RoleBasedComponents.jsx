@@ -1,20 +1,71 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { ROLE_CONFIGS, DASHBOARD_WIDGETS, ROLE_ACTIONS, ROLE_MESSAGES } from '../config/roleConfiguration';
+import { SIMPLE_ROLES, hasPermission, getVisibleTabs, ROLE_THEME } from '../config/simpleRoles';
 
-// Hook personnalisé pour gérer les permissions basées sur les rôles
+// Hook personnalisé pour gérer les permissions basées sur les rôles SIMPLES
 export const useRolePermissions = () => {
   const { userProfile, employeeData, isAgencyOwner } = useAuth();
   
   // Déterminer le rôle effectif de l'utilisateur
   const getUserRole = () => {
-    if (isAgencyOwner()) return 'agence';
-    if (employeeData?.employee_role) return employeeData.employee_role;
+    console.log('🔍 DEBUG - Détermination du rôle:');
+    console.log('  - isAgencyOwner():', isAgencyOwner());
+    console.log('  - userProfile:', userProfile);
+    console.log('  - userProfile.role:', userProfile?.role);
+    console.log('  - employeeData:', employeeData);
+    
+    // 👑 PATRON - Seul propriétaire de l'agence
+    if (isAgencyOwner()) {
+      console.log('  - Résultat: PATRON');
+      return 'patron';
+    }
+    
+    // Vérifier d'abord le rôle dans userProfile.role (table users)
+    if (userProfile?.role) {
+      console.log('  - userProfile.role trouvé:', userProfile.role);
+      
+      // Mapping des rôles de la table users vers les nouveaux rôles
+      const userRoleMapping = {
+        'agency_manager': 'manager',
+        'agency_employee': 'employee', 
+        'agency_driver': 'driver',
+        'manager': 'manager',
+        'employee': 'employee',
+        'driver': 'driver',
+        'admin': 'manager'
+      };
+      
+      const mappedRole = userRoleMapping[userProfile.role];
+      if (mappedRole) {
+        console.log('  - Rôle mappé depuis userProfile:', mappedRole);
+        return mappedRole;
+      }
+    }
+    
+    // Si pas trouvé dans userProfile, vérifier employeeData (ancien système)
+    if (employeeData?.employee_role) {
+      console.log('  - employee_role trouvé:', employeeData.employee_role);
+      
+      // Mapping des anciens rôles vers les nouveaux
+      const roleMapping = {
+        'admin': 'manager',
+        'manager': 'manager', 
+        'employee': 'employee',
+        'driver': 'driver'
+      };
+      
+      const mappedRole = roleMapping[employeeData.employee_role] || 'employee';
+      console.log('  - Rôle mappé depuis employeeData:', mappedRole);
+      return mappedRole;
+    }
+    
+    console.log('  - Résultat par défaut: employee');
     return 'employee'; // Rôle par défaut
   };
 
   const currentRole = getUserRole();
-  const roleConfig = ROLE_CONFIGS[currentRole] || ROLE_CONFIGS.employee;
+  const roleConfig = SIMPLE_ROLES[currentRole] || SIMPLE_ROLES.employee;
+  const theme = ROLE_THEME[currentRole] || ROLE_THEME.employee;
 
   // Vérifier si l'utilisateur peut voir un onglet
   const canViewTab = (tabName) => {
@@ -22,44 +73,46 @@ export const useRolePermissions = () => {
   };
 
   // Vérifier les permissions pour un module spécifique
-  const hasPermission = (module, action) => {
-    const modulePermissions = roleConfig.permissions[module];
-    if (!modulePermissions) return false;
-    
-    return modulePermissions.actions?.includes(action) || 
-           modulePermissions.view?.includes(action);
+  const hasModulePermission = (module, action) => {
+    return hasPermission(currentRole, module, action);
   };
 
-  // Obtenir les widgets du dashboard pour le rôle
-  const getDashboardWidgets = () => {
-    return DASHBOARD_WIDGETS[currentRole] || DASHBOARD_WIDGETS.employee;
+  // Vérifier si c'est le patron (seul créateur de rôles)
+  const isPatron = () => {
+    return currentRole === 'patron';
   };
 
-  // Obtenir les actions disponibles pour le rôle
-  const getAvailableActions = (context = 'global') => {
-    const actions = ROLE_ACTIONS[currentRole];
-    if (!actions) return [];
-    
-    if (context === 'global') {
-      return actions.global || [];
+  // Vérifier si peut créer des employés
+  const canManageEmployees = () => {
+    return isPatron() || currentRole === 'manager'; // Patron OU Manager
+  };
+
+  // Obtenir les rôles que l'utilisateur peut créer
+  const getCreatableRoles = () => {
+    if (isPatron()) {
+      return ['manager', 'employee', 'driver']; // Patron peut tout créer
     }
-    
-    return actions.contextual?.[context] || [];
+    if (currentRole === 'manager') {
+      return ['employee', 'driver']; // Manager peut créer employee et driver
+    }
+    return []; // Autres rôles ne peuvent rien créer
   };
 
-  // Obtenir les messages personnalisés pour le rôle
-  const getRoleMessages = () => {
-    return ROLE_MESSAGES[currentRole] || ROLE_MESSAGES.employee;
+  // Vérifier si peut créer un rôle spécifique
+  const canCreateRole = (roleType) => {
+    return getCreatableRoles().includes(roleType);
   };
 
   return {
     currentRole,
     roleConfig,
+    theme,
     canViewTab,
-    hasPermission,
-    getDashboardWidgets,
-    getAvailableActions,
-    getRoleMessages,
+    hasPermission: hasModulePermission,
+    isPatron,
+    canManageEmployees,
+    getCreatableRoles,
+    canCreateRole,
     userProfile,
     employeeData
   };
@@ -101,29 +154,24 @@ export const ConditionalTab = ({ tabName, children, fallback = null }) => {
 
 // Composant pour le header personnalisé par rôle
 export const RoleBasedHeader = ({ currentModule }) => {
-  const { getRoleMessages, currentRole, userProfile } = useRolePermissions();
-  const messages = getRoleMessages();
+  const { currentRole, userProfile, roleConfig } = useRolePermissions();
 
   const getRoleIcon = () => {
-    const icons = {
-      agence: '🏢',
-      admin: '👨‍💼',
-      manager: '👔',
-      employee: '👨‍💻',
-      driver: '🚐'
-    };
-    return icons[currentRole] || '👤';
+    return roleConfig.icon || '👤';
   };
 
   const getRoleLabel = () => {
-    const labels = {
-      agence: 'Directeur Général',
-      admin: 'Administrateur',
-      manager: 'Manager',
-      employee: 'Employé',
-      driver: 'Chauffeur'
+    return roleConfig.label || 'Utilisateur';
+  };
+
+  const getWelcomeMessage = () => {
+    const messages = {
+      patron: 'Bienvenue, Patron !',
+      manager: 'Bienvenue, Manager !',
+      employee: 'Bienvenue, Employé !',
+      driver: 'Bienvenue, Conducteur !'
     };
-    return labels[currentRole] || 'Utilisateur';
+    return messages[currentRole] || 'Bienvenue !';
   };
 
   return (
@@ -131,7 +179,7 @@ export const RoleBasedHeader = ({ currentModule }) => {
       <div className="user-role-info">
         <span className="role-icon">{getRoleIcon()}</span>
         <div className="role-details">
-          <h3>{messages.welcome}</h3>
+          <h3>{getWelcomeMessage()}</h3>
           <p className="role-subtitle">
             {userProfile?.full_name} • {getRoleLabel()}
           </p>
@@ -143,139 +191,163 @@ export const RoleBasedHeader = ({ currentModule }) => {
         </div>
       </div>
       <div className="role-focus">
-        <span className="focus-label">Focus:</span>
-        <span className="focus-value">{messages.primary_focus}</span>
+        <span className="focus-label">Description:</span>
+        <span className="focus-value">{roleConfig.description}</span>
       </div>
     </div>
   );
 };
 
-// Composant pour les actions rapides basées sur le rôle
+// Composant spécialement pour la gestion des employés (Patron + Manager)
+export const EmployeeManagementComponent = () => {
+  const { canManageEmployees, getCreatableRoles, currentRole, isPatron } = useRolePermissions();
+
+  if (!canManageEmployees()) {
+    return (
+      <div className="access-denied">
+        <h3>🔒 Accès Restreint</h3>
+        <p>Seuls le patron et les managers peuvent gérer les employés.</p>
+      </div>
+    );
+  }
+
+  const creatableRoles = getCreatableRoles();
+
+  return (
+    <div className="employee-management">
+      <div className="management-header">
+        <h2>
+          {isPatron() ? '👑 Gestion des Employés (Patron)' : '👨‍💼 Gestion des Employés (Manager)'}
+        </h2>
+        <p>
+          {isPatron() 
+            ? 'En tant que patron, vous pouvez créer et gérer tous les rôles.'
+            : 'En tant que manager, vous pouvez créer des employés et des conducteurs.'
+          }
+        </p>
+      </div>
+      
+      <div className="role-creation-actions">
+        {creatableRoles.includes('manager') && (
+          <button className="create-role-btn manager" onClick={() => handleCreateRole('manager')}>
+            👨‍💼 Créer Manager
+          </button>
+        )}
+        
+        {creatableRoles.includes('employee') && (
+          <button className="create-role-btn employee" onClick={() => handleCreateRole('employee')}>
+            👨‍💻 Créer Employé
+          </button>
+        )}
+        
+        {creatableRoles.includes('driver') && (
+          <button className="create-role-btn driver" onClick={() => handleCreateRole('driver')}>
+            🚗 Créer Conducteur
+          </button>
+        )}
+      </div>
+      
+      <div className="role-permissions-info">
+        <h4>📋 Permissions de création :</h4>
+        <ul>
+          {isPatron() ? (
+            <>
+              <li>✅ Manager (complet avec finances)</li>
+              <li>✅ Employé (opérations sans finances)</li>
+              <li>✅ Conducteur (consultation uniquement)</li>
+            </>
+          ) : (
+            <>
+              <li>❌ Manager (réservé au patron)</li>
+              <li>✅ Employé (opérations sans finances)</li>
+              <li>✅ Conducteur (consultation uniquement)</li>
+            </>
+          )}
+        </ul>
+      </div>
+      
+      <div className="existing-employees">
+        <h3>Employés Existants</h3>
+        {/* Ici on afficherait la liste des employés que le rôle peut gérer */}
+      </div>
+    </div>
+  );
+};
+
+// Fonction pour créer un nouveau rôle (seulement pour le patron)
+const handleCreateRole = (roleType) => {
+  console.log(`Création d'un nouveau ${roleType} par le patron`);
+  // Ici on ouvrirait un modal de création d'employé avec le rôle spécifié
+};
+
+// Composant pour afficher les actions selon le rôle
 export const RoleBasedQuickActions = ({ context = 'global' }) => {
-  const { getAvailableActions, currentRole } = useRolePermissions();
-  const actions = getAvailableActions(context);
+  const { currentRole, isPatron, canManageEmployees } = useRolePermissions();
 
-  if (!actions.length) return null;
-
-  const getActionConfig = (actionName) => {
-    const configs = {
-      // Actions Patron
-      'create-employee': { 
-        label: 'Nouvel Employé', 
-        icon: '👤', 
-        color: 'primary',
-        shortcut: 'Ctrl+N'
-      },
-      'financial-reports': { 
-        label: 'Rapports Financiers', 
-        icon: '📊', 
-        color: 'success',
-        shortcut: 'Ctrl+R'
-      },
-      'strategic-planning': { 
-        label: 'Planification', 
-        icon: '🎯', 
-        color: 'info' 
-      },
-
-      // Actions Admin
-      'operational-management': { 
-        label: 'Gestion Opérations', 
-        icon: '⚙️', 
-        color: 'primary' 
-      },
-      'team-coordination': { 
-        label: 'Coordination Équipe', 
-        icon: '👥', 
-        color: 'secondary' 
-      },
-      'create-trips': { 
-        label: 'Nouveau Trajet', 
-        icon: '🚌', 
-        color: 'primary' 
-      },
-
-      // Actions Manager
-      'team-supervision': { 
-        label: 'Supervision', 
-        icon: '👔', 
-        color: 'info' 
-      },
-      'quality-control': { 
-        label: 'Contrôle Qualité', 
-        icon: '⭐', 
-        color: 'warning' 
-      },
-      'goal-management': { 
-        label: 'Gestion Objectifs', 
-        icon: '🎯', 
-        color: 'success' 
-      },
-
-      // Actions Employé
-      'daily-operations': { 
-        label: 'Mes Tâches', 
-        icon: '📋', 
-        color: 'primary' 
-      },
-      'customer-service': { 
-        label: 'Service Client', 
-        icon: '📞', 
-        color: 'info' 
-      },
-      'booking-processing': { 
-        label: 'Traiter Réservation', 
-        icon: '🎫', 
-        color: 'success' 
-      },
-
-      // Actions Chauffeur
-      'trip-execution': { 
-        label: 'Démarrer Trajet', 
-        icon: '🚐', 
-        color: 'primary' 
-      },
-      'passenger-management': { 
-        label: 'Gestion Passagers', 
-        icon: '👥', 
-        color: 'info' 
-      },
-      'departure-confirmation': { 
-        label: 'Confirmer Départ', 
-        icon: '✅', 
-        color: 'success' 
-      }
-    };
-
-    return configs[actionName] || { 
-      label: actionName, 
-      icon: '⚡', 
-      color: 'default' 
-    };
+  const getActionsForRole = () => {
+    switch (currentRole) {
+      case 'patron':
+        return [
+          { id: 'create-employee', label: 'Nouvel Employé', icon: '�', color: 'primary' },
+          { id: 'financial-reports', label: 'Rapports Financiers', icon: '📊', color: 'success' },
+          { id: 'manage-settings', label: 'Paramètres Agence', icon: '⚙️', color: 'info' },
+          { id: 'view-analytics', label: 'Analytics', icon: '📈', color: 'warning' }
+        ];
+      case 'manager':
+        return [
+          { id: 'create-trip', label: 'Nouveau Trajet', icon: '🚌', color: 'primary' },
+          { id: 'manage-prices', label: 'Gérer Prix', icon: '💰', color: 'success' },
+          { id: 'view-bookings', label: 'Réservations', icon: '📋', color: 'info' },
+          { id: 'create-employee-limited', label: 'Nouvel Employé', icon: '👤', color: 'secondary' }
+        ];
+      case 'employee':
+        return [
+          { id: 'add-trip', label: 'Ajouter Trajet', icon: '�', color: 'primary' },
+          { id: 'manage-services', label: 'Gérer Services', icon: '⭐', color: 'success' },
+          { id: 'customer-service', label: 'Service Client', icon: '📞', color: 'info' }
+        ];
+      case 'driver':
+        return [
+          { id: 'my-trips', label: 'Mes Trajets', icon: '�', color: 'primary' },
+          { id: 'my-passengers', label: 'Mes Passagers', icon: '👥', color: 'info' },
+          { id: 'trip-status', label: 'Statut Trajet', icon: '📍', color: 'success' }
+        ];
+      default:
+        return [];
+    }
   };
+
+  const actions = getActionsForRole();
 
   return (
     <div className="role-based-quick-actions">
       <h4>Actions Rapides</h4>
       <div className="quick-actions-grid">
-        {actions.slice(0, 6).map(action => {
-          const config = getActionConfig(action);
-          return (
-            <button
-              key={action}
-              className={`quick-action-btn btn-${config.color}`}
-              title={config.shortcut ? `${config.label} (${config.shortcut})` : config.label}
-              onClick={() => handleQuickAction(action)}
-            >
-              <span className="action-icon">{config.icon}</span>
-              <span className="action-label">{config.label}</span>
-              {config.shortcut && (
-                <span className="action-shortcut">{config.shortcut}</span>
-              )}
-            </button>
-          );
-        })}
+        {actions.map(action => (
+          <button
+            key={action.id}
+            className={`quick-action-btn btn-${action.color}`}
+            onClick={() => handleQuickAction(action.id)}
+          >
+            <span className="action-icon">{action.icon}</span>
+            <span className="action-label">{action.label}</span>
+          </button>
+        ))}
       </div>
+      
+      {canManageEmployees() && (
+        <div className="employee-management-section">
+          <h5>
+            {isPatron() ? '👑 Actions Patron Exclusives' : '👨‍💼 Gestion Équipe'}
+          </h5>
+          <button 
+            className="employee-management-btn"
+            onClick={() => handleQuickAction('manage-employees')}
+          >
+            👥 {isPatron() ? 'Gérer Employés & Rôles' : 'Créer Employés/Conducteurs'}
+          </button>
+        </div>
+      )}
     </div>
   );
 };

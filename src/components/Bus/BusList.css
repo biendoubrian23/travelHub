@@ -1,0 +1,384 @@
+/* Style pour la liste des bus - Design iOS moderne */
+
+.bus-list {
+  padding: 0;
+}
+
+.bus-list-header {
+  padding: 20px 25px;
+  border-bottom: 1px solid #e5e5ea;
+  background: #f8f9fa;
+}
+
+.bus-list-header h2 {
+  margin: 0;
+  color: #1d1d1f;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* Table desktop */
+.bus-table-container {
+  overflow-x: auto;
+}
+
+.bus-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.bus-table th {
+  background: #f8f9fa;
+  padding: 15px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #1d1d1f;
+  border-bottom: 2px solid #e5e5ea;
+  white-space: nowrap;
+}
+
+.bus-table td {
+  padding: 15px 12px;
+  border-bottom: 1px solid #f2f2f7;
+  vertical-align: top;
+}
+
+.bus-row:hover {
+  background: #f8f9fa;
+}
+
+/* Bus info */
+.bus-info {
+  min-width: 120px;
+}
+
+.bus-number {
+  font-weight: 600;
+  color: #1d1d1f;
+  margin-bottom: 4px;
+}
+
+.bus-plate {
+  font-size: 12px;
+  color: #8e8e93;
+}
+
+/* Vehicle info */
+.vehicle-info {
+  min-width: 160px;
+}
+
+.vehicle-brand {
+  font-weight: 500;
+  color: #1d1d1f;
+  margin-bottom: 6px;
+}
+
+.vehicle-features {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.feature-tag {
+  background: #e5f3ff;
+  color: #007AFF;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+/* Capacity info */
+.capacity-info {
+  min-width: 100px;
+}
+
+.capacity-total {
+  font-weight: 600;
+  color: #1d1d1f;
+  margin-bottom: 4px;
+}
+
+.capacity-occupied {
+  font-size: 12px;
+  color: #ff9500;
+}
+
+/* Status */
+.status-info {
+  min-width: 120px;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.status-badge.status-available {
+  background: #d1f2eb;
+  color: #00875f;
+}
+
+.status-badge.status-in_service {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.status-maintenance {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Route info */
+.route-info {
+  min-width: 140px;
+}
+
+.route-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.route-path {
+  font-weight: 500;
+  color: #1d1d1f;
+}
+
+.route-time {
+  font-size: 12px;
+  color: #8e8e93;
+}
+
+.no-route {
+  color: #8e8e93;
+  font-style: italic;
+}
+
+/* Driver info */
+.driver-info {
+  min-width: 140px;
+}
+
+.driver-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.driver-name {
+  font-weight: 500;
+  color: #1d1d1f;
+}
+
+.driver-phone {
+  font-size: 12px;
+  color: #8e8e93;
+}
+
+.no-driver {
+  color: #8e8e93;
+  font-style: italic;
+}
+
+/* Maintenance info */
+.maintenance-info {
+  min-width: 130px;
+}
+
+.maintenance-status {
+  margin-bottom: 6px;
+}
+
+.maintenance-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.maintenance-badge.good {
+  background: #d1f2eb;
+  color: #00875f;
+}
+
+.maintenance-badge.needs_attention {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.next-check {
+  font-size: 11px;
+  color: #8e8e93;
+}
+
+/* Actions */
+.actions-info {
+  min-width: 140px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.action-buttons button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-view {
+  background: #e5f3ff;
+  color: #007AFF;
+}
+
+.btn-view:hover {
+  background: #cce7ff;
+}
+
+.btn-seating {
+  background: #f0f9ff;
+  color: #0891b2;
+}
+
+.btn-seating:hover {
+  background: #e0f7fa;
+}
+
+.btn-edit {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.btn-edit:hover {
+  background: #ffe4a3;
+}
+
+.btn-delete {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.btn-delete:hover {
+  background: #f1aeb5;
+}
+
+/* Version mobile */
+.bus-cards-mobile {
+  display: none;
+}
+
+.bus-card-mobile {
+  padding: 20px;
+  border-bottom: 1px solid #e5e5ea;
+  background: white;
+}
+
+.bus-card-mobile:last-child {
+  border-bottom: none;
+}
+
+.bus-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.bus-title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bus-title strong {
+  font-size: 16px;
+  color: #1d1d1f;
+}
+
+.bus-brand {
+  font-size: 14px;
+  color: #8e8e93;
+}
+
+.bus-card-content {
+  margin-bottom: 20px;
+}
+
+.bus-detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f2f2f7;
+}
+
+.bus-detail-row:last-child {
+  border-bottom: none;
+}
+
+.label {
+  color: #8e8e93;
+  font-size: 14px;
+}
+
+.value {
+  color: #1d1d1f;
+  font-weight: 500;
+  font-size: 14px;
+  text-align: right;
+}
+
+.occupied {
+  color: #ff9500;
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+.bus-card-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.bus-card-actions button {
+  flex: 1;
+  min-width: 120px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .bus-table-container {
+    display: none;
+  }
+  
+  .bus-cards-mobile {
+    display: block;
+  }
+}

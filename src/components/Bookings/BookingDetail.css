@@ -1,0 +1,694 @@
+/* ===============================================
+   BOOKING DETAIL - STYLE PRINCIPAL
+   =============================================== */
+
+.booking-detail {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===============================================
+   EN-TÊTE DU DÉTAIL
+   =============================================== */
+
+.detail-header {
+  text-align: center;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid rgba(52, 152, 219, 0.1);
+}
+
+.detail-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 8px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.booking-id {
+  font-size: 16px;
+  color: #7f8c8d;
+  font-weight: 500;
+  margin: 0 0 16px 0;
+}
+
+/* ===============================================
+   STATUT DE LA RÉSERVATION
+   =============================================== */
+
+.booking-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.booking-status.confirmed {
+  background: rgba(39, 174, 96, 0.1);
+  color: #27ae60;
+  border: 1px solid rgba(39, 174, 96, 0.3);
+}
+
+.booking-status.pending {
+  background: rgba(241, 196, 15, 0.1);
+  color: #f39c12;
+  border: 1px solid rgba(241, 196, 15, 0.3);
+}
+
+.booking-status.cancelled {
+  background: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
+  border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+.booking-status.completed {
+  background: rgba(155, 89, 182, 0.1);
+  color: #9b59b6;
+  border: 1px solid rgba(155, 89, 182, 0.3);
+}
+
+/* ===============================================
+   SECTIONS PRINCIPALES
+   =============================================== */
+
+.detail-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.detail-section {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid rgba(52, 152, 219, 0.1);
+  transition: all 0.3s ease;
+}
+
+.detail-section:hover {
+  box-shadow: 0 8px 25px rgba(52, 152, 219, 0.15);
+  transform: translateY(-2px);
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(52, 152, 219, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ===============================================
+   PROFIL DU PASSAGER
+   =============================================== */
+
+.passenger-profile {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.passenger-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: white;
+  margin: 0 auto 16px auto;
+  border: 4px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.passenger-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 4px 0;
+}
+
+.passenger-contact {
+  font-size: 14px;
+  color: #7f8c8d;
+  margin: 0;
+}
+
+/* ===============================================
+   INFORMATIONS DÉTAILLÉES
+   =============================================== */
+
+.info-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(52, 152, 219, 0.1);
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #34495e;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c3e50;
+  text-align: right;
+}
+
+.info-value.price {
+  color: #27ae60;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.info-value.seat {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* ===============================================
+   TRAJET ET ITINÉRAIRE
+   =============================================== */
+
+.trip-route {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(52, 152, 219, 0.2);
+}
+
+.route-visual {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.route-point {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.route-city {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 4px;
+}
+
+.route-time {
+  font-size: 13px;
+  color: #7f8c8d;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.route-arrow {
+  font-size: 24px;
+  color: #3498db;
+  margin: 0 16px;
+  flex-shrink: 0;
+}
+
+.trip-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.trip-detail-item {
+  background: rgba(255, 255, 255, 0.6);
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(52, 152, 219, 0.1);
+}
+
+.trip-detail-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #7f8c8d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.trip-detail-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* ===============================================
+   INFORMATIONS FINANCIÈRES
+   =============================================== */
+
+.financial-info {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  color: white;
+  border-radius: 16px;
+  padding: 24px;
+  margin: 24px 0;
+}
+
+.financial-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.financial-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.financial-item.total {
+  background: rgba(39, 174, 96, 0.2);
+  border-color: rgba(39, 174, 96, 0.4);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.financial-label {
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.financial-value {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* ===============================================
+   STATUT DU PAIEMENT
+   =============================================== */
+
+.payment-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.payment-status.paid {
+  background: rgba(39, 174, 96, 0.2);
+  color: #27ae60;
+  border: 1px solid rgba(39, 174, 96, 0.4);
+}
+
+.payment-status.pending {
+  background: rgba(241, 196, 15, 0.2);
+  color: #f39c12;
+  border: 1px solid rgba(241, 196, 15, 0.4);
+}
+
+.payment-status.failed {
+  background: rgba(231, 76, 60, 0.2);
+  color: #e74c3c;
+  border: 1px solid rgba(231, 76, 60, 0.4);
+}
+
+/* ===============================================
+   CHRONOLOGIE DE LA RÉSERVATION
+   =============================================== */
+
+.booking-timeline {
+  grid-column: 1 / -1;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid rgba(52, 152, 219, 0.1);
+}
+
+.timeline-container {
+  position: relative;
+  padding-left: 32px;
+}
+
+.timeline-container::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, #3498db, #2980b9);
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 24px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  padding: 16px 20px;
+  border: 1px solid rgba(52, 152, 219, 0.1);
+  transition: all 0.3s ease;
+}
+
+.timeline-item:hover {
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.15);
+  transform: translateX(4px);
+}
+
+.timeline-item:last-child {
+  margin-bottom: 0;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -38px;
+  top: 20px;
+  width: 12px;
+  height: 12px;
+  background: #3498db;
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: 0 0 0 2px #3498db;
+}
+
+.timeline-date {
+  font-size: 12px;
+  font-weight: 600;
+  color: #7f8c8d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.timeline-event {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 4px;
+}
+
+.timeline-details {
+  font-size: 13px;
+  color: #7f8c8d;
+  line-height: 1.4;
+}
+
+/* ===============================================
+   BOUTONS D'ACTION
+   =============================================== */
+
+.detail-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px solid rgba(52, 152, 219, 0.1);
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 140px;
+  justify-content: center;
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.action-btn.secondary {
+  background: rgba(149, 165, 166, 0.1);
+  color: #7f8c8d;
+  border: 2px solid rgba(149, 165, 166, 0.3);
+}
+
+.action-btn.danger {
+  background: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
+  border: 2px solid rgba(231, 76, 60, 0.3);
+}
+
+.action-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn.primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2980b9 0%, #1f5f8b 100%);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+.action-btn.danger:hover:not(:disabled) {
+  background: rgba(231, 76, 60, 0.2);
+  box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ===============================================
+   RESPONSIVE DESIGN
+   =============================================== */
+
+@media (max-width: 968px) {
+  .detail-content {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .booking-timeline {
+    grid-column: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .booking-detail {
+    margin: 16px;
+    padding: 24px 16px;
+    border-radius: 16px;
+  }
+
+  .detail-header h1 {
+    font-size: 26px;
+  }
+
+  .section-title {
+    font-size: 18px;
+  }
+
+  .route-visual {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .route-arrow {
+    transform: rotate(90deg);
+    margin: 8px 0;
+  }
+
+  .trip-details {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .financial-grid,
+  .info-grid {
+    gap: 12px;
+  }
+
+  .detail-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .action-btn {
+    width: 100%;
+    padding: 16px;
+  }
+
+  .timeline-container {
+    padding-left: 24px;
+  }
+
+  .timeline-container::before {
+    left: 8px;
+  }
+
+  .timeline-item::before {
+    left: -30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .booking-detail {
+    margin: 8px;
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .detail-section {
+    padding: 16px;
+  }
+
+  .passenger-avatar {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+  }
+
+  .section-title {
+    font-size: 16px;
+  }
+
+  .info-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .info-value {
+    text-align: left;
+  }
+
+  .financial-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    text-align: left;
+  }
+}
+
+/* ===============================================
+   THÈME SOMBRE (si nécessaire)
+   =============================================== */
+
+@media (prefers-color-scheme: dark) {
+  .booking-detail {
+    background: rgba(44, 62, 80, 0.95);
+    border-color: rgba(52, 152, 219, 0.3);
+  }
+
+  .detail-header h1,
+  .section-title,
+  .passenger-name,
+  .info-label,
+  .info-value,
+  .trip-detail-value,
+  .timeline-event {
+    color: #ecf0f1;
+  }
+
+  .booking-id,
+  .passenger-contact,
+  .info-value:not(.price):not(.seat),
+  .trip-detail-label,
+  .timeline-date,
+  .timeline-details {
+    color: #bdc3c7;
+  }
+
+  .detail-section {
+    background: rgba(52, 73, 94, 0.8);
+    border-color: rgba(52, 152, 219, 0.2);
+  }
+
+  .trip-route {
+    background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+  }
+
+  .route-city {
+    color: #ecf0f1;
+  }
+
+  .route-time {
+    background: rgba(44, 62, 80, 0.8);
+    color: #bdc3c7;
+  }
+
+  .trip-detail-item {
+    background: rgba(44, 62, 80, 0.6);
+    border-color: rgba(52, 152, 219, 0.2);
+  }
+
+  .timeline-item {
+    background: rgba(52, 73, 94, 0.8);
+    border-color: rgba(52, 152, 219, 0.2);
+  }
+}

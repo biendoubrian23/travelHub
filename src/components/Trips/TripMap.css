@@ -1,0 +1,471 @@
+/* Style pour la carte des trajets - Design iOS moderne */
+
+.trip-map {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header de la carte */
+.map-header {
+  background: #f8f9fa;
+  padding: 20px;
+  border-bottom: 1px solid #e5e5ea;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.map-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.map-title h3 {
+  margin: 0;
+  color: #1d1d1f;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.map-controls {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-zoom-in,
+.btn-zoom-out,
+.btn-center {
+  background: #f2f2f7;
+  color: #1d1d1f;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-zoom-in:hover,
+.btn-zoom-out:hover,
+.btn-center:hover {
+  background: #e5e5ea;
+  transform: translateY(-1px);
+}
+
+/* Container de la carte */
+.map-container {
+  flex: 1;
+  position: relative;
+  min-height: 400px;
+  background: linear-gradient(135deg, #e3f2fd 0%, #f0f9ff 100%);
+  overflow: hidden;
+}
+
+/* Canvas/Zone de dessin simulée */
+.map-canvas {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(0, 122, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(52, 199, 89, 0.1) 0%, transparent 50%),
+    linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
+
+/* Simulation d'une carte avec routes */
+.map-canvas::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(45deg, transparent 45%, rgba(229, 229, 234, 0.3) 45%, rgba(229, 229, 234, 0.3) 55%, transparent 55%),
+    linear-gradient(-45deg, transparent 45%, rgba(229, 229, 234, 0.2) 45%, rgba(229, 229, 234, 0.2) 55%, transparent 55%);
+  background-size: 40px 40px;
+  opacity: 0.5;
+}
+
+/* Légende de la carte */
+.map-legend {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  min-width: 200px;
+}
+
+.legend-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin-bottom: 12px;
+}
+
+.legend-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+.legend-color.scheduled {
+  background: #e3f2fd;
+  border: 2px solid #1976d2;
+}
+
+.legend-color.in_progress {
+  background: #fff3e0;
+  border: 2px solid #f57c00;
+}
+
+.legend-color.completed {
+  background: #e8f5e8;
+  border: 2px solid #2e7d32;
+}
+
+.legend-color.cancelled {
+  background: #ffebee;
+  border: 2px solid #c62828;
+}
+
+/* Villes sur la carte */
+.map-cities {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.city-marker {
+  position: absolute;
+  background: white;
+  border: 3px solid #007AFF;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translate(-50%, -50%);
+  pointer-events: all;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.city-marker:hover {
+  transform: translate(-50%, -50%) scale(1.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.city-label {
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1d1d1f;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.city-marker:hover .city-label {
+  opacity: 1;
+}
+
+/* Routes sur la carte */
+.route-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.route-line {
+  position: absolute;
+  height: 3px;
+  background: linear-gradient(90deg, #007AFF, #34c759);
+  border-radius: 2px;
+  opacity: 0.8;
+  transform-origin: left center;
+  transition: all 0.3s;
+}
+
+.route-line.active {
+  height: 5px;
+  opacity: 1;
+  box-shadow: 0 0 10px rgba(0, 122, 255, 0.5);
+}
+
+.route-line.scheduled {
+  background: linear-gradient(90deg, #1976d2, #42a5f5);
+}
+
+.route-line.in_progress {
+  background: linear-gradient(90deg, #f57c00, #ffb74d);
+  animation: pulse 2s infinite;
+}
+
+.route-line.completed {
+  background: linear-gradient(90deg, #2e7d32, #66bb6a);
+}
+
+.route-line.cancelled {
+  background: #c62828;
+  opacity: 0.4;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+/* Popup d'information de trajet */
+.trip-popup {
+  position: absolute;
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  max-width: 280px;
+  z-index: 100;
+  pointer-events: all;
+  transform: translate(-50%, -100%);
+  margin-top: -10px;
+}
+
+.trip-popup::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: white;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.popup-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin: 0;
+}
+
+.popup-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #8e8e93;
+  font-size: 16px;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.popup-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.popup-label {
+  color: #8e8e93;
+}
+
+.popup-value {
+  color: #1d1d1f;
+  font-weight: 500;
+}
+
+.popup-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.popup-status.scheduled {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.popup-status.in_progress {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.popup-status.completed {
+  background: #e8f5e8;
+  color: #2e7d32;
+}
+
+.popup-status.cancelled {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.popup-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.btn-popup {
+  flex: 1;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-view {
+  background: #f0f9ff;
+  color: #007AFF;
+}
+
+.btn-view:hover {
+  background: #e0f7fa;
+}
+
+/* Zone vide */
+.map-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #8e8e93;
+  text-align: center;
+}
+
+.map-empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.map-empty h3 {
+  margin: 0 0 8px 0;
+  color: #1d1d1f;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.map-empty p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .map-header {
+    padding: 15px;
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .map-title {
+    justify-content: center;
+  }
+  
+  .map-controls {
+    justify-content: center;
+  }
+  
+  .map-legend {
+    position: static;
+    margin: 15px;
+    width: auto;
+  }
+  
+  .trip-popup {
+    max-width: 250px;
+    font-size: 12px;
+  }
+  
+  .city-marker {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .route-line {
+    height: 2px;
+  }
+  
+  .route-line.active {
+    height: 3px;
+  }
+}
+
+@media (max-width: 480px) {
+  .map-container {
+    min-height: 300px;
+  }
+  
+  .map-legend {
+    margin: 10px;
+    padding: 12px;
+  }
+  
+  .popup-actions {
+    flex-direction: column;
+  }
+}

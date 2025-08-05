@@ -1,0 +1,567 @@
+/* Style pour les détails du bus - Design iOS moderne */
+
+.bus-detail {
+  padding: 20px;
+  background: #f8f9fa;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Header */
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.btn-back {
+  background: #007AFF;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-back:hover {
+  background: #0056CC;
+  transform: translateY(-1px);
+}
+
+.bus-title {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bus-title h1 {
+  margin: 0;
+  color: #1d1d1f;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  width: fit-content;
+}
+
+.status-badge.status-available {
+  background: #d1f2eb;
+  color: #00875f;
+}
+
+.status-badge.status-in_service {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.status-maintenance {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.header-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.btn-seating {
+  background: #f0f9ff;
+  color: #0891b2;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-seating:hover {
+  background: #e0f7fa;
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: #007AFF;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background: #0056CC;
+  transform: translateY(-1px);
+}
+
+/* Contenu principal */
+.detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.detail-section {
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.detail-section h2 {
+  margin: 0 0 20px 0;
+  color: #1d1d1f;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* Grille des détails */
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.detail-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e5e5ea;
+}
+
+.card-header {
+  background: #e5e5ea;
+  padding: 15px 20px;
+  border-bottom: 1px solid #d1d1d6;
+}
+
+.card-header h3 {
+  margin: 0;
+  color: #1d1d1f;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.card-content {
+  padding: 20px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #f2f2f7;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-row .label {
+  color: #8e8e93;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.info-row .value {
+  color: #1d1d1f;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Capacité */
+.capacity-overview {
+  text-align: center;
+}
+
+.capacity-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.capacity-number {
+  font-size: 48px;
+  font-weight: 700;
+  color: #007AFF;
+  line-height: 1;
+}
+
+.capacity-label {
+  color: #8e8e93;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.occupancy-breakdown {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 15px;
+}
+
+.occupancy-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.occupancy-count {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.occupancy-item.occupied .occupancy-count {
+  color: #ff9500;
+}
+
+.occupancy-item.available .occupancy-count {
+  color: #34c759;
+}
+
+.occupancy-label {
+  color: #8e8e93;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.occupancy-rate {
+  background: #f2f2f7;
+  padding: 10px 15px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rate-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1d1d1f;
+}
+
+.rate-label {
+  color: #8e8e93;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Équipements */
+.features-container {
+  margin-top: 10px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #f2f2f7;
+  border-radius: 12px;
+  border: 1px solid #e5e5ea;
+}
+
+.feature-icon {
+  font-size: 18px;
+}
+
+.feature-name {
+  color: #1d1d1f;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.no-features {
+  text-align: center;
+  padding: 20px;
+  color: #8e8e93;
+  font-style: italic;
+}
+
+/* Trajet */
+.route-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e5e5ea;
+}
+
+.route-path {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.route-from,
+.route-to {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.city-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin-bottom: 4px;
+}
+
+.departure-time,
+.arrival-time {
+  font-size: 12px;
+  color: #8e8e93;
+  background: white;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.route-arrow {
+  font-size: 24px;
+  color: #007AFF;
+  margin: 0 20px;
+}
+
+.route-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e5e5ea;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #007AFF, #0056CC);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: #8e8e93;
+  text-align: center;
+}
+
+/* Conducteur */
+.driver-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e5e5ea;
+}
+
+.driver-avatar {
+  width: 60px;
+  height: 60px;
+  background: #007AFF;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+}
+
+.driver-info {
+  flex: 1;
+}
+
+.driver-info h3 {
+  margin: 0 0 8px 0;
+  color: #1d1d1f;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.driver-info p {
+  margin: 0;
+  color: #8e8e93;
+  font-size: 14px;
+}
+
+.driver-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-contact {
+  background: #34c759;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.btn-contact:hover {
+  background: #28a745;
+  transform: translateY(-1px);
+}
+
+/* Maintenance */
+.maintenance-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e5e5ea;
+}
+
+.maintenance-status {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.maintenance-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.maintenance-badge.good {
+  background: #d1f2eb;
+  color: #00875f;
+}
+
+.maintenance-badge.needs_attention {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.maintenance-badge.critical {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.maintenance-details {
+  margin-bottom: 20px;
+}
+
+.maintenance-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #f2f2f7;
+}
+
+.maintenance-row:last-child {
+  border-bottom: none;
+}
+
+.maintenance-row .label {
+  color: #8e8e93;
+  font-size: 14px;
+}
+
+.maintenance-row .value {
+  color: #1d1d1f;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.maintenance-actions {
+  text-align: center;
+}
+
+.btn-maintenance {
+  background: #ff9500;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-maintenance:hover {
+  background: #e6890e;
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .bus-detail {
+    padding: 15px;
+  }
+  
+  .detail-header {
+    flex-direction: column;
+    gap: 20px;
+    align-items: stretch;
+  }
+  
+  .header-actions {
+    justify-content: center;
+  }
+  
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .route-path {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .route-arrow {
+    transform: rotate(90deg);
+    margin: 10px 0;
+  }
+  
+  .driver-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .features-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+}
