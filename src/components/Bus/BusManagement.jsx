@@ -172,29 +172,10 @@ const BusManagement = () => {
 
   if (loading && buses.length === 0) {
     return (
-      <div className="bus-management loading">
-        <div className="loading-spinner">
-          <div className="spectacular-bus-loader">
-            <div className="bus-convoy">
-              <div className="bus-item">🚌</div>
-              <div className="bus-item">🚍</div>
-              <div className="bus-item">🚐</div>
-            </div>
-            <div className="bus-fleet-text">
-              <h3>🔍 Inspection de la flotte...</h3>
-              <div className="loading-progress">
-                <div className="progress-bar">
-                  <div className="progress-fill"></div>
-                </div>
-                <p>Vérification des véhicules en cours</p>
-              </div>
-            </div>
-            <div className="bus-status-icons">
-              <span className="status-icon">🔧</span>
-              <span className="status-icon">⛽</span>
-              <span className="status-icon">✅</span>
-            </div>
-          </div>
+      <div className="bus-loading-container">
+        <div className="simple-loader">
+          <div className="bus-emoji">🚌</div>
+          <h3>Chargement...</h3>
         </div>
       </div>
     );

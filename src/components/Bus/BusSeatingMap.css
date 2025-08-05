@@ -1,11 +1,12 @@
 /* Style pour le plan des sièges - Design iOS moderne */
 
 .bus-seating-map {
-  height: 100vh;
+  min-height: 100vh; /* Hauteur minimale, peut s'étendre */
   display: flex;
   flex-direction: column;
   background: #f8f9fa;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* Pas de overflow hidden - utilise le scroll principal */
 }
 
 /* Header */
@@ -151,22 +152,22 @@
 .seating-legend {
   display: flex;
   justify-content: center;
-  gap: 30px;
-  padding: 15px 25px;
+  gap: 25px;
+  padding: 12px 25px; /* Padding réduit */
   background: white;
-  margin-bottom: 20px;
   border-radius: 16px;
-  margin: 0 25px 20px 25px;
+  margin: 0 25px 15px 25px; /* Marge réduite */
+  flex-shrink: 0; /* Empêcher la légende de rétrécir */
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .legend-label {
-  font-size: 14px;
+  font-size: 13px; /* Taille légèrement réduite */
   color: #1d1d1f;
   font-weight: 500;
 }
@@ -174,9 +175,10 @@
 /* Contenu principal */
 .seating-content {
   flex: 1;
-  padding: 0 25px;
+  padding: 0 25px 25px 25px;
   display: flex;
   gap: 20px;
+  /* Suppression de min-height - laisse le contenu s'étendre naturellement */
 }
 
 /* Vue visuelle du bus */
@@ -184,17 +186,23 @@
   flex: 1;
   background: white;
   border-radius: 16px;
-  padding: 30px;
-  overflow: auto;
+  padding: 20px;
+  /* Suppression du overflow - utilise le scroll principal */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .bus-container {
-  max-width: 600px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 450px; /* Largeur réduite pour un format plus vertical */
+  min-width: 350px;
   background: #f8f9fa;
   border-radius: 20px;
-  padding: 20px;
+  padding: 25px 20px;
   border: 3px solid #d1d1d6;
+  margin: 0 auto;
+  /* Le conteneur s'étend naturellement en hauteur */
 }
 
 /* Avant du bus */
@@ -216,43 +224,47 @@
 .seating-area {
   background: white;
   border-radius: 12px;
-  padding: 20px 15px;
+  padding: 25px 20px;
+  /* Suppression de min-height - la zone s'adapte au contenu */
 }
 
 .seat-row {
   display: flex;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 12px;
-  padding: 0 10px;
+  gap: 12px;
+  margin-bottom: 15px; /* Espacement augmenté entre les rangées */
+  padding: 0 5px;
+  justify-content: center;
 }
 
 .row-number {
-  width: 30px;
+  width: 25px;
   text-align: center;
   font-weight: 600;
   color: #8e8e93;
   font-size: 12px;
+  flex-shrink: 0;
 }
 
 .seats-left,
 .seats-right {
   display: flex;
-  gap: 8px;
+  gap: 10px; /* Espacement augmenté entre les sièges */
 }
 
 .aisle {
-  width: 40px;
+  width: 35px; /* Largeur d'allée réduite pour optimiser l'espace */
   height: 2px;
   background: #d1d1d6;
   border-radius: 1px;
+  flex-shrink: 0;
 }
 
 /* Sièges */
 .seat {
-  width: 45px;
-  height: 45px;
-  border-radius: 12px;
+  width: 55px; /* Taille augmentée */
+  height: 55px; /* Taille augmentée */
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -261,10 +273,13 @@
   transition: all 0.2s;
   border: 2px solid transparent;
   position: relative;
+  /* Améliorer la visibilité */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .seat:hover {
-  transform: scale(1.05);
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .seat-empty {
@@ -298,14 +313,15 @@
 }
 
 .seat-icon {
-  font-size: 16px;
-  margin-bottom: 2px;
+  font-size: 20px; /* Icônes plus grandes */
+  margin-bottom: 3px;
 }
 
 .seat-number {
-  font-size: 10px;
+  font-size: 11px; /* Numéros légèrement plus grands */
   font-weight: 600;
   color: #1d1d1f;
+  line-height: 1;
 }
 
 /* Arrière du bus */
@@ -329,7 +345,7 @@
   background: white;
   border-radius: 16px;
   padding: 20px;
-  overflow: auto;
+  /* Suppression du overflow - utilise le scroll principal */
 }
 
 .seats-table {
@@ -458,7 +474,7 @@
 .panel-content {
   flex: 1;
   padding: 20px;
-  overflow-y: auto;
+  /* Suppression du overflow - utilise le scroll principal */
 }
 
 .seat-info {
