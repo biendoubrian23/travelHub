@@ -174,8 +174,15 @@ const BusManagement = () => {
     return (
       <div className="bus-management loading">
         <div className="loading-spinner">
-          <div className="spinner"></div>
-          <p>Chargement des bus...</p>
+          <div className="fun-mini-loader">
+            <div className="bus-management-icon">🚍</div>
+            <div className="loading-dots-small">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+          <p>Recherche des bus...</p>
         </div>
       </div>
     );

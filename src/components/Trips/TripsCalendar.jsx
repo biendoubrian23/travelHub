@@ -477,8 +477,15 @@ const TripsCalendar = () => {
       <div className="trips-content">
         {loading ? (
           <div className="loading-state">
-            <div className="loading-spinner"></div>
-            <p>Chargement des trajets...</p>
+            <div className="fun-mini-loader">
+              <div className="bus-icon">🚌</div>
+              <div className="loading-dots-small">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+            <p>Recherche des trajets...</p>
           </div>
         ) : (
           <>

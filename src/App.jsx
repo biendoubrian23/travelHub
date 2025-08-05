@@ -23,8 +23,22 @@ import './App.css';
 function LoadingSpinner() {
   return (
     <div className="loading-spinner">
-      <div className="spinner"></div>
-      <p>Chargement...</p>
+      <div className="fun-loader">
+        <div className="bus-animation">
+          <div className="bus">🚌</div>
+          <div className="road">
+            <div className="road-line"></div>
+            <div className="road-line"></div>
+            <div className="road-line"></div>
+          </div>
+        </div>
+        <div className="loading-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+      <p className="loading-text">En route vers votre destination...</p>
     </div>
   );
 }
@@ -114,7 +128,6 @@ function MainApp() {
         'trips': 'Gestion des Trajets',
         'bookings': 'Gestion des Réservations',
         'buses': 'Gestion des Bus',
-        'customers': 'Gestion des Clients',
         'employees': 'Gestion des Employés',
         'activity': 'Activité',
         'settings': 'Paramètres'
@@ -125,7 +138,14 @@ function MainApp() {
     const content = (() => {
       switch (activeRoute) {
         case 'dashboard':
-          return <Dashboard />;
+          return (
+            <ConditionalTab tabName="dashboard" fallback={<div className="access-denied">
+              <h3>🔒 Accès Restreint</h3>
+              <p>Seul le patron de l'agence a accès au dashboard.</p>
+            </div>}>
+              <Dashboard />
+            </ConditionalTab>
+          );
         case 'trips':
           return (
             <ConditionalTab tabName="trips" fallback={<div className="access-denied">
@@ -151,18 +171,6 @@ function MainApp() {
               <p>Vous n'avez pas accès à cette section.</p>
             </div>}>
               <BusManagement />
-            </ConditionalTab>
-          );
-        case 'customers':
-          return (
-            <ConditionalTab tabName="customers" fallback={<div className="access-denied">
-              <h3>🔒 Accès Restreint</h3>
-              <p>Vous n'avez pas accès à cette section.</p>
-            </div>}>
-              <div className="page-placeholder">
-                <h2 className="text-title">Gestion des Clients</h2>
-                <p className="text-caption">Page en cours de développement...</p>
-              </div>
             </ConditionalTab>
           );
         case 'employees':

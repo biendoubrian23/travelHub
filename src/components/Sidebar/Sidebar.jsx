@@ -4,12 +4,12 @@ import {
   LayoutDashboard, 
   MapPin, 
   Calendar, 
-  Users, 
   Activity, 
   Settings,
   LogOut,
   UserCog,
-  DollarSign
+  DollarSign,
+  Bus
 } from 'lucide-react';
 import { useRolePermissions } from '../RoleBasedComponents';
 
@@ -21,7 +21,7 @@ const Sidebar = ({ activeRoute, onRouteChange, onLogout, userProfile, agency }) 
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, tabName: 'dashboard' },
     { id: 'trips', label: 'Trajets', icon: MapPin, tabName: 'trips' },
     { id: 'bookings', label: 'Réservations', icon: Calendar, tabName: 'bookings' },
-    { id: 'customers', label: 'Clients', icon: Users, tabName: 'customers' },
+    { id: 'buses', label: 'Bus', icon: Bus, tabName: 'buses' },
     { id: 'finances', label: 'Finances', icon: DollarSign, tabName: 'finances' },
     { 
       id: 'employees', 
@@ -104,8 +104,8 @@ const Sidebar = ({ activeRoute, onRouteChange, onLogout, userProfile, agency }) 
           </div>
         )}
         <button className="logout-button" onClick={onLogout}>
-          <LogOut size={20} />
-          <span>Déconnexion</span>
+          <LogOut size={18} />
+          <span>Sortir</span>
         </button>
       </div>
     </div>

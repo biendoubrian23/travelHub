@@ -9,13 +9,12 @@ export const SIMPLE_ROLES = {
     color: '#8B5CF6', // Violet Royal
     description: 'Propriétaire agence - Contrôle total',
     
-    // Onglets visibles - TOUT
+    // Onglets visibles - TOUT sauf customers
     visibleTabs: [
       'dashboard',
       'trips', 
       'bookings',
       'buses', // 🚌 Gestion des bus
-      'customers',
       'finances',
       'employees', // 👥 Gestion des employés - EXCLUSIF PATRON
       'settings'
@@ -74,14 +73,6 @@ export const SIMPLE_ROLES = {
         refund: true
       },
       
-      // 👥 CLIENTS - Complet
-      customers: {
-        view: true,
-        edit: true,
-        viewHistory: true,
-        customerService: true
-      },
-      
       // ⚙️ PARAMÈTRES - Complet
       settings: {
         agencySettings: true,
@@ -98,13 +89,11 @@ export const SIMPLE_ROLES = {
     color: '#007AFF', // Bleu iOS
     description: 'Gestion complète (créé par le patron)',
     
-    // Onglets visibles - AVEC employés limités
+    // Onglets visibles - AVEC employés limités sauf customers et dashboard
     visibleTabs: [
-      'dashboard',
       'trips', 
       'bookings',
       'buses', // 🚌 Gestion des bus
-      'customers',
       'finances', // 💰 Peut voir les finances
       'employees', // 👥 Gestion limitée des employés
       'settings'
@@ -165,14 +154,6 @@ export const SIMPLE_ROLES = {
         refund: true
       },
       
-      // 👥 CLIENTS - Complet
-      customers: {
-        view: true,
-        edit: true,
-        viewHistory: true,
-        customerService: true
-      },
-      
       // ⚙️ PARAMÈTRES - Limité
       settings: {
         agencySettings: false, // ❌ Pas accès paramètres agence
@@ -189,13 +170,11 @@ export const SIMPLE_ROLES = {
     color: '#34C759', // Vert iOS
     description: 'Gestion trajets et services (sans finances)',
     
-    // Onglets visibles - PAS de finances
+    // Onglets visibles - PAS de finances ni customers ni dashboard
     visibleTabs: [
-      'dashboard',
       'trips',
       'bookings',
       'buses', // 🚌 Gestion des bus
-      'customers',
       'services' // Gestion des services bus
     ],
     
@@ -236,14 +215,6 @@ export const SIMPLE_ROLES = {
         customerInfo: true
       },
       
-      // 👥 CLIENTS - Information limitée
-      customers: {
-        view: true,
-        edit: false,
-        viewHistory: true,
-        customerService: true
-      },
-      
       // 🎯 SERVICES - Gestion complète
       services: {
         viewServices: true,
@@ -254,28 +225,43 @@ export const SIMPLE_ROLES = {
     }
   },
 
-  // 🚗 CONDUCTEUR - Consultation uniquement
+  // 🚗 CONDUCTEUR - Consultation trajets et réservations
   driver: {
     label: 'Conducteur',
     icon: '🚗',
     color: '#FF9500', // Orange iOS
-    description: 'Consultation trajets et passagers',
+    description: 'Consultation trajets et réservations',
     
-    // Onglets visibles - Lecture seule
+    // Onglets visibles - Lecture seule (pas de dashboard)
     visibleTabs: [
-      'dashboard',
-      'my-trips', // Ses trajets assignés
-      'buses', // 🚌 Voir les bus assignés
-      'passengers' // Passagers de ses trajets
+      'trips', // Consultation des trajets
+      'bookings', // Consultation des réservations
+      'buses' // 🚌 Voir les bus assignés
     ],
     
     permissions: {
       // 🚌 TRAJETS - Lecture seule
       trips: {
         view: true,
+        create: false,
+        edit: false,
+        delete: false,
         viewAssigned: true, // Ses trajets uniquement
         viewSchedules: true,
-        viewItinerary: true
+        viewItinerary: true,
+        manageSchedules: false,
+        setCapacity: false
+      },
+
+      // 📋 RÉSERVATIONS - Consultation seule
+      bookings: {
+        view: true,
+        create: false,
+        modify: false,
+        cancel: false,
+        refund: false,
+        search: true,
+        viewPassengers: true // Voir les passagers de ses trajets
       },
 
       // 🚌 BUS - Consultation uniquement CONDUCTEUR
@@ -354,9 +340,9 @@ export const PAGE_ACTIONS = {
       'customer-service'
     ],
     driver: [
-      'view-my-passengers',
+      'view-bookings', // Peut voir toutes les réservations
       'search-passenger',
-      'check-in-passenger'
+      'view-passenger-list'
     ]
   }
 }

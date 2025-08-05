@@ -395,8 +395,15 @@ const BookingsCalendar = () => {
       <div className="bookings-content">
         {loading ? (
           <div className="loading-state">
-            <div className="loading-spinner"></div>
-            <p>Chargement des réservations...</p>
+            <div className="fun-mini-loader">
+              <div className="ticket-icon">🎫</div>
+              <div className="loading-dots-small">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+            <p>Recherche des réservations...</p>
           </div>
         ) : (
           <>

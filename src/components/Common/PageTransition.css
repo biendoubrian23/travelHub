@@ -1,0 +1,122 @@
+/* PageTransition.css - Animations de transition amusantes */
+
+.page-transition {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.mini-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+
+.vehicle-bounce {
+  animation: vehicleBounce 1.5s ease-in-out infinite;
+}
+
+.vehicle {
+  font-size: 48px;
+  display: inline-block;
+  filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));
+}
+
+.loading-dots-mini {
+  display: flex;
+  gap: 6px;
+}
+
+.loading-dots-mini span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #007AFF;
+  animation: miniDotBounce 1.2s ease-in-out infinite both;
+}
+
+.loading-dots-mini span:nth-child(1) { animation-delay: -0.24s; }
+.loading-dots-mini span:nth-child(2) { animation-delay: -0.12s; }
+.loading-dots-mini span:nth-child(3) { animation-delay: 0s; }
+
+.transition-text {
+  color: #666;
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0;
+  animation: textFade 2s ease-in-out infinite alternate;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes vehicleBounce {
+  0%, 100% { 
+    transform: translateY(0) rotate(0deg);
+  }
+  25% { 
+    transform: translateY(-10px) rotate(-2deg);
+  }
+  50% { 
+    transform: translateY(-5px) rotate(0deg);
+  }
+  75% { 
+    transform: translateY(-15px) rotate(2deg);
+  }
+}
+
+@keyframes miniDotBounce {
+  0%, 80%, 100% { 
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% { 
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+@keyframes textFade {
+  from { 
+    opacity: 0.7;
+  }
+  to { 
+    opacity: 1;
+  }
+}
+
+/* Version mobile */
+@media (max-width: 768px) {
+  .vehicle {
+    font-size: 36px;
+  }
+  
+  .transition-text {
+    font-size: 14px;
+  }
+  
+  .loading-dots-mini span {
+    width: 6px;
+    height: 6px;
+  }
+}

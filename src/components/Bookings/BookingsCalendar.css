@@ -199,6 +199,55 @@
   margin-bottom: 16px;
 }
 
+/* Fun mini loader pour les réservations */
+.fun-mini-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin: 0 auto 20px auto;
+}
+
+.ticket-icon {
+  font-size: 36px;
+  animation: ticketFloat 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+}
+
+.loading-dots-small {
+  display: flex;
+  gap: 4px;
+}
+
+.loading-dots-small span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #007AFF;
+  animation: smallDotPulse 1.4s ease-in-out infinite both;
+}
+
+.loading-dots-small span:nth-child(1) { animation-delay: -0.32s; }
+.loading-dots-small span:nth-child(2) { animation-delay: -0.16s; }
+.loading-dots-small span:nth-child(3) { animation-delay: 0s; }
+
+@keyframes ticketFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  33% { transform: translateY(-8px) rotate(-5deg); }
+  66% { transform: translateY(-4px) rotate(5deg); }
+}
+
+@keyframes smallDotPulse {
+  0%, 80%, 100% { 
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }

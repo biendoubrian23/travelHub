@@ -1,6 +1,8 @@
 import React from 'react'
 import { useRole, PermissionGuard, RoleBadge } from '../SimpleRoleSystem'
-import './RoleBasedSidebar.css'
+import './RoleBasedSidebar.        <button className="logout-btn" title="Sortir">
+          <span className="logout-icon">↗️</span>
+          {!isCollapsed && <span className="logout-text">Sortir</span>}'
 
 const RoleBasedSidebar = ({ activeTab, onTabChange, isCollapsed, onToggleCollapse }) => {
   const { getVisibleTabs, theme } = useRole()
@@ -26,10 +28,10 @@ const RoleBasedSidebar = ({ activeTab, onTabChange, isCollapsed, onToggleCollaps
       description: 'Gestion réservations'
     },
     {
-      id: 'customers',
-      label: 'Clients',
-      icon: '👥',
-      description: 'Base clients'
+      id: 'buses',
+      label: 'Bus',
+      icon: '�',
+      description: 'Gestion des bus'
     },
     {
       id: 'finances',
@@ -127,9 +129,9 @@ const RoleBasedSidebar = ({ activeTab, onTabChange, isCollapsed, onToggleCollaps
           </div>
         )}
         
-        <button className="logout-btn" title="Déconnexion">
+        <button className="logout-btn" title="Sortir">
           <span className="logout-icon">🚪</span>
-          {!isCollapsed && <span className="logout-text">Déconnexion</span>}
+          {!isCollapsed && <span className="logout-text">Sortir</span>}
         </button>
       </div>
     </div>

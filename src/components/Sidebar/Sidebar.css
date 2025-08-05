@@ -131,29 +131,32 @@
 }
 
 .logout-button {
-  width: 100%;
-  padding: var(--spacing-lg);
+  max-width: calc(100% - 24px);
+  padding: 10px 16px;
   background-color: var(--danger);
   color: white;
   border: none;
   border-radius: var(--radius-md);
   font-family: var(--font-family);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-md);
-  margin: var(--spacing-md) var(--spacing-lg);
+  gap: 8px;
+  margin: 12px auto;
   box-shadow: 0 2px 8px rgba(255, 59, 48, 0.2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .logout-button:hover {
   background-color: #E03131;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(255, 59, 48, 0.3);
 }
 
 /* Badge de rôle utilisateur */
@@ -258,5 +261,12 @@
   .user-role-badge {
     font-size: 12px;
     padding: 6px 10px;
+  }
+  
+  .logout-button {
+    font-size: 13px;
+    padding: 8px 14px;
+    gap: 6px;
+    margin: 10px auto;
   }
 }
