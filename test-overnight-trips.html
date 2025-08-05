@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Trajets de Nuit</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-case {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+            border-left: 4px solid #007aff;
+        }
+        .result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        input[type="time"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin: 0 10px;
+        }
+        button {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌙 Test de Validation des Trajets de Nuit</h1>
+    
+    <div class="test-case">
+        <h3>Cas de test : Trajet Paris → Lyon</h3>
+        <p>
+            Départ : <input type="time" id="departure" value="23:00">
+            Arrivée : <input type="time" id="arrival" value="06:00">
+            <label>
+                <input type="checkbox" id="overnight"> Trajet de nuit
+            </label>
+        </p>
+        <button onclick="testValidation()">Tester la validation</button>
+        <div id="result"></div>
+        <div id="duration"></div>
+    </div>
+
+    <div class="test-case">
+        <h3>Exemples de cas à tester :</h3>
+        <ul>
+            <li><strong>Trajet normal :</strong> 08:00 → 14:00 (sans cocher trajet de nuit)</li>
+            <li><strong>Trajet de nuit :</strong> 23:00 → 06:00 (cocher trajet de nuit)</li>
+            <li><strong>Erreur :</strong> 14:00 → 10:00 (sans cocher trajet de nuit)</li>
+            <li><strong>Trajet long :</strong> 22:00 → 08:00 (cocher trajet de nuit)</li>
+        </ul>
+    </div>
+
+    <script>
+        function testValidation() {
+            const departure = document.getElementById('departure').value;
+            const arrival = document.getElementById('arrival').value;
+            const isOvernight = document.getElementById('overnight').checked;
+            
+            // Reproduire la logique de validation du formulaire
+            const result = validateTimes(departure, arrival, isOvernight);
+            const duration = calculateDuration(departure, arrival, isOvernight);
+            
+            document.getElementById('result').innerHTML = result.valid 
+                ? `<div class="result success">✅ Validation réussie</div>`
+                : `<div class="result error">❌ ${result.error}</div>`;
+                
+            document.getElementById('duration').innerHTML = duration 
+                ? `<div class="result">⏱️ Durée : ${duration}</div>`
+                : '';
+        }
+
+        function validateTimes(departure, arrival, isOvernight) {
+            if (!departure || !arrival) {
+                return { valid: false, error: 'Horaires requis' };
+            }
+
+            const dep = new Date(`2024-01-01T${departure}:00`);
+            const arr = new Date(`2024-01-01T${arrival}:00`);
+            
+            // Si trajet de nuit, l'arrivée peut être "plus tôt" (le lendemain)
+            if (!isOvernight && arr <= dep) {
+                return { 
+                    valid: false, 
+                    error: 'L\'arrivée doit être après le départ (cochez "Trajet de nuit" si c\'est un trajet nocturne)'
+                };
+            }
+            
+            // Pour les trajets de nuit, vérifier la cohérence
+            if (isOvernight && arr > dep) {
+                return { 
+                    valid: false, 
+                    error: 'Pour un trajet de nuit, l\'arrivée doit être le lendemain (heure apparemment plus tôt)'
+                };
+            }
+
+            return { valid: true };
+        }
+
+        function calculateDuration(departure, arrival, isOvernight) {
+            if (!departure || !arrival) return null;
+            
+            const [depHour, depMin] = departure.split(':').map(Number);
+            const [arrHour, arrMin] = arrival.split(':').map(Number);
+            
+            const depMinutes = depHour * 60 + depMin;
+            let arrMinutes = arrHour * 60 + arrMin;
+            
+            // Si trajet de nuit ou si arrivée semble avant départ, ajouter 24h
+            if (isOvernight || arrMinutes <= depMinutes) {
+                arrMinutes += 24 * 60; // Ajouter 24 heures
+            }
+            
+            const diff = arrMinutes - depMinutes;
+            
+            if (diff > 0) {
+                const hours = Math.floor(diff / 60);
+                const minutes = diff % 60;
+                return `${hours}h${minutes.toString().padStart(2, '0')}`;
+            }
+            
+            return null;
+        }
+
+        // Test automatique au chargement
+        window.onload = function() {
+            testValidation();
+        };
+    </script>
+</body>
+</html>
