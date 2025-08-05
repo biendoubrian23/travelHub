@@ -205,16 +205,33 @@ export const AuthProvider = ({ children }) => {
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut()
-      if (error) throw error
+      console.log('🔄 Tentative de déconnexion...')
       
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        console.error('❌ Erreur Supabase signOut:', error)
+        throw error
+      }
+      
+      console.log('✅ Déconnexion Supabase réussie')
+      
+      // Forcer la réinitialisation des états
       setUser(null)
       setUserProfile(null)
       setAgency(null)
       setEmployeeData(null)
+      
+      console.log('✅ États réinitialisés')
 
       return { error: null }
     } catch (error) {
+      console.error('❌ Erreur lors de la déconnexion:', error)
+      // Même en cas d'erreur, on force la déconnexion côté client
+      setUser(null)
+      setUserProfile(null)
+      setAgency(null)
+      setEmployeeData(null)
+      
       return { error }
     }
   }

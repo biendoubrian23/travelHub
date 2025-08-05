@@ -1,0 +1,86 @@
+/* InvitationModalFix.css
+ * Correction spécifique pour les modals d'invitation
+ * Ce fichier garantit que le modal d'invitation fonctionne normalement
+ * sans être affecté par les styles de défilement du modal de création d'employé
+ */
+
+/* Réinitialiser les styles pour le modal d'invitation */
+.credentials-modal {
+  max-height: none !important;
+  overflow: visible !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.credentials-modal .modal-content {
+  max-height: none !important;
+  overflow: visible !important;
+  padding: 20px !important;
+  padding-bottom: 20px !important; /* Réinitialiser le padding */
+}
+
+.credentials-modal .modal-actions {
+  position: static !important; /* Réinitialiser la position */
+  margin-top: 20px !important;
+  padding: 0 !important;
+  border-top: none !important;
+  background: none !important;
+  box-shadow: none !important;
+  z-index: auto !important;
+}
+
+/* Styles spécifiques pour le modal de création d'employé */
+.employee-creation-modal {
+  max-height: 85vh !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.employee-creation-modal .modal-content {
+  overflow-y: auto !important;
+  padding: 20px !important;
+  padding-bottom: 100px !important;
+  flex: 1 !important;
+  max-height: calc(85vh - 120px) !important;
+}
+
+.employee-creation-modal .employee-creation-actions {
+  position: sticky !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  padding: 16px 20px !important;
+  background-color: white !important;
+  border-top: 1px solid #eaeaea !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  z-index: 10 !important;
+}
+
+/* Assurer que le modal d'invitation n'est pas affecté par les styles de scroll */
+.credentials-modal .modal-header {
+  position: static !important;
+}
+
+/* Garder le comportement normal pour les autres modals */
+.modal:not(.employee-creation-modal) {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.modal:not(.employee-creation-modal) .modal-content {
+  max-height: none !important;
+  overflow: visible !important;
+  padding-bottom: 20px !important;
+}
+
+.modal:not(.employee-creation-modal) .modal-actions {
+  position: static !important;
+  margin-top: 20px !important;
+  padding: 0 !important;
+  border-top: none !important;
+  background: none !important;
+  box-shadow: none !important;
+}

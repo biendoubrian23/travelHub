@@ -1,0 +1,93 @@
+/* FinalModalScrollbar.css
+ * Solution ultime pour le modal de création d'employé uniquement
+ * Garantit :
+ * 1. Que la barre de défilement soit visible et fonctionnelle
+ * 2. Que le message d'information bleu soit entièrement visible
+ * 3. Que le bouton "Créer l'employé" soit toujours accessible
+ * 4. N'affecte PAS les autres modals (comme celui d'invitation)
+ */
+
+/* Force l'affichage de la barre de défilement uniquement pour le modal de création d'employé */
+.employee-creation-modal {
+  scrollbar-width: thin !important; /* Firefox */
+  scrollbar-color: #007AFF #f0f0f0 !important; /* Firefox */
+}
+
+/* Configuration spécifique pour Webkit (Chrome, Safari, Edge) sur le modal de création d'employé */
+.employee-creation-modal .modal-content::-webkit-scrollbar {
+  width: 12px !important;
+  height: 12px !important;
+}
+
+.employee-creation-modal .modal-content::-webkit-scrollbar-track {
+  background: #f0f0f0 !important;
+  border-radius: 6px !important;
+}
+
+.employee-creation-modal .modal-content::-webkit-scrollbar-thumb {
+  background: #007AFF !important;
+  border-radius: 6px !important;
+  border: 2px solid #f0f0f0 !important;
+}
+
+.employee-creation-modal .modal-content::-webkit-scrollbar-thumb:hover {
+  background: #0056CC !important;
+}
+
+/* Configuration forcée du modal de création d'employé */
+.employee-creation-modal {
+  max-height: 85vh !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.employee-creation-modal .modal-content {
+  overflow-y: scroll !important;
+  padding: 20px !important;
+  padding-bottom: 100px !important; 
+  flex: 1 !important;
+  max-height: calc(85vh - 120px) !important; /* Espace pour header et footer */
+}
+
+/* Style spécial pour la boîte d'information dans le modal de création d'employé */
+.employee-creation-modal .employee-info-box {
+  background-color: #E3F2FD !important;
+  border: 2px solid #1976D2 !important;
+  margin: 20px 0 80px 0 !important; /* Marge énorme en bas pour garantir la visibilité */
+  position: relative !important;
+  z-index: 100 !important;
+}
+
+/* Boutons d'action toujours visibles dans le modal de création d'employé */
+.employee-creation-modal .employee-creation-actions {
+  background-color: white !important;
+  border-top: 2px solid #eee !important;
+  position: sticky !important;
+  bottom: 0 !important;
+  padding: 15px 20px !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  z-index: 1000 !important;
+}
+
+/* Solution alternative pour les navigateurs qui ne supportent pas sticky */
+@supports not (position: sticky) {
+  .employee-creation-modal .employee-creation-actions {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+}
+
+/* Garantir que le contenu du formulaire a suffisamment d'espace */
+.employee-creation-modal .employee-creation-form {
+  padding-bottom: 60px !important;
+}
+
+/* Pour garantir que les derniers éléments soient visibles */
+.employee-creation-modal .modal-form > .employee-info-box {
+  margin-bottom: 100px !important;
+}

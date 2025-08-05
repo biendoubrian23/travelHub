@@ -1,0 +1,105 @@
+/* Compactage des cellules pour éviter le défilement horizontal */
+.unified-table th,
+.unified-table td {
+  padding: 8px 6px !important; /* Réduire le padding */
+  line-height: 1.2 !important; /* Réduire l'espace entre les lignes */
+}
+
+/* Réduire l'espace vertical entre les lignes */
+.table-row {
+  height: auto !important;
+  padding: 4px 0 !important;
+}
+
+/* Optimiser l'affichage de l'avatar */
+.user-avatar {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+}
+
+/* Réduire la taille du texte dans les cellules */
+.user-name {
+  font-size: 14px !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-type {
+  font-size: 11px !important;
+}
+
+/* Email plus compact */
+.email-cell {
+  font-size: 12px !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Téléphone plus compact */
+.phone-cell .phone-number {
+  font-size: 12px !important;
+  padding: 4px 6px !important;
+}
+
+/* Rôle plus compact */
+.role-badge {
+  font-size: 11px !important;
+  padding: 4px 8px !important;
+}
+
+/* Statut plus compact */
+.status-badge {
+  font-size: 11px !important;
+  padding: 4px 8px !important;
+}
+
+/* Date plus compacte */
+.date-cell {
+  font-size: 12px !important;
+  white-space: nowrap;
+}
+
+/* Style pour le message d'information bleu dans le modal */
+.form-info, .info-box {
+  background-color: rgba(0, 122, 255, 0.1);
+  border: 1px solid rgba(0, 122, 255, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.form-info svg, .info-box svg {
+  color: #007AFF;
+  flex-shrink: 0;
+}
+
+.form-info span, .info-box div {
+  font-size: 14px;
+  color: #333;
+}
+
+.form-info strong, .info-box strong {
+  color: #007AFF;
+}
+
+/* Assure que le modal s'affiche correctement */
+.modal-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ajoute un effet de surbrillance pour les en-têtes du tableau */
+.unified-table thead th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: #6c757d;
+}

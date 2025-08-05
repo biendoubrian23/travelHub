@@ -1,0 +1,128 @@
+/* Styles spécifiques pour corriger les problèmes de défilement */
+
+/* Force la taille et position du modal overlay */
+.modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 1000 !important;
+  padding: 10px !important;
+  overflow: hidden !important;
+}
+
+/* Configuration précise du modal */
+.modal {
+  position: relative !important;
+  max-width: 95% !important;
+  width: 550px !important;
+  max-height: 90vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  border-radius: 12px !important;
+  background-color: white !important;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.25) !important;
+}
+
+/* Header fixe en haut */
+.modal-header {
+  position: sticky !important;
+  top: 0 !important;
+  background-color: white !important;
+  z-index: 10 !important;
+  padding: 15px 20px !important;
+  border-bottom: 1px solid #eee !important;
+  border-radius: 12px 12px 0 0 !important;
+}
+
+/* Contenu avec défilement */
+.modal-content {
+  flex: 1 !important;
+  overflow-y: auto !important; 
+  overflow-x: hidden !important;
+  padding: 20px 20px 90px 20px !important;
+  scrollbar-width: thin !important; /* Firefox */
+  scrollbar-color: #007AFF #f5f5f5 !important; /* Firefox */
+}
+
+/* Style pour les barres de défilement */
+.modal-content::-webkit-scrollbar {
+  width: 10px !important;
+  height: 10px !important;
+  background-color: #f5f5f5 !important;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background-color: #007AFF !important;
+  border-radius: 5px !important;
+  border: 2px solid #f5f5f5 !important;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background-color: #f5f5f5 !important;
+  border-radius: 5px !important;
+}
+
+/* Assurer que le form est bien structuré */
+.modal form {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 20px !important;
+  padding-bottom: 20px !important;
+}
+
+/* Mise en évidence de la boîte d'information */
+.info-box, .form-info, div:has(> .form-info), div[class*="info-box"] {
+  background-color: #E3F2FD !important;
+  border: 1px solid #90CAF9 !important;
+  border-radius: 8px !important;
+  padding: 15px !important;
+  margin: 15px 0 25px 0 !important;
+  color: #1565C0 !important;
+  font-size: 14px !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 12px !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05) !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+/* Actions positionnées en bas de façon fixe */
+.modal-actions {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  padding: 15px 20px !important;
+  background-color: white !important;
+  border-top: 1px solid #eee !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  z-index: 15 !important;
+  border-radius: 0 0 12px 12px !important;
+}
+
+/* Adaptation mobile */
+@media (max-width: 600px) {
+  .modal {
+    width: 100% !important;
+    height: 85vh !important;
+    border-radius: 12px !important;
+    margin: 0 !important;
+  }
+  
+  .modal-content {
+    padding: 15px 15px 80px 15px !important;
+  }
+  
+  .modal-actions {
+    padding: 10px 15px !important;
+  }
+}

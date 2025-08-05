@@ -1,0 +1,152 @@
+/* Optimisations pour la gestion des employés */
+
+/* 1. Optimisation compacte du tableau sans défilement horizontal */
+.employees-table-container {
+  width: 100%;
+  margin-bottom: 20px;
+  position: relative;
+  padding-bottom: 5px;
+}
+
+.unified-table {
+  width: 100%;
+  table-layout: fixed; /* Forcer le tableau à s'adapter à la largeur disponible */
+}
+
+/* Pas d'indicateur de défilement pour le moment */
+
+/* 2. Changement de couleur des enveloppes */
+.user-avatar.invitation {
+  background: linear-gradient(135deg, #007AFF, #5856D6) !important;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
+}
+
+/* 3. Assurer que le bouton d'ajout d'employé est visible - UNIQUEMENT pour le modal de création d'employé */
+.employee-creation-modal .employee-creation-actions {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  z-index: 10;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Rendre le modal scrollable pour voir le message en bleu en bas - UNIQUEMENT pour le modal de création d'employé */
+.employee-creation-modal .modal-content {
+  max-height: 65vh; /* Hauteur fixe pour forcer l'apparition de la scrollbar */
+  overflow-y: scroll !important; /* Forcer l'affichage de la barre de défilement */
+  padding-bottom: 16px; /* Léger espace en bas */
+  -webkit-overflow-scrolling: touch; /* Pour une meilleure performance sur les appareils tactiles */
+}
+
+/* Style du modal de création d'employé */
+.employee-creation-modal {
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh; /* Limiter la hauteur pour assurer l'apparition de la scrollbar */
+  overflow: visible; /* Ne pas cacher le débordement pour voir la scrollbar */
+  margin-top: 20px; /* Espace en haut pour éviter que le modal soit trop bas */
+  margin-bottom: 20px; /* Espace en bas pour éviter que le modal soit trop haut */
+}
+
+/* Style du bouton "Créer l'employé" */
+.btn-create-employee {
+  background: #007AFF;
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: none;
+  min-width: 160px;
+  transition: all 0.2s ease;
+}
+
+.btn-create-employee:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+/* Définir des pourcentages pour les largeurs de colonnes */
+.unified-table th:nth-child(1),
+.unified-table td:nth-child(1) {
+  width: 22%;
+}
+
+.unified-table th:nth-child(2),
+.unified-table td:nth-child(2) {
+  width: 20%;
+  font-size: 0.85em; /* Réduire la taille du texte pour les emails */
+}
+
+.unified-table th:nth-child(3),
+.unified-table td:nth-child(3) {
+  width: 13%;
+  font-size: 0.85em; /* Réduire la taille du texte pour les téléphones */
+}
+
+.unified-table th:nth-child(4),
+.unified-table td:nth-child(4) {
+  width: 12%;
+}
+
+.unified-table th:nth-child(5),
+.unified-table td:nth-child(5) {
+  width: 10%;
+}
+
+.unified-table th:nth-child(6),
+.unified-table td:nth-child(6) {
+  width: 11%;
+}
+
+.unified-table th:nth-child(7),
+.unified-table td:nth-child(7) {
+  width: 12%;
+}
+
+/* Style pour le compteur d'employés */
+.header-info p {
+  color: var(--ios-text-secondary);
+  font-size: 15px;
+  margin-top: 4px;
+}
+
+/* Style du bouton sans animation */
+.btn-create-employee {
+  margin-top: 16px;
+  width: 100%;
+  padding: 14px !important;
+  font-size: 16px !important;
+  background-color: #007AFF !important;
+  color: white !important;
+  font-weight: 600 !important;
+  border-radius: 10px !important;
+}
+
+/* Amélioration du bloc d'information en bas */
+.info-box, .form-info, div:has(> .form-info), div[class*="info-box"] {
+  background-color: #E3F2FD !important;
+  border: 1px solid #90CAF9 !important;
+  border-radius: 8px !important;
+  padding: 15px !important;
+  margin: 20px 0 20px 0 !important;
+  color: #1565C0 !important;
+  font-size: 14px !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 12px !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05) !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+.info-box svg, .form-info svg {
+  color: #1565C0 !important;
+  flex-shrink: 0 !important;
+}

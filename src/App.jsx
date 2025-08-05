@@ -76,6 +76,24 @@ function MainApp() {
   const { userProfile, agency, hasPermission, signOut } = useAuth();
   const [activeRoute, setActiveRoute] = useState('dashboard');
 
+  const handleLogout = async () => {
+    try {
+      console.log('🔄 Début de la déconnexion...')
+      const { error } = await signOut()
+      if (error) {
+        console.error('❌ Erreur lors de la déconnexion:', error)
+        // Même en cas d'erreur, on redirige vers la page de connexion
+      } else {
+        console.log('✅ Déconnexion réussie')
+      }
+      // La redirection se fera automatiquement via le AuthContext
+    } catch (error) {
+      console.error('❌ Erreur inattendue lors de la déconnexion:', error)
+      // En cas d'erreur critique, on force un rechargement de la page
+      window.location.reload()
+    }
+  }
+
   const renderContent = () => {
     switch (activeRoute) {
       case 'dashboard':
@@ -117,7 +135,7 @@ function MainApp() {
       <Sidebar 
         activeRoute={activeRoute}
         onRouteChange={setActiveRoute}
-        onLogout={signOut}
+        onLogout={handleLogout}
         userRole={userProfile?.role}
         hasPermission={hasPermission}
         userProfile={userProfile}
@@ -133,6 +151,21 @@ function MainApp() {
 function AgencyPendingVerification() {
   const { agency, signOut } = useAuth();
 
+  const handleSignOut = async () => {
+    try {
+      console.log('🔄 Déconnexion depuis la page de vérification...')
+      const { error } = await signOut()
+      if (error) {
+        console.error('❌ Erreur lors de la déconnexion:', error)
+      } else {
+        console.log('✅ Déconnexion réussie')
+      }
+    } catch (error) {
+      console.error('❌ Erreur inattendue:', error)
+      window.location.reload()
+    }
+  }
+
   return (
     <div className="pending-verification">
       <div className="pending-card">
@@ -146,7 +179,7 @@ function AgencyPendingVerification() {
           Ce processus peut prendre 24 à 48 heures ouvrables.
         </p>
         <button 
-          onClick={signOut}
+          onClick={handleSignOut}
           className="btn btn-outline"
         >
           Se déconnecter

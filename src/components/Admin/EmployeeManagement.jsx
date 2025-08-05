@@ -11,6 +11,13 @@ import './UnifiedTableStyles.css';
 import './IOSModalStyles.css';
 import './StatusBadgesHarmonization.css';
 import './NoHoverTableStyles.css';
+import './EmployeeOptimizations.css';
+import './TableCompactStyles.css';
+import './ModalScrollFix.css';
+import './FixedModalStructure.css'; // Structure de modal à priorité absolue
+import './FormSpacingFix.css'; // Correction d'espacement pour les formulaires
+import './FinalModalScrollbar.css'; // Solution ultime pour la barre de défilement
+import './InvitationModalFix.css'; // Correction spécifique pour les modals d'invitation
 import { 
   Users, 
   Plus, 
@@ -470,7 +477,7 @@ const EmployeeManagement = () => {
             <Users size={28} />
             <div>
               <h1>Gestion des Employés</h1>
-              <p>{employees.length} employé(s) dans votre agence</p>
+              <p>{employees.length + invitations.length} employé(s) dans votre agence</p>
             </div>
           </div>
           <button 
@@ -891,7 +898,7 @@ const EmployeeManagement = () => {
       {/* Modal d'ajout d'employé */}
       {showAddModal && (
         <div className="modal-overlay">
-          <div className="modal">
+          <div className="modal employee-creation-modal">
             <div className="modal-header">
               <h2>Ajouter un nouvel employé</h2>
               <button 
@@ -902,108 +909,109 @@ const EmployeeManagement = () => {
               </button>
             </div>
 
-            <form onSubmit={handleAddEmployee} className="modal-form">
-              <div className="form-row">
+            <div className="modal-content scrollable-content">
+              <form onSubmit={handleAddEmployee} className="modal-form employee-creation-form">
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Prénom *</label>
+                    <input
+                      type="text"
+                      value={newEmployee.firstName}
+                      onChange={(e) => setNewEmployee({...newEmployee, firstName: e.target.value})}
+                      className="form-input"
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Nom *</label>
+                    <input
+                      type="text"
+                      value={newEmployee.lastName}
+                      onChange={(e) => setNewEmployee({...newEmployee, lastName: e.target.value})}
+                      className="form-input"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Téléphone *</label>
+                    <input
+                      type="tel"
+                      value={newEmployee.phone}
+                      onChange={(e) => setNewEmployee({...newEmployee, phone: e.target.value})}
+                      className="form-input"
+                      placeholder="+237 6XX XXX XXX"
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Date de naissance</label>
+                    <input
+                      type="date"
+                      value={newEmployee.dateOfBirth}
+                      onChange={(e) => setNewEmployee({...newEmployee, dateOfBirth: e.target.value})}
+                      className="form-input"
+                    />
+                  </div>
+                </div>
+
                 <div className="form-group">
-                  <label>Prénom *</label>
-                  <input
-                    type="text"
-                    value={newEmployee.firstName}
-                    onChange={(e) => setNewEmployee({...newEmployee, firstName: e.target.value})}
-                    className="form-input"
+                  <label>Rôle *</label>
+                  <select
+                    value={newEmployee.role}
+                    onChange={(e) => setNewEmployee({...newEmployee, role: e.target.value})}
+                    className="form-select"
                     required
-                  />
+                  >
+                    {roles.map(role => (
+                      <option key={role.value} value={role.value}>
+                        {role.label} - {role.description}
+                      </option>
+                    ))}
+                  </select>
                 </div>
+
                 <div className="form-group">
-                  <label>Nom *</label>
-                  <input
-                    type="text"
-                    value={newEmployee.lastName}
-                    onChange={(e) => setNewEmployee({...newEmployee, lastName: e.target.value})}
-                    className="form-input"
-                    required
+                  <label>Notes</label>
+                  <textarea
+                    value={newEmployee.notes}
+                    onChange={(e) => setNewEmployee({...newEmployee, notes: e.target.value})}
+                    className="form-textarea"
+                    placeholder="Notes internes optionnelles"
+                    rows="3"
                   />
                 </div>
-              </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Téléphone *</label>
-                  <input
-                    type="tel"
-                    value={newEmployee.phone}
-                    onChange={(e) => setNewEmployee({...newEmployee, phone: e.target.value})}
-                    className="form-input"
-                    placeholder="+237 6XX XXX XXX"
-                    required
-                  />
+                <div className="info-box employee-info-box">
+                  <Mail size={20} />
+                  <div>
+                    <p><strong>Email automatique :</strong> {newEmployee.firstName && newEmployee.lastName 
+                      ? `${newEmployee.firstName.toLowerCase()}.${newEmployee.lastName.toLowerCase()}@${agency?.name?.toLowerCase().replace(/\s+/g, '')}.travelhub.cm`
+                      : 'Sera généré automatiquement'
+                    }</p>
+                    <p><strong>Mot de passe :</strong> Généré automatiquement (8 caractères)</p>
+                  </div>
                 </div>
-                <div className="form-group">
-                  <label>Date de naissance</label>
-                  <input
-                    type="date"
-                    value={newEmployee.dateOfBirth}
-                    onChange={(e) => setNewEmployee({...newEmployee, dateOfBirth: e.target.value})}
-                    className="form-input"
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>Rôle *</label>
-                <select
-                  value={newEmployee.role}
-                  onChange={(e) => setNewEmployee({...newEmployee, role: e.target.value})}
-                  className="form-select"
-                  required
-                >
-                  {roles.map(role => (
-                    <option key={role.value} value={role.value}>
-                      {role.label} - {role.description}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>Notes</label>
-                <textarea
-                  value={newEmployee.notes}
-                  onChange={(e) => setNewEmployee({...newEmployee, notes: e.target.value})}
-                  className="form-textarea"
-                  placeholder="Notes internes optionnelles"
-                  rows="3"
-                />
-              </div>
-
-              <div className="info-box">
-                <Mail size={20} />
-                <div>
-                  <p><strong>Email automatique :</strong> {newEmployee.firstName && newEmployee.lastName 
-                    ? `${newEmployee.firstName.toLowerCase()}.${newEmployee.lastName.toLowerCase()}@${agency?.name?.toLowerCase().replace(/\s+/g, '')}.travelhub.cm`
-                    : 'Sera généré automatiquement'
-                  }</p>
-                  <p><strong>Mot de passe :</strong> Généré automatiquement (8 caractères)</p>
-                </div>
-              </div>
-
-              <div className="modal-actions">
-                <button 
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="btn btn-outline"
-                >
-                  Annuler
-                </button>
-                <button 
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={loading}
-                >
-                  {loading ? 'Création...' : 'Créer l\'employé'}
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
+            <div className="modal-actions employee-creation-actions">
+              <button 
+                type="button"
+                onClick={() => setShowAddModal(false)}
+                className="btn btn-outline"
+              >
+                Annuler
+              </button>
+              <button 
+                onClick={handleAddEmployee}
+                className="btn btn-primary btn-create-employee"
+                disabled={loading}
+              >
+                {loading ? 'Création...' : 'Créer l\'employé'}
+              </button>
+            </div>
           </div>
         </div>
       )}
