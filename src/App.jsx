@@ -11,6 +11,7 @@ import TripsManagement from './components/Trips/TripsManagement';
 import TripsCalendar from './components/Trips/TripsCalendar';
 import BookingsManagement from './components/Bookings/BookingsManagement';
 import BookingsCalendar from './components/Bookings/BookingsCalendar';
+import ProgressLoader from './components/UI/ProgressLoader';
 import { 
   useRolePermissions, 
   RoleBasedHeader, 
@@ -21,26 +22,7 @@ import './components/EmployeeManagement.css';
 import './App.css';
 
 function LoadingSpinner() {
-  return (
-    <div className="loading-spinner">
-      <div className="fun-loader">
-        <div className="bus-animation">
-          <div className="bus">🚌</div>
-          <div className="road">
-            <div className="road-line"></div>
-            <div className="road-line"></div>
-            <div className="road-line"></div>
-          </div>
-        </div>
-        <div className="loading-dots">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-      </div>
-      <p className="loading-text">En route vers votre destination...</p>
-    </div>
-  );
+  return <ProgressLoader />;
 }
 
 function AppContent() {

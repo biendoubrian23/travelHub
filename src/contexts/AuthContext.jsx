@@ -95,45 +95,51 @@ export const AuthProvider = ({ children }) => {
       try {
         console.log('🔄 Récupération de l\'utilisateur initial...')
         
-        // Rechercher toutes les clés d'authentification possibles
-        const allKeys = Object.keys(localStorage)
-        const authKeys = allKeys.filter(k => 
-          k.includes('supabase') || k.startsWith('sb-') || k.includes('auth')
-        )
-        console.log('🔍 localStorage auth keys trouvées:', authKeys)
+        // Optimisation: Chercher directement la clé Supabase connue
+        const knownSupabaseKey = 'sb-dqoncbnvyviurirsdtyu-auth-token'
+        let localSession = localStorage.getItem(knownSupabaseKey)
+        let sessionKey = knownSupabaseKey
         
-        // Créer une liste dynamique des clés possibles
-        const sbKeys = allKeys.filter(k => k.startsWith('sb-'))
-        const possibleKeys = [
-          'supabase.auth.token',
-          'supabase.session',
-          ...sbKeys, // Inclure toutes les clés sb-* trouvées
-          `sb-${window.location.hostname}-auth-token`,
-          'sb-auth-token'
-        ]
-        
-        console.log('🔑 Clés testées:', possibleKeys)
-        
-        let localSession = null
-        let sessionKey = null
-        
-        // Tester chaque clé pour trouver une session valide
-        for (const key of possibleKeys) {
-          const value = localStorage.getItem(key)
-          if (value) {
-            try {
-              const parsed = JSON.parse(value)
-              // Vérifier si c'est bien une session Supabase
-              if (parsed.access_token || parsed.refresh_token || parsed.user || parsed.session) {
-                console.log(`✅ Session Supabase trouvée avec clé: ${key}`)
-                localSession = value
-                sessionKey = key
-                break
+        // Si la clé connue n'existe pas, faire la recherche complète
+        if (!localSession) {
+          console.log('🔍 Recherche complète des clés auth...')
+          const allKeys = Object.keys(localStorage)
+          const authKeys = allKeys.filter(k => 
+            k.includes('supabase') || k.startsWith('sb-') || k.includes('auth')
+          )
+          console.log('🔍 localStorage auth keys trouvées:', authKeys)
+          
+          // Créer une liste dynamique des clés possibles
+          const sbKeys = allKeys.filter(k => k.startsWith('sb-'))
+          const possibleKeys = [
+            'supabase.auth.token',
+            'supabase.session',
+            ...sbKeys,
+            `sb-${window.location.hostname}-auth-token`,
+            'sb-auth-token'
+          ]
+          
+          console.log('🔑 Clés testées:', possibleKeys)
+          
+          // Tester chaque clé pour trouver une session valide
+          for (const key of possibleKeys) {
+            const value = localStorage.getItem(key)
+            if (value) {
+              try {
+                const parsed = JSON.parse(value)
+                if (parsed.access_token || parsed.refresh_token || parsed.user || parsed.session) {
+                  console.log(`✅ Session Supabase trouvée avec clé: ${key}`)
+                  localSession = value
+                  sessionKey = key
+                  break
+                }
+              } catch {
+                // Pas un JSON valide, continuer
               }
-            } catch {
-              // Pas un JSON valide, continuer
             }
           }
+        } else {
+          console.log('⚡ Session trouvée directement avec clé connue')
         }
         
         console.log('💾 Session locale détectée:', !!localSession)
@@ -230,10 +236,10 @@ export const AuthProvider = ({ children }) => {
       }
     }
 
-    // Ajouter un petit délai pour s'assurer que Supabase est bien initialisé
+    // Réduire délai d'initialisation de 100ms à 10ms
     const initTimer = setTimeout(() => {
       getInitialUser()
-    }, 100)
+    }, 10)
     
     // 🚨 TIMEOUT DE SÉCURITÉ : Forcer arrêt loading après 15 secondes
     const emergencyTimeout = setTimeout(() => {

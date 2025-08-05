@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test ProgressLoader</title>
+    <style>
+        /* Progress Loader - Style moderne avec animations fluides */
+        .progress-loader {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100vh;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 9999;
+          overflow: hidden;
+        }
+
+        .progress-loader::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+          animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+          0% { left: -100%; }
+          100% { left: 100%; }
+        }
+
+        .progress-loader-content {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 40px;
+          background: rgba(255, 255, 255, 0.1);
+          -webkit-backdrop-filter: blur(20px);
+          backdrop-filter: blur(20px);
+          border-radius: 24px;
+          padding: 60px 40px;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+          max-width: 500px;
+          width: 90%;
+          position: relative;
+          animation: slideInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideInUp {
+          0% {
+            opacity: 0;
+            transform: translateY(60px) scale(0.9);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        /* Logo Section */
+        .progress-logo {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .logo-bus {
+          font-size: 48px;
+          animation: busFloat 2s ease-in-out infinite;
+          filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+        }
+
+        @keyframes busFloat {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-8px); }
+        }
+
+        .logo-text {
+          font-size: 24px;
+          font-weight: 700;
+          color: white;
+          text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+          letter-spacing: 1px;
+        }
+
+        /* Barre de progression */
+        .progress-container {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          align-items: center;
+        }
+
+        .progress-bar {
+          width: 100%;
+          height: 8px;
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 10px;
+          overflow: hidden;
+          position: relative;
+          box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #00d4ff, #00b4d8, #0096c7);
+          border-radius: 10px;
+          transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .progress-shine {
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+          animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+          0% { left: -100%; }
+          100% { left: 100%; }
+        }
+
+        .progress-percentage {
+          font-size: 18px;
+          font-weight: 600;
+          color: white;
+          text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        /* Étapes de chargement */
+        .progress-steps {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          width: 100%;
+        }
+
+        .progress-step {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          opacity: 0.5;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .progress-step.active {
+          opacity: 1;
+        }
+
+        .progress-step.current {
+          opacity: 1;
+          transform: scale(1.02);
+        }
+
+        .step-indicator {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(255, 255, 255, 0.2);
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .progress-step.active .step-indicator {
+          background: linear-gradient(135deg, #00d4ff, #0096c7);
+          border-color: #00d4ff;
+          box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .progress-step.current .step-indicator {
+          animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% { 
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+            transform: scale(1);
+          }
+          50% { 
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.8);
+            transform: scale(1.1);
+          }
+        }
+
+        .step-number {
+          font-size: 14px;
+          font-weight: 600;
+          color: white;
+        }
+
+        .step-label {
+          font-size: 16px;
+          color: white;
+          font-weight: 500;
+          text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-loader">
+        <div class="progress-loader-content">
+            <!-- Logo ou icône -->
+            <div class="progress-logo">
+                <div class="logo-bus">🚌</div>
+                <div class="logo-text">TravelHub</div>
+            </div>
+
+            <!-- Barre de progression principale -->
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill">
+                        <div class="progress-shine"></div>
+                    </div>
+                </div>
+                <div class="progress-percentage" id="progressPercentage">0%</div>
+            </div>
+
+            <!-- Étapes de chargement -->
+            <div class="progress-steps" id="progressSteps">
+                <div class="progress-step" data-step="0">
+                    <div class="step-indicator">
+                        <div class="step-number">1</div>
+                    </div>
+                    <span class="step-label">Connexion sécurisée...</span>
+                </div>
+                <div class="progress-step" data-step="1">
+                    <div class="step-indicator">
+                        <div class="step-number">2</div>
+                    </div>
+                    <span class="step-label">Vérification des permissions...</span>
+                </div>
+                <div class="progress-step" data-step="2">
+                    <div class="step-indicator">
+                        <div class="step-number">3</div>
+                    </div>
+                    <span class="step-label">Chargement du profil...</span>
+                </div>
+                <div class="progress-step" data-step="3">
+                    <div class="step-indicator">
+                        <div class="step-number">4</div>
+                    </div>
+                    <span class="step-label">Synchronisation des données...</span>
+                </div>
+                <div class="progress-step" data-step="4">
+                    <div class="step-indicator">
+                        <div class="step-number">5</div>
+                    </div>
+                    <span class="step-label">Finalisation...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const steps = [
+            { label: "Connexion sécurisée...", duration: 500 },
+            { label: "Vérification des permissions...", duration: 300 },
+            { label: "Chargement du profil...", duration: 400 },
+            { label: "Synchronisation des données...", duration: 200 },
+            { label: "Finalisation...", duration: 100 }
+        ];
+
+        let progress = 0;
+        let currentStep = 0;
+        const totalDuration = steps.reduce((acc, step) => acc + step.duration, 0);
+        
+        const progressFill = document.getElementById('progressFill');
+        const progressPercentage = document.getElementById('progressPercentage');
+        const progressStepElements = document.querySelectorAll('.progress-step');
+
+        const interval = setInterval(() => {
+            progress += 3;
+            progressFill.style.width = `${progress}%`;
+            progressPercentage.textContent = `${Math.round(progress)}%`;
+            
+            // Calculer l'étape actuelle basée sur le progrès
+            let accumulatedDuration = 0;
+            for (let i = 0; i < steps.length; i++) {
+                accumulatedDuration += steps[i].duration;
+                const stepProgress = (accumulatedDuration / totalDuration) * 100;
+                if (progress <= stepProgress) {
+                    if (currentStep !== i) {
+                        // Mettre à jour les classes des étapes
+                        progressStepElements.forEach((element, index) => {
+                            element.classList.remove('active', 'current');
+                            if (index <= i) {
+                                element.classList.add('active');
+                            }
+                            if (index === i) {
+                                element.classList.add('current');
+                            }
+                        });
+                        currentStep = i;
+                    }
+                    break;
+                }
+            }
+            
+            if (progress >= 100) {
+                clearInterval(interval);
+                // Simulation de redirection après chargement
+                setTimeout(() => {
+                    document.body.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100vh; font-size: 24px; color: #667eea;">✅ Chargement terminé !</div>';
+                }, 500);
+            }
+        }, 40);
+    </script>
+</body>
+</html>
