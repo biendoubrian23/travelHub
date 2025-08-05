@@ -3,12 +3,14 @@ import { useRolePermissions } from '../RoleBasedComponents';
 import './TripForm.css';
 
 const TripForm = ({ trip, buses, drivers, onSave, onCancel }) => {
-  const { hasPermission } = useRolePermissions();
+  const { hasPermission, getUserRole } = useRolePermissions();
+  const userRole = getUserRole();
   const [formData, setFormData] = useState({
     departure_city: trip?.departure_city || '',
     destination_city: trip?.destination_city || '',
     departure_time: trip?.departure_time || '',
     arrival_time: trip?.arrival_time || '',
+    is_overnight: trip?.is_overnight || false, // Nouveau champ pour trajets de nuit
     bus_id: trip?.bus_id || '',
     driver_id: trip?.driver_id || '',
     price: trip?.price || '',
@@ -49,11 +51,29 @@ const TripForm = ({ trip, buses, drivers, onSave, onCancel }) => {
   ];
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    const { name, value, type, checked } = e.target;
+    
+    const newFormData = {
+      ...formData,
+      [name]: type === 'checkbox' ? checked : value
+    };
+    
+    // Auto-détection des trajets de nuit (seulement pour les rôles autorisés)
+    if (userRole !== 'driver' && (name === 'departure_time' || name === 'arrival_time') && newFormData.departure_time && newFormData.arrival_time) {
+      const departure = new Date(`2024-01-01T${newFormData.departure_time}:00`);
+      const arrival = new Date(`2024-01-01T${newFormData.arrival_time}:00`);
+      
+      // Si l'arrivée semble avant le départ, suggérer automatiquement trajet de nuit
+      if (arrival <= departure && !newFormData.is_overnight) {
+        newFormData.is_overnight = true;
+      }
+      // Si l'arrivée est après le départ et trajet marqué comme nocturne, désactiver
+      else if (arrival > departure && newFormData.is_overnight) {
+        newFormData.is_overnight = false;
+      }
+    }
+    
+    setFormData(newFormData);
     
     // Effacer l'erreur quand l'utilisateur commence à taper
     if (errors[name]) {
@@ -75,13 +95,27 @@ const TripForm = ({ trip, buses, drivers, onSave, onCancel }) => {
 
   const calculateDuration = () => {
     if (formData.departure_time && formData.arrival_time) {
-      const departure = new Date(formData.departure_time);
-      const arrival = new Date(formData.arrival_time);
-      const diff = arrival - departure;
+      // Utiliser les heures uniquement pour le calcul
+      const [depHour, depMin] = formData.departure_time.split(':').map(Number);
+      const [arrHour, arrMin] = formData.arrival_time.split(':').map(Number);
+      
+      const depMinutes = depHour * 60 + depMin;
+      let arrMinutes = arrHour * 60 + arrMin;
+      
+      // Si trajet de nuit OU si arrivée semble avant départ (pour les conducteurs), ajouter 24h
+      if (formData.is_overnight || (userRole === 'driver' && arrMinutes <= depMinutes)) {
+        arrMinutes += 24 * 60; // Ajouter 24 heures
+      }
+      // Pour les autres rôles, ajouter 24h seulement si trajet de nuit explicite
+      else if (userRole !== 'driver' && arrMinutes <= depMinutes) {
+        arrMinutes += 24 * 60; // Ajouter 24 heures
+      }
+      
+      const diff = arrMinutes - depMinutes;
       
       if (diff > 0) {
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const hours = Math.floor(diff / 60);
+        const minutes = diff % 60;
         return `${hours}h${minutes.toString().padStart(2, '0')}`;
       }
     }
@@ -112,10 +146,25 @@ const TripForm = ({ trip, buses, drivers, onSave, onCancel }) => {
     }
 
     if (formData.departure_time && formData.arrival_time) {
-      const departure = new Date(formData.departure_time);
-      const arrival = new Date(formData.arrival_time);
-      if (arrival <= departure) {
-        newErrors.arrival_time = 'L\'arrivée doit être après le départ';
+      const departure = new Date(`2024-01-01T${formData.departure_time}:00`);
+      const arrival = new Date(`2024-01-01T${formData.arrival_time}:00`);
+      
+      // Détection automatique seulement pour les rôles qui peuvent gérer les trajets de nuit
+      if (userRole !== 'driver') {
+        const isLikelyOvernight = arrival <= departure;
+        
+        // Seulement afficher l'erreur si ce n'est pas encore marqué comme trajet de nuit
+        if (isLikelyOvernight && !formData.is_overnight) {
+          newErrors.arrival_time = 'L\'heure d\'arrivée semble être le lendemain. Cochez "Trajet de nuit" dans les options spéciales.';
+        } else if (!isLikelyOvernight && formData.is_overnight) {
+          newErrors.is_overnight = 'Les horaires ne correspondent pas à un trajet de nuit. Décochez cette option ou ajustez les heures.';
+        }
+        // Si trajet de nuit est coché, pas d'erreur même si arrivée <= départ
+      } else {
+        // Pour les conducteurs, validation simple : arrivée doit être après départ
+        if (arrival <= departure) {
+          newErrors.arrival_time = 'L\'heure d\'arrivée doit être après l\'heure de départ.';
+        }
       }
     }
 
@@ -272,7 +321,7 @@ const TripForm = ({ trip, buses, drivers, onSave, onCancel }) => {
               Départ <span className="required">*</span>
             </label>
             <input
-              type="datetime-local"
+              type="time"
               name="departure_time"
               value={formData.departure_time}
               onChange={handleInputChange}
@@ -291,7 +340,7 @@ const TripForm = ({ trip, buses, drivers, onSave, onCancel }) => {
               Arrivée <span className="required">*</span>
             </label>
             <input
-              type="datetime-local"
+              type="time"
               name="arrival_time"
               value={formData.arrival_time}
               onChange={handleInputChange}
@@ -301,6 +350,33 @@ const TripForm = ({ trip, buses, drivers, onSave, onCancel }) => {
             {errors.arrival_time && (
               <div className="validation-info error">
                 <p className="validation-text">{errors.arrival_time}</p>
+              </div>
+            )}
+            
+            {/* Checkbox trajet de nuit - directement sous l'heure d'arrivée */}
+            {userRole !== 'driver' && (
+              <div className="overnight-checkbox-container">
+                <label className="overnight-checkbox-label">
+                  <input
+                    type="checkbox"
+                    id="is_overnight"
+                    name="is_overnight"
+                    checked={formData.is_overnight}
+                    onChange={handleInputChange}
+                    className="overnight-checkbox"
+                  />
+                  <span className="overnight-checkbox-text">
+                    🌙 Trajet de nuit (l'arrivée est le lendemain)
+                  </span>
+                </label>
+                <div className="overnight-help-text">
+                  Cochez cette case si votre bus arrive le jour suivant (ex: départ 23h, arrivée 6h du lendemain)
+                </div>
+                {errors.is_overnight && (
+                  <div className="validation-info error">
+                    <p className="validation-text">{errors.is_overnight}</p>
+                  </div>
+                )}
               </div>
             )}
           </div>

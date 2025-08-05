@@ -308,3 +308,86 @@
     font-size: 14px;
   }
 }
+
+/* Styles pour la checkbox trajet de nuit */
+.overnight-option {
+  margin-top: 15px;
+  padding: 12px;
+  background: #f8f9ff;
+  border-radius: 8px;
+  border-left: 4px solid #007aff;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+
+.overnight-checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #007aff;
+  border-radius: 4px;
+  appearance: none;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.overnight-checkbox:checked {
+  background-color: #007aff;
+  border-color: #007aff;
+}
+
+.overnight-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.checkbox-text {
+  color: #1d1d1f;
+  font-size: 14px;
+  font-weight: 500;
+  user-select: none;
+}
+
+.overnight-option .help-text {
+  color: #6c757d;
+  font-size: 12px;
+  margin-left: 28px;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+/* Animation quand cochée */
+.overnight-checkbox:checked + .checkbox-text {
+  color: #007aff;
+  font-weight: 600;
+}
+
+/* Responsive pour la checkbox */
+@media (max-width: 768px) {
+  .overnight-option {
+    padding: 10px;
+  }
+  
+  .checkbox-label {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  
+  .overnight-option .help-text {
+    margin-left: 0;
+  }
+}

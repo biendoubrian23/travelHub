@@ -113,6 +113,7 @@ export const useRolePermissions = () => {
     canManageEmployees,
     getCreatableRoles,
     canCreateRole,
+    getUserRole, // Ajouter la fonction getUserRole
     userProfile,
     employeeData
   };

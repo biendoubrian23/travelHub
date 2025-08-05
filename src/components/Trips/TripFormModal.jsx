@@ -14,6 +14,7 @@ const TripFormModal = ({
     arrivalCity: '',
     departureTime: '',
     arrivalTime: '',
+    isOvernight: false, // Ajout du champ trajet de nuit
     distance: '',
     duration: '',
     price: '',
@@ -81,14 +82,14 @@ const TripFormModal = ({
   }, [editingTrip, selectedDate, isOpen]);
 
   // Fonction pour calculer la durée automatiquement
-  const calculateDuration = (departureTime, arrivalTime) => {
+  const calculateDuration = (departureTime, arrivalTime, isOvernight = false) => {
     if (!departureTime || !arrivalTime) return '';
     
     const depTime = new Date(`1970-01-01T${departureTime}`);
-    const arrTime = new Date(`1970-01-01T${arrivalTime}`);
+    let arrTime = new Date(`1970-01-01T${arrivalTime}`);
     
-    // Si l'heure d'arrivée est le lendemain
-    if (arrTime < depTime) {
+    // Si trajet de nuit ou si arrivée semble avant départ, ajouter un jour
+    if (isOvernight || arrTime <= depTime) {
       arrTime.setDate(arrTime.getDate() + 1);
     }
     
@@ -106,19 +107,33 @@ const TripFormModal = ({
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     let updatedFormData = {
       ...formData,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     };
     
-    // Calculer automatiquement la durée si les heures de départ et d'arrivée sont renseignées
+    // Auto-détection des trajets de nuit
     if (name === 'departureTime' || name === 'arrivalTime') {
       const departureTime = name === 'departureTime' ? value : formData.departureTime;
       const arrivalTime = name === 'arrivalTime' ? value : formData.arrivalTime;
       
       if (departureTime && arrivalTime) {
-        updatedFormData.duration = calculateDuration(departureTime, arrivalTime);
+        updatedFormData.duration = calculateDuration(departureTime, arrivalTime, updatedFormData.isOvernight);
+        
+        // Détection automatique trajet de nuit
+        const depTime = new Date(`1970-01-01T${departureTime}`);
+        const arrTime = new Date(`1970-01-01T${arrivalTime}`);
+        
+        if (arrTime <= depTime && !updatedFormData.isOvernight) {
+          updatedFormData.isOvernight = true;
+          // Recalculer la durée avec le flag trajet de nuit
+          updatedFormData.duration = calculateDuration(departureTime, arrivalTime, true);
+        } else if (arrTime > depTime && updatedFormData.isOvernight) {
+          updatedFormData.isOvernight = false;
+          // Recalculer la durée sans le flag trajet de nuit
+          updatedFormData.duration = calculateDuration(departureTime, arrivalTime, false);
+        }
       }
     }
     
@@ -154,8 +169,10 @@ const TripFormModal = ({
     if (formData.departureTime && formData.arrivalTime) {
       const depTime = new Date(`1970-01-01T${formData.departureTime}`);
       const arrTime = new Date(`1970-01-01T${formData.arrivalTime}`);
-      if (arrTime <= depTime) {
-        newErrors.arrivalTime = 'L\'heure d\'arrivée doit être après l\'heure de départ';
+      
+      // Validation intelligente pour les trajets de nuit
+      if (arrTime <= depTime && !formData.isOvernight) {
+        newErrors.arrivalTime = 'L\'heure d\'arrivée semble être le lendemain. Cochez "Trajet de nuit".';
       }
     }
 
@@ -296,6 +313,23 @@ const TripFormModal = ({
                 className={errors.arrivalTime ? 'error' : ''}
               />
               {errors.arrivalTime && <span className="error-message">{errors.arrivalTime}</span>}
+              
+              {/* Checkbox trajet de nuit */}
+              <div className="overnight-option">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    name="isOvernight"
+                    checked={formData.isOvernight}
+                    onChange={handleInputChange}
+                    className="overnight-checkbox"
+                  />
+                  <span className="checkbox-text">🌙 Trajet de nuit (arrivée le lendemain)</span>
+                </label>
+                <small className="help-text">
+                  Cochez si le bus arrive le jour suivant (ex: départ 23h, arrivée 6h)
+                </small>
+              </div>
             </div>
 
             {/* Distance et durée */}
