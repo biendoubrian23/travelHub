@@ -101,7 +101,18 @@ function AuthPages() {
 function MainApp() {
   const { userProfile, agency, hasPermission, signOut } = useAuth();
   const { currentRole, canViewTab, isPatron } = useRolePermissions();
-  const [activeRoute, setActiveRoute] = useState('dashboard');
+  
+  // Page par défaut selon le rôle
+  const getDefaultTab = () => {
+    // Pour les employés et conducteurs, la page par défaut est "trips"
+    if (currentRole === 'employee' || currentRole === 'driver') {
+      return 'trips';
+    }
+    // Pour le patron et manager, garde le dashboard
+    return 'dashboard';
+  };
+  
+  const [activeRoute, setActiveRoute] = useState(getDefaultTab());
 
   const handleLogout = async () => {
     try {

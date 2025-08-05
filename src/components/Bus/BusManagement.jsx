@@ -174,15 +174,27 @@ const BusManagement = () => {
     return (
       <div className="bus-management loading">
         <div className="loading-spinner">
-          <div className="fun-mini-loader">
-            <div className="bus-management-icon">🚍</div>
-            <div className="loading-dots-small">
-              <span></span>
-              <span></span>
-              <span></span>
+          <div className="spectacular-bus-loader">
+            <div className="bus-convoy">
+              <div className="bus-item">🚌</div>
+              <div className="bus-item">🚍</div>
+              <div className="bus-item">🚐</div>
+            </div>
+            <div className="bus-fleet-text">
+              <h3>🔍 Inspection de la flotte...</h3>
+              <div className="loading-progress">
+                <div className="progress-bar">
+                  <div className="progress-fill"></div>
+                </div>
+                <p>Vérification des véhicules en cours</p>
+              </div>
+            </div>
+            <div className="bus-status-icons">
+              <span className="status-icon">🔧</span>
+              <span className="status-icon">⛽</span>
+              <span className="status-icon">✅</span>
             </div>
           </div>
-          <p>Recherche des bus...</p>
         </div>
       </div>
     );
