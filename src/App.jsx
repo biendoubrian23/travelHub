@@ -46,6 +46,15 @@ function LoadingSpinner() {
 function AppContent() {
   const { user, loading, userProfile, agency } = useAuth();
   
+  // 🔬 DEBUG: Vérifier pourquoi loading reste true
+  console.log('🔍 App.jsx état:', {
+    loading,
+    hasUser: !!user,
+    hasUserProfile: !!userProfile,
+    userEmail: user?.email,
+    profileName: userProfile?.full_name
+  });
+  
   // Vérifier si on est sur une page d'invitation
   const urlParams = new URLSearchParams(window.location.search);
   const invitationToken = urlParams.get('token');
