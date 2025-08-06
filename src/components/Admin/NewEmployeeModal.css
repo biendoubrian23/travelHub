@@ -1,0 +1,512 @@
+/* ===============================================
+   MODAL EMPLOYÉ REFAIT - DESIGN IOS PREMIUM
+   =============================================== */
+
+/* Variables CSS pour le nouveau modal */
+:root {
+  --modal-bg: #FFFFFF;
+  --modal-overlay: rgba(17, 17, 17, 0.6);
+  --modal-border: rgba(0, 0, 0, 0.06);
+  --modal-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
+  --primary-blue: #007AFF;
+  --primary-blue-hover: #0056D6;
+  --text-primary: #1D1D1F;
+  --text-secondary: #8E8E93;
+  --bg-light: #F2F2F7;
+  --success: #34C759;
+  --danger: #FF3B30;
+  --border-radius: 20px;
+  --input-radius: 12px;
+  --button-radius: 16px;
+}
+
+/* Overlay avec effet de flou */
+.new-employee-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--modal-overlay);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: overlayIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes overlayIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+  }
+}
+
+/* Container principal du modal */
+.new-employee-modal {
+  background: var(--modal-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--modal-shadow);
+  width: 100%;
+  max-width: 540px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* En-tête du modal */
+.new-employee-header {
+  padding: 32px 32px 24px;
+  border-bottom: 1px solid var(--modal-border);
+  position: relative;
+  background: var(--modal-bg);
+  flex-shrink: 0;
+}
+
+.new-employee-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: center;
+  margin: 0;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.new-employee-close {
+  position: absolute;
+  top: 28px;
+  right: 28px;
+  background: var(--bg-light);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 22px;
+  color: var(--text-secondary);
+}
+
+.new-employee-close:hover {
+  background: #E5E5EA;
+  color: var(--text-primary);
+  transform: scale(1.05);
+}
+
+/* Contenu scrollable */
+.new-employee-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 32px;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+}
+
+.new-employee-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.new-employee-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.new-employee-content::-webkit-scrollbar-thumb {
+  background: rgba(142, 142, 147, 0.4);
+  border-radius: 3px;
+}
+
+/* Formulaire */
+.new-employee-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Groupes de champs */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-field.full-width {
+  grid-column: 1 / -1;
+}
+
+/* Labels */
+.field-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.1px;
+}
+
+.field-required::after {
+  content: " *";
+  color: var(--danger);
+  font-weight: 500;
+}
+
+/* Inputs et selects */
+.field-input,
+.field-select,
+.field-textarea {
+  padding: 16px 20px;
+  border: 2px solid transparent;
+  border-radius: var(--input-radius);
+  background: var(--bg-light);
+  font-size: 16px;
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.25s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.field-input:focus,
+.field-select:focus,
+.field-textarea:focus {
+  border-color: var(--primary-blue);
+  background: #FFFFFF;
+  box-shadow: 0 0 0 6px rgba(0, 122, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.field-input::placeholder,
+.field-textarea::placeholder {
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+/* Select personnalisé */
+.field-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238E8E93' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 18px;
+  padding-right: 50px;
+  cursor: pointer;
+}
+
+.field-select:focus {
+  /* On retire le background-image au focus pour éviter les flèches bleues superposées */
+  background-image: none;
+}
+
+/* Textarea */
+.field-textarea {
+  resize: none;
+  min-height: 80px;
+  max-height: 120px;
+  line-height: 1.5;
+}
+
+/* Boîte d'information */
+.employee-preview-box {
+  background: linear-gradient(135deg, #E8F4FD 0%, #F0F8FF 100%);
+  border: 2px solid rgba(0, 122, 255, 0.15);
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: flex;
+  gap: 0;
+  align-items: flex-start;
+  position: relative;
+  margin-top: 12px;
+  min-height: 80px;
+  box-sizing: border-box;
+}
+
+.preview-icon {
+  background: var(--primary-blue);
+  color: white;
+  width: 44px;
+  height: 44px;
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 20px;
+  position: absolute;
+  top: 24px;
+  left: 24px;
+}
+
+.preview-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin-left: 70px;
+}
+
+.preview-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+  text-align: left;
+}
+
+.preview-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+.preview-item {
+  font-size: 14px;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.4;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+.preview-label {
+  font-weight: 600;
+  color: var(--primary-blue);
+}
+
+/* Actions du modal */
+.new-employee-actions {
+  padding: 24px 32px 32px;
+  border-top: 1px solid var(--modal-border);
+  background: var(--modal-bg);
+  display: flex;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.action-button {
+  flex: 1;
+  padding: 16px 24px;
+  border-radius: var(--button-radius);
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: none;
+  outline: none;
+  text-align: center;
+  letter-spacing: -0.1px;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.action-button:hover::before {
+  left: 100%;
+}
+
+.cancel-button {
+  background: var(--bg-light);
+  color: var(--text-primary);
+}
+
+.cancel-button:hover {
+  background: #E5E5EA;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.create-button {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-hover) 100%);
+  color: white;
+  box-shadow: 0 6px 20px rgba(0, 122, 255, 0.3);
+}
+
+.create-button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(0, 122, 255, 0.4);
+}
+
+.create-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 3px 12px rgba(0, 122, 255, 0.2);
+}
+
+/* Loading state */
+.button-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* États d'erreur */
+.field-error {
+  border-color: var(--danger) !important;
+  background: rgba(255, 59, 48, 0.05) !important;
+}
+
+.error-message {
+  font-size: 13px;
+  color: var(--danger);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .new-employee-overlay {
+    padding: 16px;
+  }
+  
+  .new-employee-modal {
+    max-width: 100%;
+    max-height: 95vh;
+    border-radius: 16px;
+  }
+  
+  .new-employee-header {
+    padding: 24px 24px 20px;
+  }
+  
+  .new-employee-title {
+    font-size: 22px;
+  }
+  
+  .new-employee-close {
+    top: 20px;
+    right: 20px;
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
+  }
+  
+  .new-employee-content {
+    padding: 24px;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .new-employee-actions {
+    padding: 20px 24px 28px;
+    flex-direction: column;
+  }
+  
+  .employee-preview-box {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .preview-icon {
+    align-self: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .new-employee-overlay {
+    padding: 12px;
+  }
+  
+  .new-employee-header {
+    padding: 20px 20px 16px;
+  }
+  
+  .new-employee-content {
+    padding: 20px;
+  }
+  
+  .field-input,
+  .field-select,
+  .field-textarea {
+    padding: 14px 16px;
+    font-size: 16px; /* Évite le zoom sur iOS */
+  }
+  
+  .new-employee-actions {
+    padding: 16px 20px 24px;
+  }
+}
+
+/* Animation de fermeture */
+.new-employee-overlay.closing {
+  animation: overlayOut 0.25s ease-in;
+}
+
+.new-employee-modal.closing {
+  animation: modalOut 0.25s ease-in;
+}
+
+@keyframes overlayOut {
+  to {
+    opacity: 0;
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
+  }
+}
+
+@keyframes modalOut {
+  to {
+    opacity: 0;
+    transform: scale(0.92) translateY(30px);
+  }
+}

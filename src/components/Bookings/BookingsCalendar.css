@@ -39,6 +39,7 @@
 
 .search-section {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
@@ -60,7 +61,7 @@
 
 .search-input {
   width: 100%;
-  padding: 12px 16px 12px 48px;
+  padding: 12px 60px 12px 48px;
   border: 2px solid rgba(0, 0, 0, 0.06);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.9);
@@ -373,6 +374,20 @@
   font-size: 14px;
   color: #374151;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.driver-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #007AFF;
+  background: rgba(0, 122, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .bookings-summary {
@@ -750,5 +765,156 @@
   
   .trips-count {
     font-size: 9px;
+  }
+}
+
+/* ===============================================
+   RECHERCHE GLOBALE INTELLIGENTE 🔍
+   =============================================== */
+
+/* Actions de recherche */
+.search-actions {
+  display: flex;
+  gap: 6px;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+}
+
+.clear-search-btn {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #FF3B30;
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 59, 48, 0.3);
+}
+
+.clear-search-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.4);
+}
+
+/* Input de recherche globale active */
+.search-input.global-search-active {
+  border-color: #34C759;
+  background: rgba(52, 199, 89, 0.05);
+}
+
+.search-input.global-search-active:focus {
+  border-color: #34C759;
+  box-shadow: 0 0 0 4px rgba(52, 199, 89, 0.1);
+}
+
+/* Résultats de recherche globale */
+.global-search-results {
+  margin-top: 4px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  width: 100%;
+  max-width: 400px;
+}
+
+.search-summary {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1d1d1f;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-summary.no-results {
+  color: #FF3B30;
+  background: rgba(255, 59, 48, 0.1);
+  border: 1px solid rgba(255, 59, 48, 0.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+/* Message d'erreur horizontal */
+.search-summary.no-results-horizontal {
+  color: #FF3B30;
+  background: rgba(255, 59, 48, 0.08);
+  border: 1px solid rgba(255, 59, 48, 0.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  display: inline-block;
+  width: auto;
+  text-align: left;
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* Effet de surbrillance pour les bus trouvés */
+.bus-card.highlight-search {
+  animation: highlightPulse 2s ease-in-out;
+  border-color: #34C759 !important;
+  box-shadow: 0 0 20px rgba(52, 199, 89, 0.4) !important;
+}
+
+@keyframes highlightPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(52, 199, 89, 0.4);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 30px rgba(52, 199, 89, 0.6);
+  }
+}
+
+/* Surbrillance pour la section des réservations */
+.bookings-section.highlighted {
+  animation: sectionHighlight 2s ease-in-out;
+}
+
+@keyframes sectionHighlight {
+  0%, 100% {
+    background: rgba(255, 255, 255, 0.95);
+  }
+  50% {
+    background: rgba(52, 199, 89, 0.1);
+    box-shadow: 0 0 20px rgba(52, 199, 89, 0.2);
+  }
+}
+
+/* Responsive pour la recherche globale */
+@media (max-width: 768px) {
+  .search-actions {
+    position: relative;
+    right: auto;
+    top: auto;
+    transform: none;
+    margin-top: 8px;
+    justify-content: center;
+  }
+
+  .search-input.global-search-active {
+    padding-right: 48px;
+  }
+
+  .global-search-btn, .clear-search-btn {
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+
+  .global-search-results {
+    margin-top: 8px;
+    padding: 8px 12px;
+  }
+
+  .search-summary {
+    font-size: 13px;
+    text-align: center;
   }
 }

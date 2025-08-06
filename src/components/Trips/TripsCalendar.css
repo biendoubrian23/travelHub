@@ -636,11 +636,59 @@
   border-bottom: 2px solid rgba(142, 142, 147, 0.1);
 }
 
+.header-left {
+  flex: 1;
+}
+
 .list-header h2 {
   font-size: 24px;
   font-weight: 700;
   color: #1d1d1f;
-  margin: 0;
+  margin: 0 0 8px 0;
+}
+
+.add-trip-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.add-trip-btn-green {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #34C759 0%, #28A745 100%);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(52, 199, 89, 0.3);
+  transform: translateY(0);
+}
+
+.add-trip-btn-green:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(52, 199, 89, 0.4);
+  background: linear-gradient(135deg, #30D158 0%, #34C759 100%);
+}
+
+.add-trip-btn-green:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(52, 199, 89, 0.3);
+}
+
+.add-trip-btn-green .btn-icon {
+  font-size: 18px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 .trips-summary {

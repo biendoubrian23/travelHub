@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRolePermissions } from '../RoleBasedComponents';
 import './BookingsCalendar.css';
 
@@ -10,6 +10,12 @@ const BookingsCalendar = () => {
   const [bookings, setBookings] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [globalSearchResult, setGlobalSearchResult] = useState(null);
+  const [isGlobalSearch, setIsGlobalSearch] = useState(false);
+  
+  // Référence pour le scroll automatique
+  const busContainerRef = useRef(null);
+  const searchResultRef = useRef(null);
 
   // Générer les dates du carrousel (3 anciens + aujourd'hui + 15 prochains)
   const generateCalendarDates = () => {
@@ -268,7 +274,85 @@ const BookingsCalendar = () => {
     return bookings.filter(booking => booking.busId === busId);
   };
 
-  // Filtrer les réservations par recherche
+  // 🔍 RECHERCHE GLOBALE INTELLIGENTE
+  // Rechercher dans tous les bus de la journée sélectionnée
+  const performGlobalSearch = (searchQuery) => {
+    if (!searchQuery.trim()) {
+      setGlobalSearchResult(null);
+      setIsGlobalSearch(false);
+      return;
+    }
+
+    const tripsForDate = getTripsForDate(selectedDate);
+    const results = [];
+
+    tripsForDate.forEach(trip => {
+      const busBookings = getBookingsForBus(trip.bus.id);
+      const matchingBookings = busBookings.filter(booking =>
+        booking.passengerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        booking.passengerPhone.includes(searchQuery) ||
+        booking.seatNumber.toString().includes(searchQuery)
+      );
+
+      if (matchingBookings.length > 0) {
+        results.push({
+          trip,
+          bookings: matchingBookings
+        });
+      }
+    });
+
+    if (results.length > 0) {
+      setGlobalSearchResult(results);
+      setIsGlobalSearch(true);
+      
+      // Auto-sélectionner le premier bus trouvé
+      const firstResult = results[0];
+      setSelectedBus(firstResult.trip);
+      
+      // Scroll automatique vers le bus sélectionné
+      setTimeout(() => {
+        scrollToBus(firstResult.trip.bus.id);
+      }, 100);
+    } else {
+      setGlobalSearchResult([]);
+      setIsGlobalSearch(true);
+    }
+  };
+
+  // Scroll automatique vers un bus spécifique
+  const scrollToBus = (busId) => {
+    const busElement = document.querySelector(`[data-bus-id="${busId}"]`);
+    if (busElement && busContainerRef.current) {
+      busElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+      
+      // Effet visuel de highlight
+      busElement.classList.add('highlight-search');
+      setTimeout(() => {
+        busElement.classList.remove('highlight-search');
+      }, 2000);
+    }
+  };
+
+  // Gérer la touche Entrée dans la recherche
+  const handleSearchKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      performGlobalSearch(searchTerm);
+    }
+  };
+
+  // Réinitialiser la recherche globale quand on change de date
+  useEffect(() => {
+    setGlobalSearchResult(null);
+    setIsGlobalSearch(false);
+    setSearchTerm('');
+  }, [selectedDate]);
+
+  // Filtrer les réservations par recherche (mode local)
   const filteredBookings = selectedBus 
     ? getBookingsForBus(selectedBus.bus.id).filter(booking =>
         !searchTerm || 
@@ -357,12 +441,40 @@ const BookingsCalendar = () => {
             <span className="search-icon">🔍</span>
             <input
               type="text"
-              placeholder="Rechercher par nom, téléphone ou siège..."
+              placeholder={isGlobalSearch 
+                ? "Recherche globale dans tous les bus..." 
+                : "Rechercher par nom, téléphone ou siège (Entrée = recherche globale)..."
+              }
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
+              onKeyPress={handleSearchKeyPress}
+              className={`search-input ${isGlobalSearch ? 'global-search-active' : ''}`}
             />
+            {searchTerm && (
+              <div className="search-actions">
+                <button 
+                  onClick={() => {
+                    setSearchTerm('');
+                    setGlobalSearchResult(null);
+                    setIsGlobalSearch(false);
+                  }}
+                  className="clear-search-btn"
+                  title="Effacer la recherche"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
           </div>
+          
+          {/* Affichage des résultats de recherche globale */}
+          {isGlobalSearch && globalSearchResult && globalSearchResult.length === 0 && (
+            <div className="global-search-results">
+              <div className="search-summary no-results-horizontal">
+                ❌ Aucun résultat trouvé pour "{searchTerm}"
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -408,7 +520,7 @@ const BookingsCalendar = () => {
         ) : (
           <>
             {/* Section des bus */}
-            <div className="buses-section">
+            <div className="buses-section" ref={busContainerRef}>
               <div className="section-header">
                 <h2>🚌 Bus du {formatDate(selectedDate)}</h2>
                 <div className="buses-count">
@@ -431,6 +543,7 @@ const BookingsCalendar = () => {
                     return (
                       <div
                         key={trip.id}
+                        data-bus-id={trip.bus.id}
                         className={`bus-card ${isSelected ? 'selected' : ''}`}
                         onClick={() => handleBusSelection(trip)}
                       >
@@ -450,7 +563,10 @@ const BookingsCalendar = () => {
                         </div>
                         
                         <div className="driver-info">
-                          <div className="driver-name">👤 {trip.driver.name}</div>
+                          <div className="driver-name">
+                            👤 {trip.driver.name}
+                            <span className="driver-label">Conducteur</span>
+                          </div>
                         </div>
                         
                         <div className="bookings-summary">
@@ -480,7 +596,7 @@ const BookingsCalendar = () => {
 
             {/* Section des réservations */}
             {selectedBus && (
-              <div className="bookings-section">
+              <div className="bookings-section" ref={searchResultRef}>
                 <div className="section-header">
                   <h2>👥 Passagers - Bus #{selectedBus.bus.number}</h2>
                   <div className="bookings-info">

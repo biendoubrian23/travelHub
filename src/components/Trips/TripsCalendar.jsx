@@ -437,16 +437,6 @@ const TripsCalendar = () => {
             </div>
           </div>
           
-          {hasPermission('trips', 'create') && (
-            <button
-              className="add-trip-btn"
-              onClick={() => setShowAddModal(true)}
-              title="Ajouter un nouveau trajet"
-            >
-              <span className="btn-icon">➕</span>
-              <span className="btn-text">Ajouter un trajet</span>
-            </button>
-          )}
         </div>
       </div>
 
@@ -491,10 +481,25 @@ const TripsCalendar = () => {
           <>
             <div className="trips-list">
               <div className="list-header">
-                <h2>📋 Trajets du {formatDate(selectedDate)}</h2>
-                <div className="trips-summary">
-                  {filteredTrips.length} trajet{filteredTrips.length !== 1 ? 's' : ''} trouvé{filteredTrips.length !== 1 ? 's' : ''}
+                <div className="header-left">
+                  <h2>📋 Trajets du {formatDate(selectedDate)}</h2>
+                  <div className="trips-summary">
+                    {filteredTrips.length} trajet{filteredTrips.length !== 1 ? 's' : ''} trouvé{filteredTrips.length !== 1 ? 's' : ''}
+                  </div>
                 </div>
+                
+                {hasPermission('trips', 'create') && (
+                  <div className="add-trip-section">
+                    <button
+                      className="add-trip-btn-green"
+                      onClick={() => setShowAddModal(true)}
+                      title="Ajouter un nouveau trajet"
+                    >
+                      <span className="btn-icon">➕</span>
+                      <span className="btn-text">Ajouter un trajet</span>
+                    </button>
+                  </div>
+                )}
               </div>
 
               {filteredTrips.length === 0 ? (

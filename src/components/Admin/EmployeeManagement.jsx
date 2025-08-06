@@ -13,6 +13,7 @@ import './StatusBadgesHarmonization.css';
 import './NoHoverTableStyles.css';
 import './EmployeeOptimizations.css';
 import './TableCompactStyles.css';
+import './NewEmployeeModal.css';
 import './ModalScrollFix.css';
 import './FixedModalStructure.css'; // Structure de modal à priorité absolue
 import './FormSpacingFix.css'; // Correction d'espacement pour les formulaires
@@ -437,7 +438,13 @@ const EmployeeManagement = () => {
       }
     }
     
-    setSelectedEmployee(employee);
+    // S'assurer que hire_date est bien présent dans l'objet passé au modal
+    // Correction : on force le mapping de hire_date à partir de toutes les sources possibles
+    let hireDateValue = employee.hire_date || employee.hireDate || employee['hire_date'] || employee['hireDate'] || null;
+    setSelectedEmployee({
+      ...employee,
+      hire_date: hireDateValue
+    });
   };
 
   // Fonction pour ouvrir le modal de détails d'une invitation
@@ -508,82 +515,52 @@ const EmployeeManagement = () => {
 
       {/* Popup d'invitation envoyée - Version améliorée */}
       {generatedCredentials && generatedCredentials.isInvitation && (
-        <div className="modal-overlay">
-          <div className="modal credentials-modal">
-            <div className="modal-header">
-              <h2>Invitation envoyée avec succès!</h2>
-              <button 
-                onClick={() => setGeneratedCredentials(null)}
-                className="close-btn"
-              >
-                ×
-              </button>
-            </div>
-            
-            <div className="modal-content">
-              <div className="employee-success-icon">✉️</div>
-              
-              <div className="employee-info-summary">
-                <h3>{generatedCredentials.firstName} {generatedCredentials.lastName}</h3>
-                <p className="employee-role">{getRoleLabel(generatedCredentials.role)}</p>
-                <p className="agency-name">{generatedCredentials.agencyName}</p>
-              </div>
-              
-              <div className="credentials-card">
-                <h4>Invitation créée</h4>
-                <div className="credential-group">
-                  <div className="credential-item">
-                    <label>Email d'invitation</label>
-                    <div className="credential-value">
-                      <span>{generatedCredentials.email}</span>
-                      <button 
-                        onClick={() => copyToClipboard(generatedCredentials.email, 'email')}
-                        className="copy-btn"
-                        title="Copier l'email"
-                      >
-                        {copiedField === 'email' ? <Check size={16} /> : <Copy size={16} />}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="credential-item">
-                    <label>Lien d'invitation</label>
-                    <div className="credential-value">
-                      <span className="invitation-link">{generatedCredentials.invitationLink}</span>
-                      <button 
-                        onClick={() => copyToClipboard(generatedCredentials.invitationLink, 'link')}
-                        className="copy-btn"
-                        title="Copier le lien"
-                      >
-                        {copiedField === 'link' ? <Check size={16} /> : <Copy size={16} />}
-                      </button>
-                    </div>
-                  </div>
+        <div className="new-employee-overlay" onClick={e => {if (e.target === e.currentTarget) setGeneratedCredentials(null);}}>
+          <div className="new-employee-modal" style={{maxWidth:'480px',padding:'0',display:'flex',flexDirection:'column',height:'90vh'}}>
+            <div style={{padding:'32px 32px 0',textAlign:'center'}}>
+              <div style={{marginBottom:'18px'}}>
+                <div style={{width:'62px',height:'62px',borderRadius:'50%',background:'linear-gradient(135deg,#f3f3fa,#e8e8f8)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto'}}>
+                  <Mail size={38} color="#b3b3b3" />
                 </div>
               </div>
-              
-              <div className="invitation-actions">
-                <button 
-                  onClick={() => window.open(`mailto:${generatedCredentials.email}?subject=Invitation à rejoindre ${generatedCredentials.agencyName}&body=Bonjour ${generatedCredentials.firstName},\n\nVous êtes invité à rejoindre l'agence ${generatedCredentials.agencyName} en tant que ${getRoleLabel(generatedCredentials.role)}.\n\nCliquez sur ce lien pour créer votre compte :\n${generatedCredentials.invitationLink}\n\nCordialement`)}
-                  className="btn btn-outline"
-                >
-                  <Send size={16} />
-                  Envoyer par email
-                </button>
+              <h2 style={{fontWeight:700,fontSize:'22px',margin:'0 0 8px'}}>Invitation créée</h2>
+              <div style={{fontSize:'18px',fontWeight:600,color:'#FF3B30',marginBottom:'8px'}}>Invitation créée</div>
+              <div style={{fontSize:'17px',fontWeight:500,color:'#222',marginBottom:'2px',textTransform:'uppercase'}}>{generatedCredentials.firstName} {generatedCredentials.lastName}</div>
+              <div style={{display:'inline-block',background:'#F2F2F7',color:'#007AFF',fontWeight:600,borderRadius:'12px',padding:'4px 16px',fontSize:'15px',marginBottom:'6px'}}>{getRoleLabel(generatedCredentials.role)}</div>
+              <div style={{fontStyle:'italic',color:'#222',fontSize:'15px',marginBottom:'10px'}}>{generatedCredentials.agencyName}</div>
+            </div>
+            <div style={{flex:1,overflowY:'auto',padding:'0 32px 0'}}>
+              <div style={{background:'#f7fbff',border:'2px solid #cce6ff',borderRadius:'16px',padding:'20px 18px',margin:'18px 0 0 0'}}>
+                <div style={{fontWeight:600,color:'#8E8E93',fontSize:'15px',marginBottom:'4px',textAlign:'left'}}>Email d'invitation</div>
+                <div style={{display:'flex',alignItems:'center',background:'#fff',borderRadius:'8px',padding:'8px 12px',fontSize:'15px',wordBreak:'break-all',overflowWrap:'break-word',marginBottom:'12px',border:'1px solid #e5e5ea'}}>
+                  <span style={{flex:1}}>{generatedCredentials.email}</span>
+                  <span style={{marginLeft:'8px',cursor:'pointer'}} onClick={()=>copyToClipboard(generatedCredentials.email,'email')} title="Copier l'email">
+                    {copiedField==='email'?<Check size={18} color="#34C759"/>:<Copy size={18} color="#007AFF"/>}
+                  </span>
+                </div>
+                <div style={{fontWeight:600,color:'#8E8E93',fontSize:'15px',marginBottom:'4px',textAlign:'left'}}>Lien d'invitation</div>
+                <div style={{display:'flex',alignItems:'center',background:'#fff',borderRadius:'8px',padding:'8px 12px',fontSize:'15px',wordBreak:'break-all',overflowWrap:'break-word',border:'1px solid #e5e5ea'}}>
+                  <span style={{flex:1}}>{generatedCredentials.invitationLink}</span>
+                  <span style={{marginLeft:'8px',cursor:'pointer'}} onClick={()=>copyToClipboard(generatedCredentials.invitationLink,'link')} title="Copier le lien">
+                    {copiedField==='link'?<Check size={18} color="#34C759"/>:<Copy size={18} color="#007AFF"/>}
+                  </span>
+                </div>
               </div>
-              
-              <div className="credentials-note">
-                <strong>Important :</strong> Partagez ce lien d'invitation avec l'employé. 
-                Il aura 7 jours pour créer son compte.
+              <button type="button" style={{margin:'22px auto 0',display:'block',background:'white',color:'#007AFF',border:'2px solid #007AFF',borderRadius:'12px',padding:'12px 32px',fontWeight:600,fontSize:'16px',cursor:'pointer',transition:'0.2s'}}
+                onClick={()=>{
+                  const subject = encodeURIComponent('Invitation à rejoindre Agence Transport Plus');
+                  const body = encodeURIComponent(`Bonjour ${generatedCredentials.firstName},\n\nVous avez été invité à rejoindre l'agence ${generatedCredentials.agencyName} sur TravelHub.\n\nVotre email d'accès : ${generatedCredentials.email}\n\nPour activer votre compte, cliquez sur le lien suivant :\n${generatedCredentials.invitationLink}\n\nCe lien est valable 7 jours.\n\nBienvenue dans l'équipe !\n\nCordialement,\n${userProfile?.full_name || 'L’équipe TravelHub'}`);
+                  window.open(`mailto:${generatedCredentials.email}?subject=${subject}&body=${body}`);
+                }}
+              >
+                <Send size={18} style={{marginRight:'8px',verticalAlign:'middle'}}/> Envoyer par email
+              </button>
+              <div style={{background:'#fffbe6',border:'1px solid #ffe58f',borderRadius:'12px',padding:'12px 18px',margin:'22px 0 0 0',color:'#b26a00',fontSize:'15px',fontWeight:500}}>
+                <span style={{fontWeight:700,color:'#d48806'}}>Important :</span> Partagez ce lien d'invitation avec l'employé. Il aura 7 jours pour créer son compte.
               </div>
-              
-              <div className="modal-actions">
-                <button 
-                  onClick={() => setGeneratedCredentials(null)}
-                  className="btn btn-primary"
-                >
-                  Fermer et continuer
-                </button>
-              </div>
+            </div>
+            <div className="new-employee-actions" style={{padding:'24px 32px 32px',borderTop:'none',display:'flex',gap:'16px'}}>
+              <button type="button" className="action-button cancel-button" onClick={()=>setGeneratedCredentials(null)}>Fermer</button>
             </div>
           </div>
         </div>
@@ -897,72 +874,82 @@ const EmployeeManagement = () => {
 
       {/* Modal d'ajout d'employé */}
       {showAddModal && (
-        <div className="modal-overlay">
-          <div className="modal employee-creation-modal">
-            <div className="modal-header">
-              <h2>Ajouter un nouvel employé</h2>
+        <div className="new-employee-overlay" onClick={(e) => {
+          if (e.target === e.currentTarget) setShowAddModal(false);
+        }}>
+          <div className="new-employee-modal">
+            {/* En-tête du modal */}
+            <div className="new-employee-header">
+              <h2 className="new-employee-title">Ajouter un employé</h2>
               <button 
                 onClick={() => setShowAddModal(false)}
-                className="close-btn"
+                className="new-employee-close"
+                type="button"
               >
                 ×
               </button>
             </div>
 
-            <div className="modal-content scrollable-content">
-              <form onSubmit={handleAddEmployee} className="modal-form employee-creation-form">
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Prénom *</label>
+            {/* Contenu scrollable */}
+            <div className="new-employee-content">
+              <form className="new-employee-form" onSubmit={handleAddEmployee}>
+                
+                {/* Grille des champs principaux */}
+                <div className="form-grid">
+                  <div className="form-field">
+                    <label className="field-label field-required">Prénom</label>
                     <input
                       type="text"
                       value={newEmployee.firstName}
                       onChange={(e) => setNewEmployee({...newEmployee, firstName: e.target.value})}
-                      className="form-input"
+                      className="field-input"
+                      placeholder="Entrez le prénom"
                       required
                     />
                   </div>
-                  <div className="form-group">
-                    <label>Nom *</label>
+                  
+                  <div className="form-field">
+                    <label className="field-label field-required">Nom de famille</label>
                     <input
                       type="text"
                       value={newEmployee.lastName}
                       onChange={(e) => setNewEmployee({...newEmployee, lastName: e.target.value})}
-                      className="form-input"
+                      className="field-input"
+                      placeholder="Entrez le nom de famille"
                       required
                     />
                   </div>
-                </div>
-
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Téléphone *</label>
+                  
+                  <div className="form-field">
+                    <label className="field-label field-required">Téléphone</label>
                     <input
                       type="tel"
                       value={newEmployee.phone}
                       onChange={(e) => setNewEmployee({...newEmployee, phone: e.target.value})}
-                      className="form-input"
+                      className="field-input"
                       placeholder="+237 6XX XXX XXX"
                       required
                     />
                   </div>
-                  <div className="form-group">
-                    <label>Date de naissance</label>
+                  
+                  <div className="form-field">
+                    <label className="field-label">Date de naissance</label>
                     <input
                       type="date"
                       value={newEmployee.dateOfBirth}
                       onChange={(e) => setNewEmployee({...newEmployee, dateOfBirth: e.target.value})}
-                      className="form-input"
+                      className="field-input"
                     />
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label>Rôle *</label>
+                {/* Rôle - pleine largeur */}
+                <div className="form-field full-width">
+                  <label className="field-label field-required">Rôle dans l'agence</label>
                   <select
                     value={newEmployee.role}
                     onChange={(e) => setNewEmployee({...newEmployee, role: e.target.value})}
-                    className="form-select"
+                    className="field-select"
                     required
                   >
                     {roles.map(role => (
@@ -973,43 +960,60 @@ const EmployeeManagement = () => {
                   </select>
                 </div>
 
-                <div className="form-group">
-                  <label>Notes</label>
+                {/* Notes - pleine largeur */}
+                <div className="form-field full-width">
+                  <label className="field-label">Notes internes</label>
                   <textarea
                     value={newEmployee.notes}
                     onChange={(e) => setNewEmployee({...newEmployee, notes: e.target.value})}
-                    className="form-textarea"
-                    placeholder="Notes internes optionnelles"
-                    rows="3"
+                    className="field-textarea"
+                    placeholder="Ajoutez des notes optionnelles..."
                   />
                 </div>
 
-                <div className="info-box employee-info-box">
-                  <Mail size={20} />
-                  <div>
-                    <p><strong>Email automatique :</strong> {newEmployee.firstName && newEmployee.lastName 
-                      ? `${newEmployee.firstName.toLowerCase()}.${newEmployee.lastName.toLowerCase()}@${agency?.name?.toLowerCase().replace(/\s+/g, '')}.travelhub.cm`
-                      : 'Sera généré automatiquement'
-                    }</p>
-                    <p><strong>Mot de passe :</strong> Généré automatiquement (8 caractères)</p>
+                {/* Boîte d'information */}
+                {(newEmployee.firstName || newEmployee.lastName) && (
+                  <div className="employee-preview-box">
+                    <div className="preview-icon">
+                      <Mail size={20} />
+                    </div>
+                    <div className="preview-content">
+                      <div className="preview-label" style={{fontWeight:600, color:'#007AFF', marginBottom:'6px'}}>Email :</div>
+                      <div className="preview-details">
+                        <div className="preview-item" style={{wordBreak:'break-all', overflowWrap:'break-word', fontSize:'15px'}}>
+                          {newEmployee.firstName && newEmployee.lastName 
+                            ? `${newEmployee.firstName.toLowerCase()}.${newEmployee.lastName.toLowerCase()}@${agency?.name?.toLowerCase().replace(/\s+/g, '')}.travelhub.cm`
+                            : 'Sera généré automatiquement'}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )}
               </form>
             </div>
-            <div className="modal-actions employee-creation-actions">
+
+            {/* Actions */}
+            <div className="new-employee-actions">
               <button 
                 type="button"
                 onClick={() => setShowAddModal(false)}
-                className="btn btn-outline"
+                className="action-button cancel-button"
               >
                 Annuler
               </button>
               <button 
                 onClick={handleAddEmployee}
-                className="btn btn-primary btn-create-employee"
-                disabled={loading}
+                className="action-button create-button"
+                disabled={loading || !newEmployee.firstName || !newEmployee.lastName || !newEmployee.phone || !newEmployee.role}
               >
-                {loading ? 'Création...' : 'Créer l\'employé'}
+                {loading ? (
+                  <span className="button-loading">
+                    <span className="loading-spinner"></span>
+                    Création...
+                  </span>
+                ) : (
+                  'Créer l\'employé'
+                )}
               </button>
             </div>
           </div>
@@ -1018,230 +1022,58 @@ const EmployeeManagement = () => {
 
       {/* Modal de détails de l'employé ou invitation */}
       {selectedEmployee && !showAddModal && !generatedCredentials && (
-        <div className="modal-overlay details-modal-overlay">
-          <div className="modal employee-details-modal">
-            <div className="modal-header">
-              <h2>
-                {selectedEmployee.isInvitation ? 'Détails de l\'invitation' : 'Détails de l\'employé'}
-              </h2>
-              <button 
-                onClick={() => setSelectedEmployee(null)}
-                className="close-btn"
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="modal-content">
-              <div className="employee-details-header">
-                <div className="employee-avatar">
-                  {selectedEmployee.isInvitation ? <Mail size={52} /> : <Users size={52} />}
-                </div>
-                <div className="employee-main-info">
-                  <h3>
-                    {selectedEmployee.isInvitation 
-                      ? selectedEmployee.full_name || 'Nom non disponible'
-                      : (selectedEmployee.user?.full_name || 
-                         `${selectedEmployee.first_name || ''} ${selectedEmployee.last_name || ''}`.trim() || 
-                         'Nom non disponible')
-                    }
-                  </h3>
-                  <p className="employee-email-detail">
-                    {selectedEmployee.email || 'Email non disponible'}
-                  </p>
-                  <div className="status-role-badges">
-                    {selectedEmployee.isInvitation ? (
-                      <>
-                        {selectedEmployee.status === 'pending' && (
-                          <span className="status-badge pending">
-                            <Clock size={14} />
-                            En attente
-                          </span>
-                        )}
-                        {selectedEmployee.status === 'accepted' && (
-                          <span className="status-badge accepted">
-                            <UserCheck size={14} />
-                            Acceptée
-                          </span>
-                        )}
-                        {selectedEmployee.status === 'expired' && (
-                          <span className="status-badge expired">
-                            <UserX size={14} />
-                            Expirée
-                          </span>
-                        )}
-                      </>
-                    ) : (
-                      <span 
-                        className={`status-badge ${selectedEmployee.is_active ? 'active' : 'inactive'}`}
-                      >
-                        {selectedEmployee.is_active ? 'Actif' : 'Inactif'}
-                      </span>
-                    )}
-                    <span 
-                      className="role-badge" 
-                      style={{ backgroundColor: getRoleColor(selectedEmployee.role || selectedEmployee.employee_role) }}
-                    >
-                      {getRoleLabel(selectedEmployee.role || selectedEmployee.employee_role)}
-                    </span>
-                  </div>
+        <div className="new-employee-overlay" onClick={e => {if (e.target === e.currentTarget) setSelectedEmployee(null);}}>
+          <div className="new-employee-modal" style={{maxWidth:'520px',padding:'0',display:'flex',flexDirection:'column',height:'90vh'}}>
+            <div style={{padding:'32px 32px 0',textAlign:'center',position:'relative'}}>
+              <button onClick={()=>setSelectedEmployee(null)} className="new-employee-close" style={{position:'absolute',top:'18px',right:'18px',zIndex:2}}>×</button>
+              <div style={{marginBottom:'18px'}}>
+                <div style={{width:'62px',height:'62px',borderRadius:'50%',background:'linear-gradient(135deg,#f3f3fa,#e8e8f8)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto'}}>
+                  {selectedEmployee.user?.full_name || selectedEmployee.full_name ? <Users size={38} color="#b3b3b3" /> : <Mail size={38} color="#b3b3b3" />}
                 </div>
               </div>
-
-              <div className="employee-details-grid">
-                <div className="detail-section">
-                  <h4>📋 Informations générales</h4>
-                  {selectedEmployee.isInvitation ? (
-                    <>
-                      <div className="detail-row">
-                        <span className="label">Prénom</span>
-                        <span>{selectedEmployee.first_name || 'Non renseigné'}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="label">Nom</span>
-                        <span>{selectedEmployee.last_name || 'Non renseigné'}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="label">Email d'invitation</span>
-                        <span>{selectedEmployee.email}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="label">Statut de l'invitation</span>
-                        <span>
-                          {selectedEmployee.status === 'pending' && 'En attente'}
-                          {selectedEmployee.status === 'accepted' && 'Acceptée'}
-                          {selectedEmployee.status === 'expired' && 'Expirée'}
-                        </span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="label">Date d'invitation</span>
-                        <span>{new Date(selectedEmployee.created_at).toLocaleDateString('fr-FR')}</span>
-                      </div>
-                      {selectedEmployee.accepted_at && (
-                        <div className="detail-row">
-                          <span className="label">Date d'acceptation</span>
-                          <span>{new Date(selectedEmployee.accepted_at).toLocaleDateString('fr-FR')}</span>
-                        </div>
-                      )}
-                      {selectedEmployee.expires_at && (
-                        <div className="detail-row">
-                          <span className="label">Date d'expiration</span>
-                          <span>{new Date(selectedEmployee.expires_at).toLocaleDateString('fr-FR')}</span>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      <div className="detail-row">
-                        <span className="label">Date d'embauche</span>
-                        <span>{selectedEmployee.hire_date ? new Date(selectedEmployee.hire_date).toLocaleDateString('fr-FR') : 'Non définie'}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="label">Statut</span>
-                        <span>{selectedEmployee.is_active ? 'Actif' : 'Inactif'}</span>
-                      </div>
-                      {selectedEmployee.created_at && (
-                        <div className="detail-row">
-                          <span className="label">Créé le</span>
-                          <span>{new Date(selectedEmployee.created_at).toLocaleDateString('fr-FR')}</span>
-                        </div>
-                      )}
-                      {selectedEmployee.updated_at && selectedEmployee.updated_at !== selectedEmployee.created_at && (
-                        <div className="detail-row">
-                          <span className="label">Dernière modification</span>
-                          <span>{new Date(selectedEmployee.updated_at).toLocaleDateString('fr-FR')}</span>
-                        </div>
-                      )}
-                      {selectedEmployee.salary_fcfa && (
-                        <div className="detail-row">
-                          <span className="label">Salaire</span>
-                          <span>{selectedEmployee.salary_fcfa.toLocaleString()} FCFA</span>
-                        </div>
-                      )}
-                    </>
-                  )}
-                  <div className="detail-row">
-                    <span className="label">Rôle</span>
-                    <span>{getRoleLabel(selectedEmployee.role || selectedEmployee.employee_role)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="label">Téléphone</span>
-                    <span>{selectedEmployee.phone || 'Non renseigné'}</span>
-                  </div>
-                  {selectedEmployee.date_of_birth && (
-                    <div className="detail-row">
-                      <span className="label">Date de naissance</span>
-                      <span>{new Date(selectedEmployee.date_of_birth).toLocaleDateString('fr-FR')}</span>
-                    </div>
-                  )}
-                </div>
-
-                {selectedEmployee.notes && (
-                  <div className="detail-section">
-                    <h4>📝 Notes</h4>
-                    <div className="notes-content">
-                      {selectedEmployee.notes}
-                    </div>
-                  </div>
+              <h2 style={{fontWeight:700,fontSize:'22px',margin:'0 0 8px'}}>Détails de l'employé</h2>
+              <div style={{fontSize:'18px',fontWeight:600,color:'#007AFF',marginBottom:'8px'}}>{selectedEmployee.user?.full_name || selectedEmployee.full_name || `${selectedEmployee.first_name || ''} ${selectedEmployee.last_name || ''}`.trim() || 'Nom non disponible'}</div>
+              <div style={{display:'inline-block',background:'#F2F2F7',color:'#007AFF',fontWeight:600,borderRadius:'12px',padding:'4px 16px',fontSize:'15px',marginBottom:'6px'}}>{getRoleLabel(selectedEmployee.role || selectedEmployee.employee_role)}</div>
+              <div style={{fontStyle:'italic',color:'#222',fontSize:'15px',marginBottom:'10px'}}>{agency?.name}</div>
+            </div>
+            <div style={{flex:1,overflowY:'auto',padding:'0 32px 0'}}>
+              <div style={{background:'#f7fbff',border:'2px solid #e5e5ea',borderRadius:'16px',padding:'20px 18px',margin:'18px 0 0 0'}}>
+                <div style={{fontWeight:600,color:'#8E8E93',fontSize:'15px',marginBottom:'4px',textAlign:'left'}}>Email</div>
+                <div style={{background:'#fff',borderRadius:'8px',padding:'8px 12px',fontSize:'15px',wordBreak:'break-all',overflowWrap:'break-word',marginBottom:'12px',border:'1px solid #e5e5ea'}}>{selectedEmployee.user?.email || selectedEmployee.email || selectedEmployee.generated_email || 'Email non disponible'}</div>
+                <div style={{fontWeight:600,color:'#8E8E93',fontSize:'15px',marginBottom:'4px',textAlign:'left'}}>Téléphone</div>
+                <div style={{background:'#fff',borderRadius:'8px',padding:'8px 12px',fontSize:'15px',marginBottom:'12px',border:'1px solid #e5e5ea'}}>{selectedEmployee.phone || 'Non renseigné'}</div>
+                <div style={{fontWeight:600,color:'#8E8E93',fontSize:'15px',marginBottom:'4px',textAlign:'left'}}>Date de naissance</div>
+                <div style={{background:'#fff',borderRadius:'8px',padding:'8px 12px',fontSize:'15px',marginBottom:'12px',border:'1px solid #e5e5ea'}}>{selectedEmployee.date_of_birth ? new Date(selectedEmployee.date_of_birth).toLocaleDateString('fr-FR') : 'Non renseignée'}</div>
+                <div style={{fontWeight:600,color:'#8E8E93',fontSize:'15px',marginBottom:'4px',textAlign:'left'}}>Date d'embauche</div>
+                <div style={{background:'#fff',borderRadius:'8px',padding:'8px 12px',fontSize:'15px',marginBottom:'12px',border:'1px solid #e5e5ea'}}>{selectedEmployee.hire_date || selectedEmployee.hireDate ? new Date(selectedEmployee.hire_date || selectedEmployee.hireDate).toLocaleDateString('fr-FR') : 'Non définie'}</div>
+                <div style={{fontWeight:600,color:'#8E8E93',fontSize:'15px',marginBottom:'4px',textAlign:'left'}}>Statut</div>
+                <div style={{background:'#fff',borderRadius:'8px',padding:'8px 12px',fontSize:'15px',marginBottom:'12px',border:'1px solid #e5e5ea'}}>{selectedEmployee.is_active ? 'Actif' : 'Inactif'}</div>
+                {selectedEmployee.salary_fcfa && (
+                  <>
+                    <div style={{fontWeight:600,color:'#8E8E93',fontSize:'15px',marginBottom:'4px',textAlign:'left'}}>Salaire</div>
+                    <div style={{background:'#fff',borderRadius:'8px',padding:'8px 12px',fontSize:'15px',marginBottom:'12px',border:'1px solid #e5e5ea'}}>{selectedEmployee.salary_fcfa.toLocaleString()} FCFA</div>
+                  </>
                 )}
-
-                {!selectedEmployee.isInvitation && selectedEmployee.permissions && selectedEmployee.permissions.length > 0 && (
-                  <div className="detail-section">
-                    <h4>🔐 Permissions spéciales</h4>
-                    <div className="permissions-list">
-                      {selectedEmployee.permissions.map((permission, index) => (
-                        <span key={index} className="permission-badge">
-                          {permission}
-                        </span>
+                {selectedEmployee.notes && (
+                  <>
+                    <div style={{fontWeight:600,color:'#8E8E93',fontSize:'15px',marginBottom:'4px',textAlign:'left'}}>Notes</div>
+                    <div style={{background:'#fff',borderRadius:'8px',padding:'8px 12px',fontSize:'15px',marginBottom:'12px',border:'1px solid #e5e5ea'}}>{selectedEmployee.notes}</div>
+                  </>
+                )}
+                {selectedEmployee.permissions && selectedEmployee.permissions.length > 0 && (
+                  <>
+                    <div style={{fontWeight:600,color:'#8E8E93',fontSize:'15px',marginBottom:'4px',textAlign:'left'}}>Permissions spéciales</div>
+                    <div style={{display:'flex',flexWrap:'wrap',gap:'8px',marginBottom:'12px'}}>
+                      {selectedEmployee.permissions.map((permission, idx) => (
+                        <span key={idx} style={{background:'#e5e5ea',color:'#007AFF',borderRadius:'8px',padding:'4px 10px',fontSize:'14px',fontWeight:600}}>{permission}</span>
                       ))}
                     </div>
-                  </div>
-                )}
-
-                {!selectedEmployee.notes && (!selectedEmployee.permissions || selectedEmployee.permissions.length === 0) && (
-                  <div className="detail-section">
-                    <div className="notes-content" style={{ fontStyle: 'italic', color: 'var(--text-secondary)' }}>
-                      {selectedEmployee.isInvitation 
-                        ? 'Aucune note ajoutée à cette invitation.'
-                        : 'Aucune note ou permission spéciale configurée pour cet employé.'
-                      }
-                    </div>
-                  </div>
+                  </>
                 )}
               </div>
             </div>
-
-            <div className="modal-actions">
-              {!selectedEmployee.isInvitation && (
-                <>
-                  <button 
-                    onClick={() => {
-                      setSelectedEmployee(null);
-                      setEditingEmployee(selectedEmployee);
-                    }}
-                    className="btn btn-primary"
-                  >
-                    <Edit size={18} />
-                    Modifier
-                  </button>
-                  <button 
-                    onClick={() => {
-                      handleToggleActive(selectedEmployee.id, selectedEmployee.is_active);
-                      setSelectedEmployee(null);
-                    }}
-                    className={`btn ${selectedEmployee.is_active ? 'btn-warning' : 'btn-success'}`}
-                  >
-                    {selectedEmployee.is_active ? <UserX size={18} /> : <UserCheck size={18} />}
-                    {selectedEmployee.is_active ? 'Désactiver' : 'Activer'}
-                  </button>
-                </>
-              )}
-              <button 
-                onClick={() => setSelectedEmployee(null)}
-                className="btn btn-outline"
-              >
-                Fermer
-              </button>
+            <div className="new-employee-actions" style={{padding:'24px 32px 32px',borderTop:'none',display:'flex',gap:'16px'}}>
+              <button type="button" className="action-button cancel-button" onClick={()=>setSelectedEmployee(null)}>Fermer</button>
             </div>
           </div>
         </div>
