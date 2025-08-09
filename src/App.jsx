@@ -6,6 +6,7 @@ import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import InvitationPage from './components/Auth/InvitationPage';
 import EmployeeManagement from './components/Admin/EmployeeManagement';
+import SuperAdminDashboard from './components/SuperAdminDashboard';
 import BusManagement from './components/Bus/BusManagement';
 import TripsManagement from './components/Trips/TripsManagement';
 import TripsCalendar from './components/Trips/TripsCalendar';
@@ -55,6 +56,11 @@ function AppContent() {
     return <AuthPages />;
   }
 
+  // 👑 SUPER ADMIN - Interface spéciale
+  if (userProfile.role === 'super_admin') {
+    return <SuperAdminApp />;
+  }
+
   // Vérifier si l'agence est vérifiée
   if (agency && !agency.is_verified) {
     return <AgencyPendingVerification />;
@@ -64,29 +70,7 @@ function AppContent() {
 }
 
 function AuthPages() {
-  const [showRegister, setShowRegister] = useState(false);
-
-  const handleShowRegister = () => {
-    setShowRegister(true);
-  };
-
-  const handleBackToLogin = () => {
-    setShowRegister(false);
-  };
-
-  if (showRegister) {
-    return (
-      <Register 
-        onBackToLogin={handleBackToLogin}
-      />
-    );
-  }
-  
-  return (
-    <Login 
-      onShowRegister={handleShowRegister}
-    />
-  );
+  return <Login />;
 }
 
 function MainApp() {
@@ -237,6 +221,16 @@ function MainApp() {
       <main className="main-content">
         {renderContent()}
       </main>
+    </div>
+  );
+}
+
+// 👑 COMPOSANT SUPER ADMIN
+function SuperAdminApp() {
+  return (
+    <div className="super-admin-app">
+      {/* Utilisation du nouveau composant amélioré de SuperAdmin */}
+      <SuperAdminDashboard />
     </div>
   );
 }

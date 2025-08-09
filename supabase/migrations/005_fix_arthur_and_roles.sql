@@ -18,7 +18,7 @@ AND generated_by IS NULL;
 -- 2. Corriger le rôle d'Arthur dans la table users selon son employee_role
 UPDATE public.users 
 SET role = CASE 
-    WHEN ae.employee_role = 'admin' THEN 'agency_admin'
+    WHEN ae.employee_role = 'admin' THEN 'agence'
     WHEN ae.employee_role = 'manager' THEN 'agency_manager' 
     WHEN ae.employee_role = 'employee' THEN 'agency_employee'
     WHEN ae.employee_role = 'driver' THEN 'agency_driver'
@@ -41,7 +41,7 @@ WHERE generated_by IS NULL;
 -- 4. Corriger tous les rôles users selon leurs employee_role
 UPDATE public.users 
 SET role = CASE 
-    WHEN ae.employee_role = 'admin' THEN 'agency_admin'
+    WHEN ae.employee_role = 'admin' THEN 'agence'
     WHEN ae.employee_role = 'manager' THEN 'agency_manager' 
     WHEN ae.employee_role = 'employee' THEN 'agency_employee'
     WHEN ae.employee_role = 'driver' THEN 'agency_driver'

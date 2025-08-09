@@ -170,31 +170,21 @@
   color: #0056CC;
 }
 
-.register-link {
+.info-message {
   padding-top: var(--spacing-lg);
   border-top: 1px solid var(--separator);
 }
 
-.register-link p {
+.info-message p {
   margin: 0;
-  font-size: 15px;
+  font-size: 14px;
   color: var(--text-secondary);
-}
-
-.link-button {
-  background: none;
-  border: none;
-  color: var(--primary);
-  font-family: var(--font-family);
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  text-decoration: none;
-  margin-left: var(--spacing-sm);
-}
-
-.link-button:hover {
-  text-decoration: underline;
+  text-align: center;
+  line-height: 1.5;
+  background: rgba(0, 123, 255, 0.1);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--primary);
 }
 
 /* Responsive */

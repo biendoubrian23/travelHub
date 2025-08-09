@@ -17,8 +17,7 @@ export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
 // Types pour la base de données
 export const USER_ROLES = {
   CLIENT: 'client',
-  AGENCY: 'agence',
-  AGENCY_ADMIN: 'agency_admin',
+  AGENCY: 'agence',     // Identique au rôle 'patron' (propriétaire d'agence)
   AGENCY_MANAGER: 'agency_manager',
   AGENCY_EMPLOYEE: 'agency_employee',
   AGENCY_DRIVER: 'agency_driver',

@@ -66,7 +66,7 @@ const EmployeeManagement = () => {
   });
 
   const roles = [
-    { value: 'admin', label: 'Administrateur', description: 'Accès complet à l\'agence', userRole: 'agency_admin' },
+    { value: 'admin', label: 'Administrateur', description: 'Accès complet à l\'agence', userRole: 'agence' },
     { value: 'manager', label: 'Manager', description: 'Gestion équipe + réservations + finances', userRole: 'agency_manager' },
     { value: 'employee', label: 'Employé', description: 'Réservations + consultation', userRole: 'agency_employee' },
     { value: 'driver', label: 'Conducteur', description: 'Accès conducteur (lecture seule)', userRole: 'agency_driver' }

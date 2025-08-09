@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import './Login.css';
 import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
 
-const Login = ({ onShowRegister }) => {
+const Login = () => {
   const { signIn } = useAuth();
   const [credentials, setCredentials] = useState({
     email: '',
@@ -130,12 +130,10 @@ const Login = ({ onShowRegister }) => {
             Mot de passe oublié ?
           </a>
           
-          <div className="register-link">
+          <div className="info-message">
             <p>
-              Pas encore de compte ? 
-              <button className="link-button" onClick={onShowRegister}>
-                Créer un compte agence
-              </button>
+              💡 Seuls les employés avec des comptes d'agence peuvent se connecter.
+              Pour créer une nouvelle agence, contactez l'administrateur.
             </p>
           </div>
         </div>

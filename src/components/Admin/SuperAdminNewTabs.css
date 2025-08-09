@@ -1,0 +1,330 @@
+/* Styles pour les nouveaux onglets du SuperAdmin - Style Apple/iOS */
+
+/* ==== ICÔNES MODERNES ==== */
+.modern-icon {
+    font-family: -apple-system, "SF Pro", "SF Symbol", sans-serif;
+    font-size: 1.2em;
+    margin-right: 10px;
+}
+
+/* ==== STATISTIQUES ==== */
+.stats-overview {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.chart-container {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.chart-placeholder {
+    height: 300px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    padding: 20px 0;
+}
+
+.bar-chart {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+}
+
+.bar {
+    width: 12%;
+    background: linear-gradient(to top, #007aff, #5ac8fa);
+    border-radius: 8px 8px 0 0;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.bar:hover {
+    transform: translateY(-5px);
+    background: linear-gradient(to top, #147efb, #53d8ff);
+}
+
+.bar span {
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: #8e8e93;
+}
+
+.analytics-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.metric-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    flex: 1;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.metric-value {
+    font-size: 32px;
+    font-weight: 600;
+    margin: 10px 0;
+    color: #1d1d1f;
+}
+
+.metric-change {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.metric-change.positive {
+    color: #34c759;
+}
+
+.metric-change.negative {
+    color: #ff3b30;
+}
+
+.metric-change.neutral {
+    color: #8e8e93;
+}
+
+/* ==== FINANCES ==== */
+.finance-dashboard {
+    margin-top: 24px;
+}
+
+.finance-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.finance-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.finance-card h3 {
+    font-size: 16px;
+    color: #8e8e93;
+    margin: 0;
+}
+
+.finance-amount {
+    font-size: 28px;
+    font-weight: 600;
+    margin: 10px 0;
+    color: #1d1d1f;
+}
+
+.finance-change {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.finance-change.positive {
+    color: #34c759;
+}
+
+.finance-change.negative {
+    color: #ff3b30;
+}
+
+.finance-change.neutral {
+    color: #8e8e93;
+}
+
+.recent-transactions {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.transaction-list {
+    margin-top: 15px;
+}
+
+.transaction-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #f2f2f7;
+}
+
+.transaction-item:last-child {
+    border-bottom: none;
+}
+
+.transaction-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, "SF Pro", "SF Symbol", sans-serif;
+    font-size: 20px;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.transaction-icon.deposit {
+    background: rgba(52, 199, 89, 0.1);
+    color: #34c759;
+}
+
+.transaction-icon.expense {
+    background: rgba(255, 59, 48, 0.1);
+    color: #ff3b30;
+}
+
+.transaction-details {
+    flex: 1;
+}
+
+.transaction-name {
+    font-weight: 500;
+    margin: 0 0 5px 0;
+    color: #1d1d1f;
+}
+
+.transaction-date {
+    font-size: 12px;
+    color: #8e8e93;
+    margin: 0;
+}
+
+.transaction-amount {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.transaction-amount.deposit {
+    color: #34c759;
+}
+
+.transaction-amount.expense {
+    color: #ff3b30;
+}
+
+/* ==== UTILISATEURS ==== */
+.users-dashboard {
+    margin-top: 24px;
+}
+
+.users-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.user-metric-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.user-metric-card h3 {
+    font-size: 16px;
+    color: #8e8e93;
+    margin: 0;
+}
+
+.user-metric-value {
+    font-size: 28px;
+    font-weight: 600;
+    margin: 10px 0;
+    color: #1d1d1f;
+}
+
+.user-metric-change {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.user-metric-change.positive {
+    color: #34c759;
+}
+
+.recent-users {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.user-list {
+    margin-top: 15px;
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #f2f2f7;
+}
+
+.user-item:last-child {
+    border-bottom: none;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #007aff;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.user-details {
+    flex: 1;
+}
+
+.user-name {
+    font-weight: 500;
+    margin: 0 0 5px 0;
+    color: #1d1d1f;
+}
+
+.user-role {
+    font-size: 12px;
+    color: #8e8e93;
+    margin: 0;
+}
+
+.user-date {
+    font-size: 12px;
+    color: #8e8e93;
+    text-align: right;
+}
+
+/* Responsive design */
+@media screen and (max-width: 1024px) {
+    .stats-overview,
+    .finance-summary,
+    .users-summary {
+        grid-template-columns: 1fr;
+    }
+}

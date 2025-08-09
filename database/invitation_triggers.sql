@@ -18,7 +18,7 @@ BEGIN
     IF FOUND THEN
       -- Déterminer le user_role
       v_user_role := CASE v_invitation.employee_role
-        WHEN 'admin' THEN 'agency_admin'
+        WHEN 'admin' THEN 'agence'
         WHEN 'manager' THEN 'agency_manager'
         WHEN 'employee' THEN 'agency_employee'
         WHEN 'driver' THEN 'agency_driver'

@@ -1,0 +1,152 @@
+.create-agency-form-container {
+    background-color: white;
+    border-radius: 12px;
+    padding: 24px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.form-title {
+    font-size: 24px;
+    margin-bottom: 24px;
+    color: #333;
+    text-align: center;
+}
+
+.form-section {
+    margin-bottom: 24px;
+}
+
+.form-section h3 {
+    font-size: 18px;
+    margin-bottom: 16px;
+    color: #007AFF;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #007AFF;
+    outline: none;
+    background-color: #fff;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.cancel-button,
+.submit-button {
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.cancel-button {
+    background-color: #f1f1f1;
+    color: #666;
+}
+
+.submit-button {
+    background-color: #007AFF;
+    color: white;
+}
+
+.cancel-button:hover {
+    background-color: #e5e5e5;
+}
+
+.submit-button:hover {
+    background-color: #0056b3;
+}
+
+.cancel-button:disabled,
+.submit-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.message {
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.message.success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border-left: 4px solid #2e7d32;
+}
+
+.message.error {
+    background-color: #ffebee;
+    color: #c62828;
+    border-left: 4px solid #c62828;
+}
+
+/* Style pour la prévisualisation de l'email */
+.preview-info {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f0f8ff;
+    border-radius: 6px;
+    border-left: 4px solid #007AFF;
+}
+
+.preview-info p {
+    margin: 0;
+    color: #444;
+    font-size: 14px;
+}
+
+.preview-info strong {
+    color: #007AFF;
+}
+
+/* Style responsive */
+@media (max-width: 600px) {
+    .create-agency-form-container {
+        padding: 16px;
+        border-radius: 0;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .cancel-button,
+    .submit-button {
+        width: 100%;
+    }
+}

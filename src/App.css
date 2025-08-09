@@ -331,3 +331,88 @@
     margin-left: 0;
   }
 }
+
+/* =================================== */
+/* SUPER ADMIN STYLES */
+/* =================================== */
+
+.super-admin-app {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.super-admin-header {
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.admin-info h1 {
+  color: white;
+  margin: 0;
+  font-size: 1.8rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.admin-info p {
+  color: rgba(255, 255, 255, 0.9);
+  margin: 5px 0 0 0;
+  font-size: 1rem;
+}
+
+.admin-info strong {
+  color: #FFD700;
+}
+
+.logout-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  padding: 12px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.super-admin-main {
+  min-height: calc(100vh - 80px);
+}
+
+/* Responsive pour Super Admin */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .admin-info h1 {
+    font-size: 1.5rem;
+  }
+  
+  .logout-btn {
+    width: 100%;
+    max-width: 200px;
+  }
+}

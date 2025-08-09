@@ -1,0 +1,21 @@
+/* Styles globaux pour centrer les icônes et le texte dans tous les onglets */
+.center-icon-content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+}
+
+.center-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto 8px !important;
+}
+
+.center-text {
+    text-align: center !important;
+    width: 100% !important;
+    display: block !important;
+}

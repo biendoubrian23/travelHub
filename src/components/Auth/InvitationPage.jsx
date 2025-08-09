@@ -95,7 +95,7 @@ const InvitationPage = () => {
       // Calculer le rôle système basé sur employee_role
       const systemRole = (() => {
         switch(invitation.employee_role) {
-          case 'admin': return 'agency_admin';
+          case 'admin': return 'agence';
           case 'manager': return 'agency_manager';
           case 'employee': return 'agency_employee';
           case 'driver': return 'agency_driver';
