@@ -1,5 +1,5 @@
 import React from 'react';
-import CreateAgencyForm from './CreateAgencyForm';
+import CreateAgencyWizard from './CreateAgencyWizard';
 import './AgencyModal.css';
 
 const AgencyModal = ({ isOpen, onClose, onSuccess }) => {
@@ -10,21 +10,15 @@ const AgencyModal = ({ isOpen, onClose, onSuccess }) => {
     if (onSuccess) {
       onSuccess(result);
     }
-    onClose();
+    // Note: onClose sera appelé depuis le CreateAgencyWizard après fermeture de l'invitation modal
   };
 
   if (!isOpen) return null;
 
   return (
     <div className="agency-modal-overlay" onClick={onClose}>
-      <div className="agency-modal-container" onClick={e => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>Création d'une nouvelle agence</h2>
-          <button className="close-button" onClick={onClose}>&times;</button>
-        </div>
-        <div className="modal-content">
-          <CreateAgencyForm onSuccess={handleSuccess} onCancel={onClose} />
-        </div>
+      <div className="agency-modal-container modern" onClick={e => e.stopPropagation()}>
+        <CreateAgencyWizard onSuccess={handleSuccess} onCancel={onClose} />
       </div>
     </div>
   );

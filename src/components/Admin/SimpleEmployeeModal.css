@@ -1,0 +1,284 @@
+/* 
+   Modal Employé Simple 
+   Avec préfixe "em-" pour éviter les conflits
+*/
+
+/* Overlay du modal */
+.em-overlay,
+.em-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* Modal principal */
+.em-modal {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 600px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* En-tête du modal */
+.em-header,
+.em-modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #eaeaea;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+}
+
+.em-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.em-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.em-close:hover {
+  background-color: #f5f5f5;
+}
+
+/* Contenu du modal avec défilement */
+.em-content,
+.em-modal-content {
+  padding: 20px;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+/* Style des formulaires */
+.em-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Grille de formulaire */
+.em-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+/* Champ de formulaire */
+.em-form-field {
+  margin-bottom: 16px;
+}
+
+/* Label du champ */
+.em-field-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+/* Label requis */
+.em-field-required::after {
+  content: '*';
+  color: #ff3b30;
+  margin-left: 4px;
+}
+
+/* Input de base */
+.em-field-input {
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  transition: border-color 0.2s;
+}
+
+.em-field-input:focus {
+  border-color: #007aff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
+/* Select */
+.em-field-select {
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23333' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: calc(100% - 12px) center;
+  padding-right: 32px;
+}
+
+.em-field-select:focus {
+  border-color: #007aff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
+/* Textarea */
+.em-field-textarea {
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  min-height: 100px;
+  resize: vertical;
+}
+
+.em-field-textarea:focus {
+  border-color: #007aff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
+/* Section actions (boutons) */
+.em-actions,
+.em-modal-actions {
+  padding: 16px 20px;
+  border-top: 1px solid #eaeaea;
+  background-color: #f9f9f9;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Bouton principal */
+.em-button-primary,
+.em-btn-primary {
+  background-color: #0a5fc7; /* Bleu plus foncé et plus vibrant */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(10, 95, 199, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.em-button-primary:hover,
+.em-btn-primary:hover {
+  background-color: #0047a5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(10, 95, 199, 0.4);
+}
+
+/* Bouton secondaire */
+.em-button-secondary,
+.em-btn-secondary {
+  background-color: #f0f0f0;
+  color: #505050;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.em-button-secondary:hover,
+.em-btn-secondary:hover {
+  background-color: #e5e5e5;
+  color: #333;
+  border-color: #b0b0b0;
+  transform: translateY(-2px);
+}
+
+/* Styles pour l'état de chargement */
+.em-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.em-loading-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Champ en pleine largeur */
+.em-form-field.full-width,
+.em-form-field.em-full-width {
+  grid-column: span 2;
+}
+
+/* Message d'erreur */
+.em-field-error {
+  color: #ff3b30;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Responsive pour écrans mobiles */
+@media (max-width: 768px) {
+  .em-form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .em-form-field.full-width {
+    grid-column: 1;
+  }
+  
+  .em-actions {
+    flex-direction: column;
+  }
+  
+  .em-button-primary,
+  .em-button-secondary,
+  .em-btn-primary,
+  .em-btn-secondary {
+    width: 100%;
+  }
+}

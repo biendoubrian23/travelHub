@@ -29,8 +29,7 @@ export const AuthProvider = ({ children }) => {
         .from('users')
         .select('*')
         .eq('id', userId)
-        .single()
-      
+        .single();
       // Timeout de 10 secondes pour éviter le blocage
       const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error('Timeout loadUserProfile')), 10000)
@@ -43,18 +42,38 @@ export const AuthProvider = ({ children }) => {
 
       if (profileError) {
         console.error('❌ Erreur profil utilisateur:', profileError.message);
-        // Si l'utilisateur n'existe pas dans la table users, on le crée
+        // Si l'utilisateur n'existe pas dans la table users, vérifier s'il existe avec cet email
         if (profileError.code === 'PGRST116') {
-          console.log('👤 Utilisateur non trouvé, création du profil...');
+          console.log('👤 Utilisateur non trouvé par ID, vérification par email...');
           const { data: user } = await supabase.auth.getUser();
+          
           if (user?.user) {
+            // Vérifier d'abord si un utilisateur avec cet email existe déjà
+            const { data: existingUser } = await supabase
+              .from('users')
+              .select('*')
+              .eq('email', user.user.email)
+              .maybeSingle();
+              
+            if (existingUser) {
+              console.log('✅ Utilisateur trouvé par email:', existingUser.full_name);
+              setUserProfile(existingUser);
+              return;
+            }
+            
+            console.log('👤 Aucun utilisateur avec cet email, création du profil...');
+            const userRole = user.user.user_metadata?.role || 'agence'; // Utiliser le rôle des métadonnées ou 'agence' par défaut
+            
             const { data: newProfile, error: createError } = await supabase
               .from('users')
               .insert({
                 id: userId,
                 full_name: user.user.user_metadata?.full_name || user.user.email,
                 email: user.user.email,
-                role: 'user'
+                role: userRole, // Utiliser le rôle correct
+                phone: user.user.user_metadata?.phone || null,
+                is_generated_user: user.user.user_metadata?.invitation_token ? true : false,
+                password_changed: true
               })
               .select()
               .single();
@@ -65,7 +84,7 @@ export const AuthProvider = ({ children }) => {
               return;
             }
             setUserProfile(newProfile);
-            console.log('✅ Nouveau profil créé et défini');
+            console.log('✅ Nouveau profil créé et défini avec le rôle:', userRole);
           }
         }
         console.log('✅ Fin loadUserProfile (erreur profil) après', Date.now() - startTime, 'ms');
@@ -73,6 +92,24 @@ export const AuthProvider = ({ children }) => {
       }
       
       console.log('✅ Profil utilisateur chargé:', profile.full_name);
+      
+      // Correction automatique du rôle agency_admin vers agence
+      if (profile.role === 'agency_admin') {
+        console.log('🔄 Conversion automatique du rôle agency_admin vers agence');
+        profile.role = 'agence';
+        // Optionnel: mettre à jour dans la base de données
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ role: 'agence' })
+          .eq('id', profile.id);
+          
+        if (updateError) {
+          console.warn('⚠️ Erreur lors de la mise à jour du rôle:', updateError.message);
+        } else {
+          console.log('✅ Rôle mis à jour dans la base de données');
+        }
+      }
+      
       setUserProfile(profile)
 
       // Si c'est un utilisateur d'agence, récupérer les données d'agence

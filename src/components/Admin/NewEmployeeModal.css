@@ -20,8 +20,8 @@
   --button-radius: 16px;
 }
 
-/* Overlay avec effet de flou */
-.new-employee-overlay {
+/* Overlay avec effet de flou - spécifique à employee */
+.employee-new-employee-overlay {
   position: fixed;
   top: 0;
   left: 0;
