@@ -1,103 +1,143 @@
+/* AgencyModal.css - Design moderne pour le nouveau wizard */
+
 .agency-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    animation: fade-in 0.3s ease-out;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: overlayFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 10px;
 }
 
-.agency-modal-container {
-    background-color: white;
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    width: 90%;
-    max-width: 900px;
-    max-height: 90vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    animation: slide-up 0.4s ease-out;
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(12px);
+  }
+}
+
+.agency-modal-container.modern {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  width: 100%;
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  animation: none;
+}
+
+/* Style responsive moderne */
+@media (max-width: 768px) {
+  .agency-modal-overlay {
+    padding: 0;
+    align-items: flex-start;
+  }
+  
+  .agency-modal-container.modern {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* Garder les anciens styles pour la compatibilité */
+.agency-modal-container:not(.modern) {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slide-up 0.4s ease-out;
 }
 
 .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 24px;
-    border-bottom: 1px solid #eee;
-    background-color: #f9f9f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #eee;
+  background-color: #f9f9f9;
 }
 
 .modal-header h2 {
-    margin: 0;
-    font-size: 22px;
-    color: #333;
+  margin: 0;
+  font-size: 22px;
+  color: #333;
 }
 
 .close-button {
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    color: #666;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: all 0.2s;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #666;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
 }
 
 .close-button:hover {
-    background-color: #eee;
-    color: #333;
+  background-color: #eee;
+  color: #333;
 }
 
 .modal-content {
-    padding: 0;
-    overflow-y: auto;
-    max-height: calc(90vh - 70px);
+  padding: 0;
+  overflow-y: auto;
+  max-height: calc(90vh - 70px);
 }
 
 /* Ajustements pour le formulaire à l'intérieur du modal */
 .modal-content .create-agency-form-container {
-    box-shadow: none;
-    max-width: 100%;
-    border-radius: 0;
+  box-shadow: none;
+  max-width: 100%;
+  border-radius: 0;
 }
 
-/* Animations */
-@keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
+/* Animations pour l'ancien style */
 @keyframes slide-up {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
-/* Style responsive */
+/* Style responsive pour l'ancien modal */
 @media (max-width: 768px) {
-    .agency-modal-container {
-        width: 95%;
-        max-height: 95vh;
-        border-radius: 12px;
-    }
-    
-    .modal-header {
-        padding: 16px 20px;
-    }
-    
-    .modal-header h2 {
-        font-size: 18px;
-    }
+  .agency-modal-container:not(.modern) {
+    width: 95%;
+    max-height: 95vh;
+    border-radius: 12px;
+  }
+  
+  .modal-header {
+    padding: 16px 20px;
+  }
+  
+  .modal-header h2 {
+    font-size: 20px;
+  }
 }

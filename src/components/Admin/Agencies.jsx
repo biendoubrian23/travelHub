@@ -73,13 +73,26 @@ const Agencies = () => {
   }, []);
   
   // Ajouter une nouvelle agence à la liste
-  const handleAgencyCreated = (newAgency) => {
-    setAgencies([newAgency, ...agencies]);
+  const handleAgencyCreated = (newAgencyData) => {
+    console.log("Nouvelle agence créée:", newAgencyData);
+    
+    // Assurer que l'agence a toutes les propriétés nécessaires
+    if (newAgencyData && newAgencyData.agency) {
+      const newAgency = {
+        ...newAgencyData.agency,
+        // S'assurer que les propriétés critiques existent
+        name: newAgencyData.agency.name || '',
+        email: newAgencyData.agency.email || '',
+      };
+      
+      setAgencies(prevAgencies => [newAgency, ...prevAgencies]);
+      setShowModal(false); // Fermer le modal après création réussie
+    }
   };
   
   const filteredAgencies = agencies.filter(agency => 
-    agency.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    agency.email.toLowerCase().includes(searchTerm.toLowerCase())
+    (agency.name && agency.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (agency.email && agency.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
