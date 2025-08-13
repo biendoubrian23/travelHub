@@ -8,6 +8,14 @@ export default defineConfig({
     headers: {
       'Cross-Origin-Opener-Policy': 'same-origin',
       'Cross-Origin-Embedder-Policy': 'require-corp'
+    },
+    // Configuration d'un proxy pour éviter les problèmes CORS
+    proxy: {
+      '/api': {
+        target: 'https://dgqncbnvyviurlrsdtyu.supabase.co',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
     }
   }
 })

@@ -1,0 +1,35 @@
+import { createClient } from '@supabase/supabase-js'
+
+// Utiliser l'URL du proxy local en développement
+const isDev = import.meta.env.DEV
+const supabaseUrl = isDev ? '/api' : import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseServiceKey = import.meta.env.VITE_SUPABASE_SERVICE_KEY
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+// Client admin pour les opérations d'administration
+export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+})
+
+// Types pour la base de données
+export const USER_ROLES = {
+  CLIENT: 'client',
+  AGENCY: 'agence',
+  AGENCY_ADMIN: 'agency_admin',
+  AGENCY_MANAGER: 'agency_manager',
+  AGENCY_EMPLOYEE: 'agency_employee',
+  AGENCY_DRIVER: 'agency_driver',
+  SUPER_ADMIN: 'super_admin'
+}
+
+export const AGENCY_EMPLOYEE_ROLES = {
+  ADMIN: 'admin',        // Accès complet à l'agence
+  MANAGER: 'manager',    // Gestion des employés et réservations
+  EMPLOYEE: 'employee',  // Réservations uniquement
+  DRIVER: 'driver'       // Accès conducteur (lecture seule)
+}

@@ -1,0 +1,851 @@
+/* SuperAdminDashboard.css - Styles avec préfixes pour éviter les conflits CSS */
+
+/* Container principal */
+.sadmin-dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* En-tête */
+.sadmin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 2rem;
+  background-color: #f9f9fb;
+  border-bottom: 1px solid #e1e1e8;
+  height: 60px;
+}
+
+.sadmin-user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sadmin-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #007bff;
+  overflow: hidden;
+}
+
+.sadmin-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sadmin-user-details {
+  line-height: 1.2;
+}
+
+.sadmin-user-details h2 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.sadmin-user-details p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.sadmin-header-actions {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.sadmin-notifications, .sadmin-settings {
+  background: none;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sadmin-notifications:hover, .sadmin-settings:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+/* Corps principal */
+.sadmin-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Barre latérale */
+.sadmin-sidebar {
+  width: 250px;
+  background-color: white;
+  border-right: 1px solid #e1e1e8;
+  display: flex;
+  flex-direction: column;
+}
+
+.sadmin-logo {
+  padding: 1rem;
+  border-bottom: 1px solid #e1e1e8;
+}
+
+.sadmin-logo h1 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #007bff;
+}
+
+.sadmin-nav {
+  flex: 1;
+  padding: 1rem 0;
+}
+
+.sadmin-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sadmin-nav li {
+  margin-bottom: 0.5rem;
+}
+
+.sadmin-nav button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.8rem 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.9rem;
+  color: #333;
+  transition: background-color 0.2s;
+}
+
+.sadmin-nav li.active button {
+  background-color: rgba(0, 123, 255, 0.1);
+  color: #007bff;
+  border-left: 3px solid #007bff;
+}
+
+.sadmin-nav button:hover {
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+.sadmin-icon {
+  margin-right: 0.8rem;
+  font-size: 1.2rem;
+}
+
+.sadmin-sidebar-footer {
+  padding: 1rem;
+  border-top: 1px solid #e1e1e8;
+}
+
+.sadmin-logout {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.8rem;
+  background: none;
+  border: 1px solid #dc3545;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #dc3545;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.sadmin-logout:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+/* Contenu principal */
+.sadmin-content {
+  flex: 1;
+  padding: 1.5rem;
+  background-color: #f5f6fa;
+  overflow-y: auto;
+}
+
+.sadmin-page-title {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Tableaux de bord */
+.sadmin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.sadmin-stat-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.2rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.sadmin-stat-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.sadmin-stat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.8rem;
+  font-size: 1.2rem;
+}
+
+.sadmin-stat-title {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.sadmin-stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.sadmin-stat-change {
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+}
+
+.sadmin-positive {
+  color: #28a745;
+}
+
+.sadmin-negative {
+  color: #dc3545;
+}
+
+/* Charts et graphiques */
+.sadmin-charts-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.sadmin-chart-container {
+  flex: 1;
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.sadmin-chart-header {
+  margin-bottom: 1rem;
+}
+
+.sadmin-chart-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .sadmin-charts-row {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 768px) {
+  .sadmin-sidebar {
+    width: 60px;
+  }
+  
+  .sadmin-logo h1, .sadmin-nav button span:not(.sadmin-icon), .sadmin-logout span:not(.sadmin-icon) {
+    display: none;
+  }
+  
+  .sadmin-icon {
+    margin-right: 0;
+  }
+  
+  .sadmin-nav button, .sadmin-logout {
+    justify-content: center;
+    padding: 0.8rem;
+  }
+}
+
+/* Styles pour les tableaux */
+.sadmin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.sadmin-table th {
+  padding: 0.8rem 1rem;
+  text-align: left;
+  font-weight: 500;
+  background-color: #f9f9fb;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.sadmin-table td {
+  padding: 0.8rem 1rem;
+  border-top: 1px solid #f0f0f5;
+  font-size: 0.9rem;
+}
+
+.sadmin-table tr:hover {
+  background-color: #f9f9fb;
+}
+
+/* Actions rapides */
+.sadmin-actions-section {
+  margin-top: 2rem;
+}
+
+.sadmin-actions-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.sadmin-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.sadmin-action-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.sadmin-action-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.sadmin-action-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.8rem;
+  font-size: 1.5rem;
+}
+
+.sadmin-action-title {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+}
+
+.sadmin-action-desc {
+  font-size: 0.8rem;
+  color: #666;
+  margin: 0;
+}
+
+/* Boutons */
+.sadmin-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sadmin-button-primary {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.sadmin-button-primary:hover {
+  background-color: #0069d9;
+}
+
+.sadmin-button-success {
+  background-color: #28a745;
+  color: white;
+  border: none;
+}
+
+.sadmin-button-success:hover {
+  background-color: #218838;
+}
+
+.sadmin-button-danger {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+}
+
+.sadmin-button-danger:hover {
+  background-color: #c82333;
+}
+
+/* Formulaires d'agence */
+.sadmin-form-container {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.sadmin-form-group {
+  margin-bottom: 1rem;
+}
+
+.sadmin-form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.sadmin-form-input {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  font-size: 0.9rem;
+}
+
+.sadmin-form-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Gestion des agences */
+.sadmin-agencies-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.sadmin-search-container {
+  position: relative;
+  width: 300px;
+}
+
+.sadmin-search-input {
+  width: 100%;
+  padding: 0.6rem 1rem 0.6rem 2.5rem;
+  border-radius: 20px;
+  border: 1px solid #ddd;
+  font-size: 0.9rem;
+}
+
+.sadmin-search-icon {
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 1rem;
+}
+
+.sadmin-filters-container {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.sadmin-filter-select {
+  padding: 0.6rem;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  font-size: 0.9rem;
+  background-color: white;
+}
+
+/* Status badges */
+.sadmin-status-badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.sadmin-status-active {
+  background-color: rgba(40, 167, 69, 0.15);
+  color: #28a745;
+}
+
+.sadmin-status-pending {
+  background-color: rgba(255, 193, 7, 0.15);
+  color: #ffc107;
+}
+
+.sadmin-status-inactive {
+  background-color: rgba(108, 117, 125, 0.15);
+  color: #6c757d;
+}
+
+/* Actions */
+.sadmin-actions-cell {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.sadmin-action-button {
+  background: none;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sadmin-action-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.sadmin-edit-button {
+  color: #007bff;
+}
+
+.sadmin-delete-button {
+  color: #dc3545;
+}
+
+.sadmin-view-button {
+  color: #17a2b8;
+}
+
+.sadmin-success-button {
+  color: #28a745;
+}
+
+/* États de chargement et messages */
+.sadmin-status-message {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  z-index: 1000;
+  min-width: 300px;
+  max-width: 500px;
+  animation: sadmin-slide-in 0.3s ease-out;
+}
+
+.sadmin-status-success {
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+}
+
+.sadmin-status-error {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
+.sadmin-status-info {
+  background-color: #d1ecf1;
+  border: 1px solid #bee5eb;
+  color: #0c5460;
+}
+
+.sadmin-status-message-icon {
+  margin-right: 10px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.sadmin-status-message-text {
+  flex-grow: 1;
+}
+
+.sadmin-status-message-close {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 10px;
+  opacity: 0.7;
+}
+
+.sadmin-status-message-close:hover {
+  opacity: 1;
+}
+
+@keyframes sadmin-slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Styles pour les détails d'agence */
+.sadmin-agency-details {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 75%;
+  max-width: 800px;
+  background-color: #fff;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  z-index: 1000;
+  padding: 20px;
+  animation: sadmin-slide-in-right 0.3s ease-out;
+}
+
+.sadmin-agency-info {
+  padding: 15px 0;
+}
+
+.sadmin-info-section {
+  margin-bottom: 30px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.sadmin-info-section h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #17a2b8;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 10px;
+}
+
+.sadmin-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.sadmin-info-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.sadmin-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-bottom: 5px;
+}
+
+.sadmin-value {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.sadmin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.sadmin-stat-card {
+  background-color: #fff;
+  border-radius: 5px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.sadmin-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.sadmin-stat-value {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #17a2b8;
+}
+
+.sadmin-stat-label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-top: 5px;
+}
+
+.sadmin-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 30px;
+  padding: 15px 0;
+  border-top: 1px solid #e9ecef;
+}
+
+.sadmin-button-danger {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.sadmin-button-danger:hover {
+  background-color: #c82333;
+}
+
+.sadmin-button-success {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.sadmin-button-success:hover {
+  background-color: #218838;
+}
+
+@keyframes sadmin-slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.sadmin-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  color: #666;
+}
+
+.sadmin-no-data {
+  text-align: center;
+  padding: 2rem !important;
+  color: #666;
+}
+
+.sadmin-form-error {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+}
+
+/* Pagination */
+.sadmin-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.sadmin-pagination-button {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ddd;
+  margin: 0 0.2rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  background-color: white;
+}
+
+.sadmin-pagination-button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.sadmin-pagination-button:hover:not(.active) {
+  background-color: #f0f0f0;
+}
+
+/* Bouton de rechargement */
+.sadmin-reload-button {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  color: #666;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+}
+
+.sadmin-reload-button:hover:not(:disabled) {
+  background-color: #f8f9fa;
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.sadmin-reload-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

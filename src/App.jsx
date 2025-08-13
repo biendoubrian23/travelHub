@@ -11,6 +11,7 @@ import TripsManagement from './components/Trips/TripsManagement';
 import TripsCalendar from './components/Trips/TripsCalendar';
 import BookingsManagement from './components/Bookings/BookingsManagement';
 import BookingsCalendar from './components/Bookings/BookingsCalendar';
+import SuperAdminDashboard from './components/SuperAdmin/SuperAdminDashboard';
 import ProgressLoader from './components/UI/ProgressLoader';
 import { 
   useRolePermissions, 
@@ -64,28 +65,9 @@ function AppContent() {
 }
 
 function AuthPages() {
-  const [showRegister, setShowRegister] = useState(false);
-
-  const handleShowRegister = () => {
-    setShowRegister(true);
-  };
-
-  const handleBackToLogin = () => {
-    setShowRegister(false);
-  };
-
-  if (showRegister) {
-    return (
-      <Register 
-        onBackToLogin={handleBackToLogin}
-      />
-    );
-  }
-  
+  // Suppression de l'option de création de compte
   return (
-    <Login 
-      onShowRegister={handleShowRegister}
-    />
+    <Login />
   );
 }
 
@@ -93,14 +75,22 @@ function MainApp() {
   const { userProfile, agency, hasPermission, signOut } = useAuth();
   const { currentRole, canViewTab, isPatron } = useRolePermissions();
   
+  // Vérifier si l'utilisateur est un super admin
+  const isSuperAdmin = userProfile?.role === 'super_admin';
+  
+  // Si c'est un super admin, afficher le tableau de bord du super admin
+  if (isSuperAdmin) {
+    return <SuperAdminDashboard />;
+  }
+  
   // Page par défaut selon le rôle
   const getDefaultTab = () => {
-    // Pour les employés et conducteurs, la page par défaut est "trips"
-    if (currentRole === 'employee' || currentRole === 'driver') {
-      return 'trips';
+    // Pour le patron uniquement, la page par défaut est "dashboard"
+    if (currentRole === 'patron') {
+      return 'dashboard';
     }
-    // Pour le patron et manager, garde le dashboard
-    return 'dashboard';
+    // Pour tous les autres rôles (manager, employee, driver), rediriger vers "trips"
+    return 'trips';
   };
   
   const [activeRoute, setActiveRoute] = useState(getDefaultTab());

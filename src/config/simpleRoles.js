@@ -89,28 +89,27 @@ export const SIMPLE_ROLES = {
     color: '#007AFF', // Bleu iOS
     description: 'Gestion complète (créé par le patron)',
     
-    // Onglets visibles - AVEC employés limités sauf customers et dashboard
+    // Onglets visibles - RETRAIT de l'onglet employés
     visibleTabs: [
       'trips', 
       'bookings',
       'buses', // 🚌 Gestion des bus
       'finances', // 💰 Peut voir les finances
-      'employees', // 👥 Gestion limitée des employés
       'settings'
     ],
     
-    // Rôles qu'il peut créer
-    canCreateRoles: ['employee', 'driver'],
+    // Rôles qu'il peut créer - AUCUN
+    canCreateRoles: [],
     
     // Permissions - AVEC gestion employés limitée
     permissions: {
-      // 👥 GESTION EMPLOYÉS - LIMITÉE (seulement employee et driver)
+      // 👥 GESTION EMPLOYÉS - RETIRÉE COMPLÈTEMENT
       employees: {
-        create: true, // ✅ Peut créer employé et conducteur
-        edit: true,   // ✅ Peut modifier
-        delete: false, // ❌ Ne peut pas supprimer
-        view: true,
-        assignRoles: true, // ✅ Mais seulement employee/driver
+        create: false, // ❌ Ne peut pas créer d'employés
+        edit: false,   // ❌ Ne peut pas modifier d'employés
+        delete: false, // ❌ Ne peut pas supprimer d'employés
+        view: false,   // ❌ Ne peut pas voir les employés
+        assignRoles: false, // ❌ Ne peut pas assigner de rôles
         managePermissions: false // ❌ Pas de gestion permissions
       },
       

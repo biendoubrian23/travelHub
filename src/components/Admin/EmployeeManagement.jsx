@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useRolePermissions } from '../RoleBasedComponents';
 import { supabase } from '../../lib/supabase';
 import './EmployeeManagement.css';
 import './EmployeeDetailsStyle.css';
@@ -38,6 +39,7 @@ import {
 
 const EmployeeManagement = () => {
   const { userProfile, agency, isAgencyOwner } = useAuth();
+  const { canManageEmployees, getCreatableRoles, getAllEmployeeRoles, currentRole } = useRolePermissions();
   const [employees, setEmployees] = useState([]);
   const [invitations, setInvitations] = useState([]); // Nouveau state pour les invitations
   const [loading, setLoading] = useState(true);
@@ -65,12 +67,26 @@ const EmployeeManagement = () => {
     view: 'employees' // 'employees' ou 'invitations'
   });
 
-  const roles = [
-    { value: 'admin', label: 'Administrateur', description: 'Accès complet à l\'agence', userRole: 'agency_admin' },
+  // Définition complète des rôles pour référence
+  const allRoles = [
     { value: 'manager', label: 'Manager', description: 'Gestion équipe + réservations + finances', userRole: 'agency_manager' },
     { value: 'employee', label: 'Employé', description: 'Réservations + consultation', userRole: 'agency_employee' },
     { value: 'driver', label: 'Conducteur', description: 'Accès conducteur (lecture seule)', userRole: 'agency_driver' }
   ];
+  
+  // Obtenir directement les rôles disponibles depuis notre nouvelle fonction
+  // qui donne les mêmes possibilités aux managers qu'aux patrons
+  const availableRoles = getAllEmployeeRoles();
+  
+  // Garder cette variable pour compatibilité
+  const creatableRoleValues = getCreatableRoles();
+  
+  // Debug pour le modal
+  console.log('🎭 Modal Debug:');
+  console.log('  - creatableRoleValues:', creatableRoleValues);
+  console.log('  - availableRoles:', availableRoles);
+  console.log('  - availableRoles détaillé:', availableRoles.map(r => ({value: r.value, label: r.label})));
+  console.log('  - roles complets:', allRoles);
 
   useEffect(() => {
     if (agency) {
@@ -82,7 +98,9 @@ const EmployeeManagement = () => {
   const loadEmployees = async () => {
     try {
       setError(''); // Effacer les erreurs précédentes
-      console.log('🔄 Chargement des employés pour l\'agence:', agency.id);
+      console.log('🔄 Chargement des employés pour l\'agence:', agency?.id);
+      console.log('🔍 User actuel:', userProfile);
+      console.log('🔍 Current role:', currentRole);
       
       // Effectuer une jointure avec la table users pour récupérer les informations complètes
       let { data, error } = await supabase
@@ -93,6 +111,13 @@ const EmployeeManagement = () => {
         `)
         .eq('agency_id', agency.id)
         .order('created_at', { ascending: false });
+      
+      console.log('📊 Résultat requête employés:', { data, error });
+      
+      if (error) {
+        console.error('❌ Erreur lors du chargement des employés:', error);
+        throw error;
+      }
       
       // Assurer que les données sont bien formatées
       if (data) {
@@ -361,7 +386,7 @@ const EmployeeManagement = () => {
   };
 
   const getRoleLabel = (role) => {
-    const roleObj = roles.find(r => r.value === role);
+    const roleObj = allRoles.find(r => r.value === role);
     return roleObj ? roleObj.label : role;
   };
 
@@ -466,12 +491,23 @@ const EmployeeManagement = () => {
     });
   };
 
-  if (!isAgencyOwner()) {
+  // Vérifier les permissions d'accès - UNIQUEMENT LE PATRON
+  const hasEmployeeManagementAccess = canManageEmployees();
+  
+  // Debug temporaire
+  console.log('🔍 EmployeeManagement - Debug accès:');
+  console.log('  - canManageEmployees():', canManageEmployees());
+  console.log('  - currentRole:', currentRole);
+  console.log('  - getCreatableRoles():', getCreatableRoles());
+  console.log('  - hasEmployeeManagementAccess:', hasEmployeeManagementAccess);
+
+  // Accès uniquement au patron d'agence
+  if (!hasEmployeeManagementAccess) {
     return (
       <div className="no-access">
         <UserX size={48} />
-        <h3>Accès non autorisé</h3>
-        <p>Seul le propriétaire de l'agence peut gérer les employés.</p>
+        <h3>Accès strictement réservé</h3>
+        <p>Seul le propriétaire de l'agence (patron) peut gérer les employés.</p>
       </div>
     );
   }
@@ -489,10 +525,24 @@ const EmployeeManagement = () => {
           </div>
           <button 
             className="btn btn-primary"
-            onClick={() => setShowAddModal(true)}
+            onClick={() => {
+              console.log('🎯 Ouverture modal, availableRoles:', availableRoles);
+              if (availableRoles && availableRoles.length > 0) {
+                setShowAddModal(true);
+                // Initialiser le rôle avec le premier rôle disponible si existant
+                if (availableRoles.length > 0) {
+                  setNewEmployee(prev => ({...prev, role: availableRoles[0].value}));
+                }
+              } else {
+                console.error('❌ Aucun rôle disponible pour créer un employé');
+                setError('Erreur: Aucun rôle disponible pour créer un employé');
+              }
+            }}
+            disabled={!availableRoles || availableRoles.length === 0}
+            title={(!availableRoles || availableRoles.length === 0) ? 'Chargement des rôles...' : 'Ajouter un employé'}
           >
             <Plus size={20} />
-            Ajouter un employé
+            {(!availableRoles || availableRoles.length === 0) ? 'Chargement...' : 'Ajouter un employé'}
           </button>
         </div>
       </div>
@@ -663,7 +713,7 @@ const EmployeeManagement = () => {
               className="filter-select"
             >
               <option value="all">Tous les rôles</option>
-              {roles.map(role => (
+              {availableRoles.map(role => (
                 <option key={role.value} value={role.value}>{role.label}</option>
               ))}
             </select>
@@ -873,7 +923,7 @@ const EmployeeManagement = () => {
       </div>
 
       {/* Modal d'ajout d'employé */}
-      {showAddModal && (
+      {showAddModal && availableRoles && availableRoles.length > 0 && (
         <div className="new-employee-overlay" onClick={(e) => {
           if (e.target === e.currentTarget) setShowAddModal(false);
         }}>
@@ -952,7 +1002,8 @@ const EmployeeManagement = () => {
                     className="field-select"
                     required
                   >
-                    {roles.map(role => (
+                    <option value="">Sélectionner un rôle...</option>
+                    {availableRoles.map(role => (
                       <option key={role.value} value={role.value}>
                         {role.label} - {role.description}
                       </option>

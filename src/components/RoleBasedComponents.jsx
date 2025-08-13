@@ -82,9 +82,9 @@ export const useRolePermissions = () => {
     return currentRole === 'patron';
   };
 
-  // Vérifier si peut créer des employés
+  // Vérifier si peut créer des employés - UNIQUEMENT LE PATRON
   const canManageEmployees = () => {
-    return isPatron() || currentRole === 'manager'; // Patron OU Manager
+    return isPatron(); // UNIQUEMENT le Patron peut gérer les employés
   };
 
   // Obtenir les rôles que l'utilisateur peut créer
@@ -96,6 +96,20 @@ export const useRolePermissions = () => {
       return ['employee', 'driver']; // Manager peut créer employee et driver
     }
     return []; // Autres rôles ne peuvent rien créer
+  };
+  
+  // Cette fonction retourne les rôles disponibles au format complet (pour l'UI)
+  const getAllEmployeeRoles = () => {
+    // UNIQUEMENT le Patron peut voir et utiliser ces rôles
+    if (isPatron()) {
+      const roles = [
+        { value: 'manager', label: 'Manager', description: 'Gestion équipe + réservations + finances' },
+        { value: 'employee', label: 'Employé', description: 'Réservations + consultation' },
+        { value: 'driver', label: 'Conducteur', description: 'Accès conducteur (lecture seule)' }
+      ];
+      return roles;
+    }
+    return [];
   };
 
   // Vérifier si peut créer un rôle spécifique
@@ -112,6 +126,7 @@ export const useRolePermissions = () => {
     isPatron,
     canManageEmployees,
     getCreatableRoles,
+    getAllEmployeeRoles, // Nouvelle fonction pour obtenir tous les rôles disponibles
     canCreateRole,
     getUserRole, // Ajouter la fonction getUserRole
     userProfile,

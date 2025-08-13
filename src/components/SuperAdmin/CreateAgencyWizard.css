@@ -1,0 +1,266 @@
+/* CreateAgencyWizard.css - Styles avec préfixes pour éviter les conflits CSS */
+
+.sadmin-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.sadmin-modal-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.sadmin-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid #e1e1e8;
+}
+
+.sadmin-modal-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.sadmin-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.sadmin-modal-close:hover {
+  color: #333;
+}
+
+/* Spinner pour les boutons de chargement */
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 0.8s ease-in-out infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+}
+
+.sadmin-modal-body {
+  padding: 1.5rem;
+}
+
+/* Wizard Steps */
+.sadmin-wizard-steps {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
+}
+
+.sadmin-wizard-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.sadmin-step-number {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #f0f0f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  border: 2px solid transparent;
+}
+
+.sadmin-wizard-step.active .sadmin-step-number {
+  background-color: white;
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.sadmin-wizard-step.completed .sadmin-step-number {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.sadmin-step-label {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.sadmin-wizard-step.active .sadmin-step-label {
+  color: #007bff;
+  font-weight: 600;
+}
+
+.sadmin-step-connector {
+  flex: 1;
+  height: 2px;
+  background-color: #e1e1e8;
+  margin: 0 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Wizard Form */
+.sadmin-wizard-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.sadmin-wizard-title {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.sadmin-form-group {
+  margin-bottom: 1.2rem;
+}
+
+.sadmin-form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.sadmin-form-row .sadmin-form-group {
+  flex: 1;
+}
+
+.sadmin-form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.sadmin-required {
+  color: #dc3545;
+}
+
+.sadmin-form-input {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #495057;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.sadmin-form-input:focus {
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.sadmin-form-input:disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+}
+
+.sadmin-form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.sadmin-form-hint {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.sadmin-wizard-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+.sadmin-button {
+  display: inline-block;
+  font-weight: 400;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  user-select: none;
+  border: 1px solid transparent;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.sadmin-button-primary {
+  color: #fff;
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.sadmin-button-primary:hover {
+  background-color: #0069d9;
+  border-color: #0062cc;
+}
+
+.sadmin-button-secondary {
+  color: #6c757d;
+  background-color: transparent;
+  border-color: #6c757d;
+}
+
+.sadmin-button-secondary:hover {
+  color: #fff;
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.sadmin-form-error {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+}
+
+@media (max-width: 767.98px) {
+  .sadmin-form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}

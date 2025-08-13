@@ -13,6 +13,7 @@ const InvitationPage = () => {
   const token = getTokenFromUrl();
   
   const [invitation, setInvitation] = useState(null);
+  const [invitationType, setInvitationType] = useState(null); // 'employee' ou 'admin'
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -36,8 +37,8 @@ const InvitationPage = () => {
     // Fonction de validation directement dans useEffect pour éviter les dépendances
     async function validateInvitation() {
       try {
-        // Validation simple du token directement dans la table
-        const { data, error } = await supabase
+        // Essayer d'abord la table des invitations d'employés
+        let { data, error } = await supabase
           .from('agency_employee_invitations')
           .select(`
             *,
@@ -48,7 +49,39 @@ const InvitationPage = () => {
           .gt('expires_at', new Date().toISOString())
           .single();
 
+        let invitationType = 'employee';
+
+        // Si pas trouvé dans les employés, chercher dans les admins d'agence
         if (error || !data) {
+          const { data: adminData, error: adminError } = await supabase
+            .from('agency_admin_invitations')
+            .select(`
+              *,
+              agencies(name)
+            `)
+            .eq('invitation_token', token)
+            .eq('status', 'pending')
+            .gt('expires_at', new Date().toISOString())
+            .single();
+
+          if (adminError || !adminData) {
+            throw new Error('Invitation non trouvée ou expirée');
+          }
+
+          data = {
+            ...adminData,
+            email: adminData.admin_email,
+            first_name: adminData.admin_first_name,
+            last_name: adminData.admin_last_name,
+            phone: adminData.admin_phone,
+            employee_role: 'admin' // Pour les admins d'agence
+          };
+          invitationType = 'admin';
+        }
+
+        setInvitationType(invitationType);
+        
+        if (!data) {
           setError('Invitation non trouvée, expirée ou déjà utilisée');
         } else {
           setInvitation({
@@ -92,10 +125,14 @@ const InvitationPage = () => {
         invitation_token: token
       });
 
-      // Calculer le rôle système basé sur employee_role
+      // Calculer le rôle système basé sur employee_role et type d'invitation
       const systemRole = (() => {
+        if (invitationType === 'admin') {
+          return 'agence'; // Rôle correct pour les admins d'agence
+        }
+        
         switch(invitation.employee_role) {
-          case 'admin': return 'agency_admin';
+          case 'admin': return 'agence';
           case 'manager': return 'agency_manager';
           case 'employee': return 'agency_employee';
           case 'driver': return 'agency_driver';
@@ -104,6 +141,7 @@ const InvitationPage = () => {
       })();
 
       console.log('🎭 Rôle système calculé:', systemRole);
+      console.log('📋 Type d\'invitation:', invitationType);
 
       // 1. Créer le compte utilisateur via Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -129,13 +167,45 @@ const InvitationPage = () => {
       }
 
       if (authData.user) {
-        // 2. Marquer l'invitation comme acceptée
+        // 2. Créer l'entrée dans la table users avec le bon rôle
+        const { error: userError } = await supabase
+          .from('users')
+          .insert({
+            id: authData.user.id,
+            email: invitation.email,
+            first_name: invitation.first_name,
+            last_name: invitation.last_name,
+            phone: invitation.phone,
+            role: systemRole, // IMPORTANT: Assurer le bon rôle
+            is_verified: true,
+            created_at: new Date().toISOString()
+          });
+
+        if (userError) {
+          console.error('❌ Erreur création utilisateur:', userError);
+          // Ne pas faire échouer complètement, l'utilisateur peut se connecter
+        }
+
+        // 3. Si c'est un admin d'agence, mettre à jour l'user_id de l'agence
+        if (invitationType === 'admin') {
+          const { error: agencyUpdateError } = await supabase
+            .from('agencies')
+            .update({ user_id: authData.user.id })
+            .eq('id', invitation.agency_id);
+
+          if (agencyUpdateError) {
+            console.warn('Erreur mise à jour agence:', agencyUpdateError);
+          }
+        }
+
+        // 4. Marquer l'invitation comme acceptée selon le type
+        const tableName = invitationType === 'admin' ? 'agency_admin_invitations' : 'agency_employee_invitations';
         const { error: updateError } = await supabase
-          .from('agency_employee_invitations')
+          .from(tableName)
           .update({
             status: 'accepted',
             accepted_at: new Date().toISOString(),
-            user_id: authData.user.id
+            ...(invitationType === 'employee' ? { user_id: authData.user.id } : {})
           })
           .eq('invitation_token', token);
 

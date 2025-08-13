@@ -18,7 +18,7 @@ AND generated_by IS NULL;
 -- 2. Corriger le rôle d'Arthur dans la table users selon son employee_role
 UPDATE public.users 
 SET role = CASE 
-    WHEN ae.employee_role = 'admin' THEN 'agency_admin'
+    WHEN ae.employee_role = 'admin' THEN 'agence'
     WHEN ae.employee_role = 'manager' THEN 'agency_manager' 
     WHEN ae.employee_role = 'employee' THEN 'agency_employee'
     WHEN ae.employee_role = 'driver' THEN 'agency_driver'
@@ -41,7 +41,7 @@ WHERE generated_by IS NULL;
 -- 4. Corriger tous les rôles users selon leurs employee_role
 UPDATE public.users 
 SET role = CASE 
-    WHEN ae.employee_role = 'admin' THEN 'agency_admin'
+    WHEN ae.employee_role = 'admin' THEN 'agence'
     WHEN ae.employee_role = 'manager' THEN 'agency_manager' 
     WHEN ae.employee_role = 'employee' THEN 'agency_employee'
     WHEN ae.employee_role = 'driver' THEN 'agency_driver'
@@ -61,7 +61,7 @@ CREATE INDEX IF NOT EXISTS idx_agency_employees_generated_by
 ON public.agency_employees(generated_by);
 
 -- 7. Documenter les rôles
-COMMENT ON COLUMN public.users.role IS 'Rôle spécifique: agency_admin, agency_manager, agency_employee, agency_driver, client, super_admin';
+COMMENT ON COLUMN public.users.role IS 'Rôle spécifique: super_admin, agence, agency_manager, agency_employee, agency_driver, client';
 COMMENT ON COLUMN public.agency_employees.employee_role IS 'Rôle dans l''agence: admin, manager, employee, driver';
 
 -- Vérification finale
