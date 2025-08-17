@@ -1,0 +1,231 @@
+/* Optimisation responsive du tableau des employés */
+
+.employee-table-container {
+  overflow-x: auto;
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.employee-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1200px; /* Largeur minimale pour éviter l'écrasement */
+  background: white;
+}
+
+.employee-table th,
+.employee-table td {
+  padding: 12px 8px;
+  text-align: left;
+  border-bottom: 1px solid #e5e5ea;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.employee-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Largeurs optimisées des colonnes */
+.employee-table .name-cell {
+  width: 200px;
+  min-width: 180px;
+}
+
+.employee-table .email-cell {
+  width: 220px;
+  min-width: 200px;
+}
+
+.employee-table .phone-cell {
+  width: 130px;
+  min-width: 120px;
+}
+
+.employee-table .role-cell {
+  width: 100px;
+  min-width: 90px;
+}
+
+.employee-table .status-cell {
+  width: 80px;
+  min-width: 70px;
+  text-align: center;
+}
+
+.employee-table .date-cell {
+  width: 110px;
+  min-width: 100px;
+}
+
+.employee-table .ville-cell {
+  width: 120px;
+  min-width: 110px;
+}
+
+.employee-table .actions-cell {
+  width: 120px;
+  min-width: 110px;
+  text-align: center;
+}
+
+/* Responsive pour écrans moyens */
+@media (max-width: 1400px) {
+  .employee-table .name-cell {
+    width: 180px;
+    min-width: 160px;
+  }
+  
+  .employee-table .email-cell {
+    width: 200px;
+    min-width: 180px;
+  }
+  
+  .employee-table .ville-cell {
+    width: 100px;
+    min-width: 90px;
+  }
+}
+
+/* Responsive pour écrans plus petits */
+@media (max-width: 1024px) {
+  .employee-table {
+    min-width: 1000px;
+  }
+  
+  .employee-table th,
+  .employee-table td {
+    padding: 10px 6px;
+    font-size: 13px;
+  }
+  
+  .employee-table .name-cell {
+    width: 160px;
+    min-width: 140px;
+  }
+  
+  .employee-table .email-cell {
+    width: 180px;
+    min-width: 160px;
+  }
+  
+  .employee-table .phone-cell {
+    width: 120px;
+    min-width: 110px;
+  }
+  
+  .employee-table .ville-cell {
+    width: 90px;
+    min-width: 80px;
+  }
+  
+  .employee-table .actions-cell {
+    width: 100px;
+    min-width: 90px;
+  }
+}
+
+/* Responsive pour très petits écrans */
+@media (max-width: 768px) {
+  .employee-table {
+    min-width: 800px;
+  }
+  
+  .employee-table th,
+  .employee-table td {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+}
+
+/* Amélioration de l'affichage des emails longs */
+.employee-table .email-cell {
+  max-width: 220px;
+}
+
+.employee-table .email-cell span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Amélioration du nom complet */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.user-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-name {
+  display: block;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-type {
+  display: block;
+  font-size: 11px;
+  color: #666;
+  margin-top: 2px;
+}
+
+/* Amélioration des toggles */
+.emp-status-toggle {
+  margin: 0 auto;
+  display: block;
+}
+
+/* Responsive pour les rôles */
+.role-badge {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 500;
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Amélioration pour les villes */
+.ville-cell {
+  color: #555;
+  font-size: 13px;
+}
+
+/* Scroll horizontal plus visible */
+.employee-table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.employee-table-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.employee-table-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.employee-table-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

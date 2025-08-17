@@ -19,6 +19,7 @@ import './ModalScrollFix.css';
 import './FixedModalStructure.css'; // Structure de modal à priorité absolue
 import './FormSpacingFix.css'; // Correction d'espacement pour les formulaires
 import './ToggleStyles.css'; // Styles pour les toggles de statut
+import './ResponsiveTableStyles.css'; // Styles responsive pour le tableau
 import './FinalModalScrollbar.css'; // Solution ultime pour la barre de défilement
 import './InvitationModalFix.css'; // Correction spécifique pour les modals d'invitation
 import { 
@@ -52,6 +53,7 @@ const EmployeeManagement = () => {
   const [newEmployee, setNewEmployee] = useState({
     firstName: '',
     lastName: '',
+    ville: '',
     phone: '',
     dateOfBirth: '',
     role: 'employee',
@@ -114,6 +116,7 @@ const EmployeeManagement = () => {
             email,
             full_name,
             phone,
+            ville,
             is_active,
             updated_at
           )
@@ -180,7 +183,7 @@ const EmployeeManagement = () => {
         if (emails.length > 0) {
           const { data: usersData, error: usersError } = await supabase
             .from('users')
-            .select('email, is_active, full_name, id')
+            .select('email, is_active, full_name, ville, id')
             .in('email', emails);
 
           if (usersError) {
@@ -277,7 +280,7 @@ const EmployeeManagement = () => {
   const handleAddEmployee = async (e) => {
     e.preventDefault();
     
-    if (!newEmployee.firstName || !newEmployee.lastName || !newEmployee.phone || !newEmployee.role) {
+    if (!newEmployee.firstName || !newEmployee.lastName || !newEmployee.ville || !newEmployee.phone || !newEmployee.role) {
       setError('Veuillez remplir tous les champs obligatoires');
       return;
     }
@@ -300,6 +303,7 @@ const EmployeeManagement = () => {
           email: email,
           first_name: newEmployee.firstName,
           last_name: newEmployee.lastName,
+          ville: newEmployee.ville,
           phone: newEmployee.phone,
           date_of_birth: newEmployee.dateOfBirth || null,
           employee_role: newEmployee.role,
@@ -345,6 +349,7 @@ const EmployeeManagement = () => {
       setNewEmployee({
         firstName: '',
         lastName: '',
+        ville: '',
         phone: '',
         dateOfBirth: '',
         role: 'employee',
@@ -967,18 +972,20 @@ const EmployeeManagement = () => {
             </div>
           )
         ) : (
-          <table className="unified-table">
-            <thead>
-              <tr>
-                <th>Nom complet</th>
-                <th>Email</th>
-                <th>Téléphone</th>
-                <th>Rôle</th>
-                <th>Statut</th>
-                <th>Date</th>
-                <th>Invitation</th>
-              </tr>
-            </thead>
+          <div className="employee-table-container">
+            <table className="employee-table">
+              <thead>
+                <tr>
+                  <th className="name-cell">Nom complet</th>
+                  <th className="email-cell">Email</th>
+                  <th className="phone-cell">Téléphone</th>
+                  <th className="role-cell">Rôle</th>
+                  <th className="status-cell">Statut</th>
+                  <th className="date-cell">Date</th>
+                  <th className="ville-cell">Ville</th>
+                  <th className="actions-cell">Invitation</th>
+                </tr>
+              </thead>
             <tbody>
               {/* Afficher les employés filtrés */}
               {filteredEmployees.map(employee => {
@@ -1027,6 +1034,9 @@ const EmployeeManagement = () => {
                   </td>
                   <td className="date-cell">
                     {employee.hire_date ? new Date(employee.hire_date).toLocaleDateString('fr-FR') : 'Non définie'}
+                  </td>
+                  <td className="ville-cell">
+                    {employee.user?.ville || employee.ville || 'Non renseignée'}
                   </td>
                   <td className="actions-cell" onClick={(e) => e.stopPropagation()}>
                     <div className="action-buttons">
@@ -1117,14 +1127,13 @@ const EmployeeManagement = () => {
                         <span className="emp-status-toggle-label emp-left">ON</span>
                         <span className="emp-status-toggle-label emp-right">OFF</span>
                       </div>
-                      {/* Debug info */}
-                      <div style={{fontSize: '10px', color: '#666', marginTop: '2px'}}>
-                        Debug: {invitation.user?.is_active ? 'TRUE' : 'FALSE'} | User: {invitation.user ? 'Found' : 'Not Found'}
-                      </div>
                     </button>
                   </td>
                   <td className="date-cell">
                     {new Date(invitation.created_at).toLocaleDateString('fr-FR')}
+                  </td>
+                  <td className="ville-cell">
+                    {invitation.user?.ville || invitation.ville || 'Non renseignée'}
                   </td>
                   <td className="actions-cell" onClick={(e) => e.stopPropagation()}>
                     <div className="action-buttons">
@@ -1152,7 +1161,8 @@ const EmployeeManagement = () => {
                 );
               })}
             </tbody>
-          </table>
+            </table>
+          </div>
         )}
       </div>
 
@@ -1200,6 +1210,18 @@ const EmployeeManagement = () => {
                       onChange={(e) => setNewEmployee({...newEmployee, lastName: e.target.value})}
                       className="field-input"
                       placeholder="Entrez le nom de famille"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="form-field">
+                    <label className="field-label field-required">Ville</label>
+                    <input
+                      type="text"
+                      value={newEmployee.ville}
+                      onChange={(e) => setNewEmployee({...newEmployee, ville: e.target.value})}
+                      className="field-input"
+                      placeholder="Entrez la ville"
                       required
                     />
                   </div>

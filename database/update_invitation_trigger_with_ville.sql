@@ -1,4 +1,13 @@
--- Trigger pour gérer automatiquement l'inscription via invitation
+-- Script pour mettre à jour le trigger avec le champ ville
+-- À exécuter dans l'éditeur SQL de Supabase
+
+-- Supprimer le trigger existant
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+
+-- Supprimer la fonction existante
+DROP FUNCTION IF EXISTS handle_invitation_signup();
+
+-- Créer la nouvelle fonction avec le champ ville
 CREATE OR REPLACE FUNCTION handle_invitation_signup()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -49,35 +58,40 @@ BEGIN
         role = EXCLUDED.role,
         is_active = true;
       
-      -- Créer l'employé dans agency_employees (avec gestion des conflits)
+      -- Créer l'entrée dans agency_employees (avec gestion des conflits)
       INSERT INTO public.agency_employees (
-        agency_id, user_id, employee_role, notes, 
-        created_by, phone, date_of_birth, is_active, hire_date
+        agency_id, user_id, role, is_active, created_at
       ) VALUES (
         v_invitation.agency_id,
         NEW.id,
         v_invitation.employee_role,
-        v_invitation.notes,
-        v_invitation.invited_by,
-        COALESCE(NEW.raw_user_meta_data->>'phone', v_invitation.phone),
-        v_invitation.date_of_birth,
         true,
-        CURRENT_DATE
+        NOW()
       )
-      ON CONFLICT (user_id, agency_id) DO UPDATE SET
-        employee_role = EXCLUDED.employee_role,
-        is_active = true,
-        hire_date = EXCLUDED.hire_date;
+      ON CONFLICT (agency_id, user_id) DO UPDATE SET
+        role = EXCLUDED.role,
+        is_active = true;
       
       -- Marquer l'invitation comme acceptée
       UPDATE agency_employee_invitations
-      SET 
-        status = 'accepted',
-        accepted_at = NOW(),
-        user_id = NEW.id,
-        updated_at = NOW()
-      WHERE invitation_token = (NEW.raw_user_meta_data->>'invitation_token')::UUID;
+      SET status = 'accepted', accepted_at = NOW()
+      WHERE id = v_invitation.id;
       
+      -- Log de l'activité
+      INSERT INTO audit_logs (
+        table_name, action, record_id, user_id, changes
+      ) VALUES (
+        'users',
+        'invitation_signup',
+        NEW.id::TEXT,
+        NEW.id,
+        jsonb_build_object(
+          'invitation_id', v_invitation.id,
+          'agency_id', v_invitation.agency_id,
+          'role', v_user_role,
+          'ville', v_invitation.ville
+        )
+      );
     END IF;
   END IF;
   
@@ -86,7 +100,9 @@ END;
 $$;
 
 -- Créer le trigger
-DROP TRIGGER IF EXISTS on_auth_user_created_invitation ON auth.users;
-CREATE TRIGGER on_auth_user_created_invitation
+CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION handle_invitation_signup();
+
+-- Message de confirmation
+SELECT 'Trigger mis à jour avec succès. Le champ ville sera maintenant transféré lors de l''acceptation d''invitation.' as message;
