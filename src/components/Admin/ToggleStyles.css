@@ -1,0 +1,165 @@
+/* Toggle Styles spécifiques pour les statuts d'employés - Préfixes emp-status pour éviter collisions */
+
+.emp-status-toggle {
+  position: relative;
+  display: inline-block;
+  width: 54px;
+  height: 28px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+  outline: none;
+}
+
+.emp-status-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.emp-status-toggle-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  border-radius: 14px;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.emp-status-toggle-track.emp-active {
+  background-color: #4CAF50;
+}
+
+.emp-status-toggle-track.emp-inactive {
+  background-color: #f44336;
+}
+
+.emp-status-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.emp-status-toggle-thumb.emp-active {
+  transform: translateX(26px);
+}
+
+.emp-status-toggle-label {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  user-select: none;
+}
+
+.emp-status-toggle-label.emp-left {
+  left: 6px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.emp-status-toggle-label.emp-right {
+  right: 4px;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.emp-status-toggle-track.emp-active .emp-status-toggle-label.emp-left {
+  opacity: 1;
+}
+
+.emp-status-toggle-track.emp-active .emp-status-toggle-label.emp-right {
+  opacity: 0;
+}
+
+.emp-status-toggle-track.emp-inactive .emp-status-toggle-label.emp-left {
+  opacity: 0;
+}
+
+.emp-status-toggle-track.emp-inactive .emp-status-toggle-label.emp-right {
+  opacity: 1;
+}
+
+/* Animations de chargement spécifiques */
+.emp-status-toggle.emp-loading .emp-status-toggle-track {
+  background: linear-gradient(45deg, #f0f0f0 25%, transparent 25%), 
+              linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), 
+              linear-gradient(45deg, transparent 75%, #f0f0f0 75%), 
+              linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+  animation: empToggleLoading 1s linear infinite;
+}
+
+@keyframes empToggleLoading {
+  0% {
+    background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+  }
+  100% {
+    background-position: 8px 8px, 8px 12px, 12px 4px, 4px 8px;
+  }
+}
+
+/* États de hover spécifiques */
+.emp-status-toggle:not(:disabled):hover .emp-status-toggle-track {
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(0, 123, 255, 0.3);
+}
+
+.emp-status-toggle:not(:disabled):hover .emp-status-toggle-thumb {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive spécifique */
+@media (max-width: 768px) {
+  .emp-status-toggle {
+    width: 48px;
+    height: 24px;
+  }
+  
+  .emp-status-toggle-thumb {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .emp-status-toggle-thumb.emp-active {
+    transform: translateX(24px);
+  }
+  
+  .emp-status-toggle-label {
+    font-size: 9px;
+  }
+}
+
+/* Accessibilité spécifique */
+.emp-status-toggle:focus .emp-status-toggle-track {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+.emp-status-toggle:focus:not(:focus-visible) .emp-status-toggle-track {
+  outline: none;
+}
+
+/* Animation de succès spécifique */
+.emp-status-toggle.emp-success .emp-status-toggle-track {
+  animation: empToggleSuccess 0.6s ease;
+}
+
+@keyframes empToggleSuccess {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}

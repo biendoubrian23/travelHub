@@ -18,6 +18,7 @@ import './NewEmployeeModal.css';
 import './ModalScrollFix.css';
 import './FixedModalStructure.css'; // Structure de modal à priorité absolue
 import './FormSpacingFix.css'; // Correction d'espacement pour les formulaires
+import './ToggleStyles.css'; // Styles pour les toggles de statut
 import './FinalModalScrollbar.css'; // Solution ultime pour la barre de défilement
 import './InvitationModalFix.css'; // Correction spécifique pour les modals d'invitation
 import { 
@@ -45,6 +46,7 @@ const EmployeeManagement = () => {
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
+  const [isTogglingEmployee, setIsTogglingEmployee] = useState(null); // État pour le toggle en cours
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [newEmployee, setNewEmployee] = useState({
@@ -102,33 +104,47 @@ const EmployeeManagement = () => {
       console.log('🔍 User actuel:', userProfile);
       console.log('🔍 Current role:', currentRole);
       
-      // Charger les employés sans jointure pour éviter les conflits de relation
+      // Charger les employés avec jointure sur users pour récupérer le statut d'accès réel
       let { data, error } = await supabase
         .from('agency_employees')
-        .select('*')
+        .select(`
+          *,
+          user:user_id (
+            id,
+            email,
+            full_name,
+            phone,
+            is_active,
+            updated_at
+          )
+        `)
         .eq('agency_id', agency.id)
         .order('created_at', { ascending: false });
       
-      console.log('📊 Résultat requête employés:', { data, error });
+      console.log('📊 Résultat requête employés avec jointure users:', { data, error });
       
       if (error) {
         console.error('❌ Erreur lors du chargement des employés:', error);
         throw error;
       }
       
-      // Assurer que les données existent
+      // Assurer que les données existent et mapper le statut depuis la table users
       if (!data) {
         data = [];
+      } else {
+        // Synchroniser le statut is_active avec celui de la table users
+        data = data.map(employee => ({
+          ...employee,
+          // Utiliser le statut de la table users comme référence (plus fiable pour l'accès)
+          is_active: employee.user?.is_active ?? employee.is_active,
+          // Enrichir avec les informations utilisateur
+          full_name: employee.user ? `${employee.user.first_name} ${employee.user.last_name}` : `${employee.first_name} ${employee.last_name}`,
+          email: employee.user?.email || employee.email
+        }));
       }
 
-      if (error) {
-        console.error('❌ Erreur lors du chargement des employés:', error);
-        setError('Erreur lors du chargement des employés: ' + error.message);
-        setEmployees([]);
-      } else {
-        console.log('✅ Employés chargés:', data?.length || 0, data);
-        setEmployees(data || []);
-      }
+      console.log('✅ Employés chargés avec jointure users:', data?.length || 0, data);
+      setEmployees(data || []);
     } catch (error) {
       console.error('❌ Erreur générale lors du chargement des employés:', error);
       setError('Erreur lors du chargement des employés: ' + error.message);
@@ -142,21 +158,57 @@ const EmployeeManagement = () => {
     try {
       console.log('🔄 Chargement des invitations pour l\'agence:', agency.id);
       
-      const { data, error } = await supabase
+      // 1. Charger les invitations
+      const { data: invitationsData, error: invitationsError } = await supabase
         .from('agency_employee_invitations')
         .select('*')
         .eq('agency_id', agency.id)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('❌ Erreur lors du chargement des invitations:', error);
+      if (invitationsError) {
+        console.error('❌ Erreur lors du chargement des invitations:', invitationsError);
         setInvitations([]);
-      } else {
-        console.log('✅ Invitations chargées:', data?.length || 0, data);
-        setInvitations(data || []);
+        return;
+      }
+
+      console.log('📧 Invitations chargées:', invitationsData?.length || 0);
+
+      // 2. Si il y a des invitations, récupérer les statuts des users correspondants
+      if (invitationsData && invitationsData.length > 0) {
+        const emails = invitationsData.map(inv => inv.email).filter(Boolean);
         
+        if (emails.length > 0) {
+          const { data: usersData, error: usersError } = await supabase
+            .from('users')
+            .select('email, is_active, full_name, id')
+            .in('email', emails);
+
+          if (usersError) {
+            console.warn('⚠️ Erreur lors du chargement des statuts users:', usersError);
+          } else {
+            console.log('👥 Users trouvés:', usersData?.length || 0);
+            
+            // 3. Associer les données des users aux invitations
+            const enrichedInvitations = invitationsData.map(invitation => {
+              const userData = usersData?.find(user => user.email === invitation.email);
+              return {
+                ...invitation,
+                user: userData || null
+              };
+            });
+            
+            setInvitations(enrichedInvitations);
+            console.log('✅ Invitations enrichies:', enrichedInvitations.length);
+            return;
+          }
+        }
+      }
+      
+      // 4. Si pas d'emails ou erreur, utiliser les invitations sans enrichissement
+      setInvitations(invitationsData || []);
+      
         // Vérifier s'il y a de nouvelles invitations acceptées
-        const recentlyAccepted = data?.filter(inv => 
+        const recentlyAccepted = invitationsData?.filter(inv => 
           inv.status === 'accepted' && 
           new Date(inv.accepted_at) > new Date(Date.now() - 5 * 60 * 1000) // 5 minutes
         );
@@ -168,7 +220,6 @@ const EmployeeManagement = () => {
             loadEmployees();
           }, 2000);
         }
-      }
     } catch (error) {
       console.error('❌ Erreur générale lors du chargement des invitations:', error);
       setInvitations([]);
@@ -313,18 +364,201 @@ const EmployeeManagement = () => {
 
   const handleToggleActive = async (employeeId, currentStatus) => {
     try {
-      const { error } = await supabase
+      setIsTogglingEmployee(employeeId); // Démarrer l'état de chargement
+      console.log(`🔄 Toggle statut employé ID: ${employeeId}, statut actuel: ${currentStatus}`);
+      
+      // Récupérer d'abord les informations de l'employé avec jointure
+      const { data: employeeData, error: fetchError } = await supabase
         .from('agency_employees')
-        .update({ is_active: !currentStatus })
+        .select(`
+          *,
+          user:user_id (
+            id,
+            email,
+            full_name,
+            is_active
+          )
+        `)
+        .eq('id', employeeId)
+        .single();
+
+      if (fetchError) {
+        console.error('Erreur récupération employé:', fetchError);
+        throw fetchError;
+      }
+
+      if (!employeeData?.user?.id) {
+        throw new Error('Impossible de trouver l\'utilisateur associé à cet employé');
+      }
+
+      const newStatus = !currentStatus;
+      const userId = employeeData.user.id;
+      
+      console.log(`📝 Mise à jour: User ID ${userId}, nouveau statut: ${newStatus}`);
+
+      // 1. Mettre à jour le statut dans la table users (contrôle d'accès principal)
+      const { error: userUpdateError } = await supabase
+        .from('users')
+        .update({ 
+          is_active: newStatus,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId);
+
+      if (userUpdateError) {
+        console.error('Erreur mise à jour users:', userUpdateError);
+        throw userUpdateError;
+      }
+
+      // 2. Mettre à jour le statut dans agency_employees pour cohérence
+      const { error: employeeUpdateError } = await supabase
+        .from('agency_employees')
+        .update({ 
+          is_active: newStatus,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', employeeId);
 
-      if (error) throw error;
+      if (employeeUpdateError) {
+        console.error('Erreur mise à jour agency_employees:', employeeUpdateError);
+        throw employeeUpdateError;
+      }
 
-      setSuccess('Statut employé mis à jour');
+      // 3. Si il y a une invitation liée, mettre à jour aussi dans agency_employee_invitations
+      const { data: invitationData } = await supabase
+        .from('agency_employee_invitations')
+        .select('id')
+        .eq('email', employeeData.user.email)
+        .eq('agency_id', agency.id)
+        .single();
+
+      if (invitationData) {
+        console.log('📨 Mise à jour invitation associée');
+        const { error: invitationUpdateError } = await supabase
+          .from('agency_employee_invitations')
+          .update({ 
+            is_active: newStatus,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', invitationData.id);
+
+        if (invitationUpdateError) {
+          console.warn('⚠️ Erreur mise à jour invitation (non bloquant):', invitationUpdateError);
+        }
+      }
+
+      // 4. Log d'audit dans la table audit_logs existante
+      try {
+        await supabase.from('audit_logs').insert({
+          user_id: userProfile.id,
+          agency_id: agency.id,
+          table_name: 'users',
+          record_id: userId,
+          action: 'UPDATE',
+          old_values: { is_active: currentStatus },
+          new_values: { is_active: newStatus },
+          user_agent: navigator.userAgent.substring(0, 500),
+          access_action_type: newStatus ? 'ACTIVATION' : 'DÉSACTIVATION',
+          target_user_id: userId,
+          target_employee_id: employeeId,
+          access_change_reason: `${newStatus ? 'Activation' : 'Désactivation'} via toggle par le patron d'agence`
+        });
+        console.log('✅ Audit enregistré');
+      } catch (auditError) {
+        console.warn('⚠️ Erreur audit (non bloquant):', auditError);
+      }
+
+      // 5. Feedback utilisateur
+      const actionText = newStatus ? 'activé' : 'désactivé';
+      const employeeName = employeeData.user.full_name || `${employeeData.first_name} ${employeeData.last_name}` || 'Employé';
+      setSuccess(`✅ ${employeeName} a été ${actionText} avec succès`);
+      
+      console.log(`🎉 Statut mis à jour avec succès pour ${employeeName}`);
+      
+      // 6. Recharger les données pour synchroniser l'interface
       await loadEmployees();
+      
     } catch (error) {
-      console.error('Erreur mise à jour statut:', error);
-      setError('Erreur lors de la mise à jour du statut');
+      console.error('❌ Erreur toggle statut:', error);
+      setError(`Erreur lors de la modification du statut: ${error.message}`);
+    } finally {
+      setIsTogglingEmployee(null); // Arrêter l'état de chargement
+    }
+  };
+
+  const handleToggleInvitationActive = async (invitationId, currentStatus) => {
+    try {
+      setIsTogglingEmployee(invitationId); // Utiliser le même état de chargement
+      console.log(`🔄 Toggle statut invitation ID: ${invitationId}, statut actuel: ${currentStatus}`);
+      
+      const newStatus = !currentStatus;
+      
+      // Récupérer l'invitation pour avoir l'email
+      const invitation = invitations.find(inv => inv.id === invitationId);
+      if (!invitation || !invitation.email) {
+        throw new Error('Invitation ou email non trouvé');
+      }
+
+      // Mettre à jour le statut dans la table users (via l'email)
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ 
+          is_active: newStatus,
+          updated_at: new Date().toISOString()
+        })
+        .eq('email', invitation.email);
+
+      if (updateError) {
+        console.error('Erreur mise à jour user:', updateError);
+        throw updateError;
+      }
+
+      // Mettre à jour aussi l'employé correspondant si il existe
+      const { data: employeeData } = await supabase
+        .from('agency_employees')
+        .select('id, user_id')
+        .eq('agency_id', agency.id)
+        .eq('user_id', invitation.user?.id)
+        .single();
+
+      if (employeeData) {
+        await supabase
+          .from('agency_employees')
+          .update({ is_active: newStatus })
+          .eq('id', employeeData.id);
+      }
+
+      // Log d'audit
+      try {
+        await supabase.from('audit_logs').insert({
+          user_id: userProfile.id,
+          agency_id: agency.id,
+          table_name: 'users',
+          record_id: invitation.user?.id,
+          action: 'UPDATE',
+          old_values: { is_active: currentStatus },
+          new_values: { is_active: newStatus },
+          user_agent: navigator.userAgent.substring(0, 500),
+          access_action_type: newStatus ? 'ACTIVATION' : 'DÉSACTIVATION',
+          access_change_reason: `${newStatus ? 'Activation' : 'Désactivation'} via invitation par le patron d'agence`
+        });
+      } catch (auditError) {
+        console.warn('⚠️ Erreur audit (non bloquant):', auditError);
+      }
+
+      // Feedback utilisateur
+      const actionText = newStatus ? 'activée' : 'désactivée';
+      const invitationName = `${invitation?.first_name} ${invitation?.last_name}`;
+      setSuccess(`✅ ${invitationName} a été ${actionText} avec succès`);
+      
+      // Recharger les données
+      await Promise.all([loadEmployees(), loadInvitations()]);
+      
+    } catch (error) {
+      console.error('❌ Erreur toggle statut invitation:', error);
+      setError(`Erreur lors de la modification du statut: ${error.message}`);
+    } finally {
+      setIsTogglingEmployee(null);
     }
   };
 
@@ -747,7 +981,9 @@ const EmployeeManagement = () => {
             </thead>
             <tbody>
               {/* Afficher les employés filtrés */}
-              {filteredEmployees.map(employee => (
+              {filteredEmployees.map(employee => {
+                console.log('🔍 Rendu employé:', employee.id, 'is_active:', employee.is_active, employee);
+                return (
                 <tr 
                   key={`employee-${employee.id}`} 
                   className="table-row employee-row"
@@ -785,9 +1021,7 @@ const EmployeeManagement = () => {
                     </span>
                   </td>
                   <td className="status-cell">
-                    <span 
-                      className={`status-badge ${employee.is_active ? 'active' : 'inactive'}`}
-                    >
+                    <span className={`status-badge ${employee.is_active ? 'active' : 'inactive'}`}>
                       {employee.is_active ? 'Actif' : 'Inactif'}
                     </span>
                   </td>
@@ -822,10 +1056,13 @@ const EmployeeManagement = () => {
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
               
               {/* Afficher les invitations filtrées */}
-              {filteredInvitations.map(invitation => (
+              {filteredInvitations.map(invitation => {
+                console.log('🔍 Rendu invitation:', invitation.id, 'is_active:', invitation.is_active, invitation);
+                return (
                 <tr 
                   key={`invitation-${invitation.id}`} 
                   className={`table-row invitation-row ${invitation.status}`}
@@ -861,10 +1098,30 @@ const EmployeeManagement = () => {
                     </span>
                   </td>
                   <td className="status-cell">
-                    <span className="status-badge invitation-badge">
-                      <Mail size={14} />
-                      {invitation.is_active ? "Actif" : "Inactif"}
-                    </span>
+                    {/* Toggle interactif pour activer/désactiver l'invitation */}
+                    <button
+                      className={`emp-status-toggle ${isTogglingEmployee === invitation.id ? 'emp-loading' : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        console.log(`🔄 Toggle statut invitation: ${invitation.first_name} ${invitation.last_name}`);
+                        handleToggleInvitationActive(invitation.id, invitation.user?.is_active);
+                      }}
+                      disabled={isTogglingEmployee === invitation.id}
+                      title={(invitation.user?.is_active) ? 
+                        `Cliquer pour désactiver ${invitation.first_name} ${invitation.last_name}` : 
+                        `Cliquer pour activer ${invitation.first_name} ${invitation.last_name}`
+                      }
+                    >
+                      <div className={`emp-status-toggle-track ${(invitation.user?.is_active) ? 'emp-active' : 'emp-inactive'}`}>
+                        <div className={`emp-status-toggle-thumb ${(invitation.user?.is_active) ? 'emp-active' : ''}`}></div>
+                        <span className="emp-status-toggle-label emp-left">ON</span>
+                        <span className="emp-status-toggle-label emp-right">OFF</span>
+                      </div>
+                      {/* Debug info */}
+                      <div style={{fontSize: '10px', color: '#666', marginTop: '2px'}}>
+                        Debug: {invitation.user?.is_active ? 'TRUE' : 'FALSE'} | User: {invitation.user ? 'Found' : 'Not Found'}
+                      </div>
+                    </button>
                   </td>
                   <td className="date-cell">
                     {new Date(invitation.created_at).toLocaleDateString('fr-FR')}
@@ -892,7 +1149,8 @@ const EmployeeManagement = () => {
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         )}
