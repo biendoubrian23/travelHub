@@ -102,13 +102,10 @@ const EmployeeManagement = () => {
       console.log('🔍 User actuel:', userProfile);
       console.log('🔍 Current role:', currentRole);
       
-      // Effectuer une jointure avec la table users pour récupérer les informations complètes
+      // Charger les employés sans jointure pour éviter les conflits de relation
       let { data, error } = await supabase
         .from('agency_employees')
-        .select(`
-          *,
-          user:users(id, full_name, email)
-        `)
+        .select('*')
         .eq('agency_id', agency.id)
         .order('created_at', { ascending: false });
       
@@ -119,30 +116,9 @@ const EmployeeManagement = () => {
         throw error;
       }
       
-      // Assurer que les données sont bien formatées
-      if (data) {
-        data = data.map(employee => {
-          // S'assurer que les propriétés first_name et last_name sont définies
-          if (employee.user && employee.user.full_name) {
-            const nameParts = employee.user.full_name.split(' ');
-            employee.first_name = nameParts[0] || '';
-            employee.last_name = nameParts.slice(1).join(' ') || '';
-          }
-          return employee;
-        });
-      }
-
-      // Si toujours pas de données, chercher tous les employés de l'agence
-      if (error || !data || data.length === 0) {
-        console.log('🔄 Tentative sans jointure...');
-        const result = await supabase
-          .from('agency_employees')
-          .select('*')
-          .eq('agency_id', agency.id)
-          .order('created_at', { ascending: false });
-        
-        data = result.data;
-        error = result.error;
+      // Assurer que les données existent
+      if (!data) {
+        data = [];
       }
 
       if (error) {
