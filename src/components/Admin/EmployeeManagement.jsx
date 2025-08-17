@@ -655,23 +655,29 @@ const EmployeeManagement = () => {
 
   // Fonction pour ouvrir le modal de détails
   const openEmployeeDetails = async (employee) => {
-    // Si l'employé n'a pas de nom complet, essayons de le récupérer depuis la base de données
-    if ((!employee.first_name || !employee.last_name) && employee.user_id) {
+    // Récupérer toutes les informations utilisateur nécessaires, y compris le statut is_active
+    if (employee.user_id) {
       try {
         const { data, error } = await supabase
           .from('users')
-          .select('full_name, email')
+          .select('full_name, email, is_active, phone, ville')
           .eq('id', employee.user_id)
           .single();
           
         if (data && !error) {
-          const nameParts = data.full_name.split(' ');
-          employee.first_name = nameParts[0] || '';
-          employee.last_name = nameParts.slice(1).join(' ') || '';
+          const nameParts = (data.full_name || '').split(' ');
+          // Enrichir l'employé avec toutes les données utilisateur
+          employee.first_name = employee.first_name || nameParts[0] || '';
+          employee.last_name = employee.last_name || nameParts.slice(1).join(' ') || '';
           employee.user = {
             full_name: data.full_name,
-            email: data.email
+            email: data.email,
+            is_active: data.is_active,
+            phone: data.phone,
+            ville: data.ville
           };
+          // S'assurer que le statut is_active est correctement défini
+          employee.is_active = data.is_active;
         }
       } catch (error) {
         console.error('Erreur lors de la récupération des détails utilisateur:', error);
@@ -1354,7 +1360,10 @@ const EmployeeManagement = () => {
                 <div style={{fontWeight:600,color:'#8E8E93',fontSize:'15px',marginBottom:'4px',textAlign:'left'}}>Date d'embauche</div>
                 <div style={{background:'#fff',borderRadius:'8px',padding:'8px 12px',fontSize:'15px',marginBottom:'12px',border:'1px solid #e5e5ea'}}>{selectedEmployee.hire_date || selectedEmployee.hireDate ? new Date(selectedEmployee.hire_date || selectedEmployee.hireDate).toLocaleDateString('fr-FR') : 'Non définie'}</div>
                 <div style={{fontWeight:600,color:'#8E8E93',fontSize:'15px',marginBottom:'4px',textAlign:'left'}}>Statut</div>
-                <div style={{background:'#fff',borderRadius:'8px',padding:'8px 12px',fontSize:'15px',marginBottom:'12px',border:'1px solid #e5e5ea'}}>{selectedEmployee.is_active ? 'Actif' : 'Inactif'}</div>
+                <div style={{background:'#fff',borderRadius:'8px',padding:'8px 12px',fontSize:'15px',marginBottom:'12px',border:'1px solid #e5e5ea'}}>
+                  {/* Utiliser le statut depuis la table users en priorité, puis celui de l'employé */}
+                  {(selectedEmployee.user?.is_active ?? selectedEmployee.is_active) ? 'Actif' : 'Inactif'}
+                </div>
                 {selectedEmployee.salary_fcfa && (
                   <>
                     <div style={{fontWeight:600,color:'#8E8E93',fontSize:'15px',marginBottom:'4px',textAlign:'left'}}>Salaire</div>
