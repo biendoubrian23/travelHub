@@ -45,18 +45,40 @@ const TripsCalendar = () => {
         return;
       }
 
-      // Récupérer l'agence de l'utilisateur
-      const { data: agency, error: agencyError } = await supabase
+      let agencyId = null;
+
+      // Méthode 1: Vérifier si c'est le propriétaire de l'agence
+      const { data: agencyOwner, error: ownerError } = await supabase
         .from('agencies')
         .select('id')
         .eq('user_id', user.id)
         .single();
 
-      if (agencyError) {
-        console.error('Erreur lors de la récupération de l\'agence:', agencyError);
+      if (agencyOwner && !ownerError) {
+        agencyId = agencyOwner.id;
+        console.log('🏢 Utilisateur propriétaire de l\'agence:', agencyId);
+      } else {
+        // Méthode 2: Chercher l'agence via les invitations d'employés
+        const { data: employeeData, error: employeeError } = await supabase
+          .from('agency_employee_invitations')
+          .select('agency_id')
+          .eq('user_id', user.id)
+          .eq('status', 'accepted')
+          .single();
+
+        if (employeeData && !employeeError) {
+          agencyId = employeeData.agency_id;
+          console.log('👥 Utilisateur employé de l\'agence:', agencyId);
+        }
+      }
+
+      if (!agencyId) {
+        console.error('Aucune agence trouvée pour cet utilisateur');
         setLoading(false);
         return;
       }
+
+      console.log('🎯 ID de l\'agence utilisée pour filtrer:', agencyId);
 
       // Récupérer les trajets de l'agence avec les informations des conducteurs et des bus
       const { data: tripsData, error: tripsError } = await supabase
@@ -77,7 +99,7 @@ const TripsCalendar = () => {
             is_vip
           )
         `)
-        .eq('agency_id', agency.id)
+        .eq('agency_id', agencyId)
         .eq('is_active', true)
         .order('departure_time', { ascending: true });
 

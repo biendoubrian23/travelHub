@@ -89,8 +89,9 @@ export const SIMPLE_ROLES = {
     color: '#007AFF', // Bleu iOS
     description: 'Gestion complète (créé par le patron)',
     
-    // Onglets visibles - RETRAIT de l'onglet employés
+    // Onglets visibles - Ajout du dashboard comme le patron
     visibleTabs: [
+      'dashboard', // ✅ Ajout du dashboard
       'trips', 
       'bookings',
       'buses', // 🚌 Gestion des bus
@@ -132,12 +133,12 @@ export const SIMPLE_ROLES = {
         setCapacity: true
       },
 
-      // 🚌 BUS - Complet sauf suppression MANAGER
+      // 🚌 BUS - Complet comme le PATRON
       buses: {
         view: true,
         create: true,
         edit: true,
-        delete: false, // ❌ Ne peut pas supprimer
+        delete: true, // ✅ Peut maintenant supprimer comme le patron
         manageMaintenance: true,
         assignDriver: true,
         viewSeating: true,
@@ -169,8 +170,9 @@ export const SIMPLE_ROLES = {
     color: '#34C759', // Vert iOS
     description: 'Gestion trajets et services (sans finances)',
     
-    // Onglets visibles - PAS de finances ni customers ni dashboard
+    // Onglets visibles - Ajout du dashboard comme le patron
     visibleTabs: [
+      'dashboard', // ✅ Ajout du dashboard
       'trips',
       'bookings',
       'buses', // 🚌 Gestion des bus
@@ -192,16 +194,16 @@ export const SIMPLE_ROLES = {
         setTiming: true
       },
 
-      // 🚌 BUS - Gestion opérationnelle EMPLOYÉ
+      // 🚌 BUS - Complet comme le PATRON
       buses: {
         view: true,
-        create: false, // ❌ Ne peut pas créer
+        create: true, // ✅ Peut maintenant créer comme le patron
         edit: true,
-        delete: false, // ❌ Ne peut pas supprimer
-        manageMaintenance: false, // ❌ Pas maintenance
-        assignDriver: false, // ❌ Pas assignation
+        delete: true, // ✅ Peut maintenant supprimer comme le patron
+        manageMaintenance: true,
+        assignDriver: true,
         viewSeating: true,
-        manageSeating: true // ✅ Gestion des sièges
+        manageSeating: true
       },
       
       // 📋 RÉSERVATIONS - Gestion sans prix

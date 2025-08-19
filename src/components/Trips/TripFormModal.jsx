@@ -47,15 +47,33 @@ const TripFormModal = ({
         return;
       }
 
-      // D'abord récupérer l'agence de l'utilisateur
-      const { data: agencies, error: agencyError } = await supabase
+      let agencyId = null;
+
+      // Méthode 1: Vérifier si c'est le propriétaire de l'agence
+      const { data: agencyOwner, error: ownerError } = await supabase
         .from('agencies')
         .select('id')
         .eq('user_id', user.id)
         .single();
 
-      if (agencyError) {
-        console.error('Erreur lors de la récupération de l\'agence:', agencyError);
+      if (agencyOwner && !ownerError) {
+        agencyId = agencyOwner.id;
+      } else {
+        // Méthode 2: Chercher l'agence via les invitations d'employés
+        const { data: employeeData, error: employeeError } = await supabase
+          .from('agency_employee_invitations')
+          .select('agency_id')
+          .eq('user_id', user.id)
+          .eq('status', 'accepted')
+          .single();
+
+        if (employeeData && !employeeError) {
+          agencyId = employeeData.agency_id;
+        }
+      }
+
+      if (!agencyId) {
+        console.error('Aucune agence trouvée pour cet utilisateur');
         return;
       }
 
@@ -63,7 +81,7 @@ const TripFormModal = ({
       const { data: agencyBuses, error: busesError } = await supabase
         .from('buses')
         .select('id, name, license_plate, total_seats, is_vip')
-        .eq('agency_id', agencies.id)
+        .eq('agency_id', agencyId)
         .order('name', { ascending: true });
 
       if (busesError) {
@@ -90,15 +108,33 @@ const TripFormModal = ({
         return;
       }
 
-      // D'abord récupérer l'agence de l'utilisateur
-      const { data: agencies, error: agencyError } = await supabase
+      let agencyId = null;
+
+      // Méthode 1: Vérifier si c'est le propriétaire de l'agence
+      const { data: agencyOwner, error: ownerError } = await supabase
         .from('agencies')
         .select('id')
         .eq('user_id', user.id)
         .single();
 
-      if (agencyError) {
-        console.error('Erreur lors de la récupération de l\'agence:', agencyError);
+      if (agencyOwner && !ownerError) {
+        agencyId = agencyOwner.id;
+      } else {
+        // Méthode 2: Chercher l'agence via les invitations d'employés
+        const { data: employeeData, error: employeeError } = await supabase
+          .from('agency_employee_invitations')
+          .select('agency_id')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .single();
+
+        if (employeeData && !employeeError) {
+          agencyId = employeeData.agency_id;
+        }
+      }
+
+      if (!agencyId) {
+        console.error('Aucune agence trouvée pour cet utilisateur');
         return;
       }
 
@@ -106,7 +142,7 @@ const TripFormModal = ({
       const { data: agencyDrivers, error: driversError } = await supabase
         .from('agency_employee_invitations')
         .select('id, first_name, last_name, phone, employee_role, status')
-        .eq('agency_id', agencies.id)
+        .eq('agency_id', agencyId)
         .eq('status', 'accepted')
         .in('employee_role', ['driver', 'conducteur', 'chauffeur']);
 
@@ -264,15 +300,33 @@ const TripFormModal = ({
       }
 
       // Récupérer l'agence de l'utilisateur
-      const { data: agencies, error: agencyError } = await supabase
+      let agencyId = null;
+
+      // Méthode 1: Vérifier si c'est le propriétaire de l'agence
+      const { data: agencyOwner, error: ownerError } = await supabase
         .from('agencies')
         .select('id')
         .eq('user_id', user.id)
         .single();
 
-      if (agencyError) {
-        alert('Erreur lors de la récupération de votre agence');
-        console.error('Erreur:', agencyError);
+      if (agencyOwner && !ownerError) {
+        agencyId = agencyOwner.id;
+      } else {
+        // Méthode 2: Chercher l'agence via les invitations d'employés
+        const { data: employeeData, error: employeeError } = await supabase
+          .from('agency_employee_invitations')
+          .select('agency_id')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .single();
+
+        if (employeeData && !employeeError) {
+          agencyId = employeeData.agency_id;
+        }
+      }
+
+      if (!agencyId) {
+        alert('Aucune agence trouvée pour cet utilisateur');
         return;
       }
 
@@ -289,7 +343,7 @@ const TripFormModal = ({
       }
 
       const tripData = {
-        agency_id: agencies.id,
+        agency_id: agencyId,
         departure_city: formData.departureCity,
         arrival_city: formData.arrivalCity,
         departure_time: departureDateTime.toISOString(),

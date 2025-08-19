@@ -33,15 +33,33 @@ const BusManagement = () => {
         return;
       }
 
-      // Récupérer l'agence de l'utilisateur
-      const { data: agencies, error: agencyError } = await supabase
+      let agencyId = null;
+
+      // Méthode 1: Vérifier si c'est le propriétaire de l'agence
+      const { data: agencyOwner, error: ownerError } = await supabase
         .from('agencies')
         .select('id')
         .eq('user_id', user.id)
         .single();
 
-      if (agencyError) {
-        console.error('Erreur lors de la récupération de l\'agence:', agencyError);
+      if (agencyOwner && !ownerError) {
+        agencyId = agencyOwner.id;
+      } else {
+        // Méthode 2: Chercher l'agence via les invitations d'employés
+        const { data: employeeData, error: employeeError } = await supabase
+          .from('agency_employee_invitations')
+          .select('agency_id')
+          .eq('user_id', user.id)
+          .eq('status', 'accepted')
+          .single();
+
+        if (employeeData && !employeeError) {
+          agencyId = employeeData.agency_id;
+        }
+      }
+
+      if (!agencyId) {
+        console.error('Aucune agence trouvée pour cet utilisateur');
         return;
       }
 
@@ -49,7 +67,7 @@ const BusManagement = () => {
       const { data: agencyBuses, error: busesError } = await supabase
         .from('buses')
         .select('*')
-        .eq('agency_id', agencies.id)
+        .eq('agency_id', agencyId)
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
@@ -144,15 +162,33 @@ const BusManagement = () => {
         return;
       }
 
-      // Récupérer l'agence de l'utilisateur
-      const { data: agencies, error: agencyError } = await supabase
+      let agencyId = null;
+
+      // Méthode 1: Vérifier si c'est le propriétaire de l'agence
+      const { data: agencyOwner, error: ownerError } = await supabase
         .from('agencies')
         .select('id')
         .eq('user_id', user.id)
         .single();
 
-      if (agencyError) {
-        alert('Erreur lors de la récupération de l\'agence');
+      if (agencyOwner && !ownerError) {
+        agencyId = agencyOwner.id;
+      } else {
+        // Méthode 2: Chercher l'agence via les invitations d'employés
+        const { data: employeeData, error: employeeError } = await supabase
+          .from('agency_employee_invitations')
+          .select('agency_id')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .single();
+
+        if (employeeData && !employeeError) {
+          agencyId = employeeData.agency_id;
+        }
+      }
+
+      if (!agencyId) {
+        alert('Aucune agence trouvée pour cet utilisateur');
         return;
       }
 
@@ -160,7 +196,7 @@ const BusManagement = () => {
       const { error: insertError } = await supabase
         .from('buses')
         .insert({
-          agency_id: agencies.id,
+          agency_id: agencyId,
           name: formData.name.trim(),
           license_plate: formData.licensePlate.trim(),
           total_seats: parseInt(formData.totalSeats),
