@@ -621,14 +621,13 @@ const TripsCalendar = () => {
                     >
                       ✏️ Modifier
                     </button>
-                    {['details', 'map', 'passengers', 'revenue'].map(tab => (
+                    {['details', 'passengers', 'revenue'].map(tab => (
                       <button
                         key={tab}
                         className={`tab-btn ${activeTab === tab ? 'active' : ''}`}
                         onClick={() => setActiveTab(tab)}
                       >
                         {tab === 'details' && '📋 Détails'}
-                        {tab === 'map' && '🗺️ Carte'}
                         {tab === 'passengers' && '👥 Passagers'}
                         {tab === 'revenue' && '💰 Revenus'}
                       </button>
@@ -643,20 +642,6 @@ const TripsCalendar = () => {
                         <div className="detail-card">
                           <h4>📊 Informations du Trajet</h4>
                           <div className="trip-stats-grid">
-                            <div className="stat-card distance">
-                              <div className="stat-header">
-                                <div className="stat-icon">�️</div>
-                                <div className="stat-label">Distance Totale</div>
-                              </div>
-                              <div className="stat-content">
-                                <div className="stat-value">{selectedTrip.distance}</div>
-                                <div className="stat-gauge">
-                                  <div className="gauge-fill distance-gauge"></div>
-                                </div>
-                                <div className="stat-subtitle">Trajet Direct</div>
-                              </div>
-                            </div>
-
                             <div className="stat-item">
                               <div className="stat-icon">⏱️</div>
                               <div className="stat-info">
@@ -724,29 +709,6 @@ const TripsCalendar = () => {
                           <p>{selectedTrip.notes}</p>
                         </div>
                       )}
-                    </div>
-                  )}
-
-                  {activeTab === 'map' && (
-                    <div className="map-tab">
-                      <div className="map-placeholder">
-                        <div className="map-content">
-                          <h4>🗺️ Carte du trajet</h4>
-                          <div className="route-info">
-                            <p><strong>Itinéraire:</strong> {selectedTrip.departureCity} → {selectedTrip.arrivalCity}</p>
-                            <p><strong>Distance:</strong> {selectedTrip.distance}</p>
-                            <p><strong>Points de passage:</strong></p>
-                            <ul>
-                              {selectedTrip.route.waypoints.map((point, index) => (
-                                <li key={index}>{point.city}</li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div className="map-note">
-                            📍 Carte Google Maps sera intégrée ici
-                          </div>
-                        </div>
-                      </div>
                     </div>
                   )}
 

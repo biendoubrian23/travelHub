@@ -130,7 +130,6 @@ const TripDetail = ({ trip, onBack, onEdit, onViewMap }) => {
                       ></div>
                     </div>
                     <div className="progress-info">
-                      <div className="distance">{trip.distance} km</div>
                       <div className="duration">{getDuration(trip.departure_time, trip.arrival_time)}</div>
                       {trip.status === 'in_progress' && (
                         <div className="current-progress">{progress}%</div>

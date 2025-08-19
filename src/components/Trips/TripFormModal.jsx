@@ -4,7 +4,7 @@ import './TripFormModal.css';
 const TripFormModal = ({ 
   isOpen, 
   onClose, 
-  onSubmit, 
+  onSubmit,
   editingTrip = null,
   selectedDate 
 }) => {
@@ -56,7 +56,6 @@ const TripFormModal = ({
         arrivalCity: editingTrip.arrivalCity,
         departureTime: editingTrip.departureTime,
         arrivalTime: editingTrip.arrivalTime,
-        distance: editingTrip.distance,
         duration: editingTrip.duration,
         price: editingTrip.price.toString(),
         busId: editingTrip.bus.id,
@@ -70,7 +69,6 @@ const TripFormModal = ({
         arrivalCity: '',
         departureTime: '',
         arrivalTime: '',
-        distance: '',
         duration: '',
         price: '',
         busId: '',
@@ -156,7 +154,6 @@ const TripFormModal = ({
     if (!formData.arrivalCity) newErrors.arrivalCity = 'La ville d\'arrivée est requise';
     if (!formData.departureTime) newErrors.departureTime = 'L\'heure de départ est requise';
     if (!formData.arrivalTime) newErrors.arrivalTime = 'L\'heure d\'arrivée est requise';
-    if (!formData.distance) newErrors.distance = 'La distance est requise';
     if (!formData.duration) newErrors.duration = 'La durée est requise';
     if (!formData.price) newErrors.price = 'Le prix est requis';
     if (!formData.busId) newErrors.busId = 'Le bus est requis';
@@ -200,7 +197,6 @@ const TripFormModal = ({
       arrivalCity: formData.arrivalCity,
       departureTime: formData.departureTime,
       arrivalTime: formData.arrivalTime,
-      distance: formData.distance,
       duration: formData.duration,
       price: parseInt(formData.price),
       bus: {
@@ -332,21 +328,7 @@ const TripFormModal = ({
               </div>
             </div>
 
-            {/* Distance et durée */}
-            <div className="form-group">
-              <label htmlFor="distance">📏 Distance *</label>
-              <input
-                type="text"
-                id="distance"
-                name="distance"
-                placeholder="ex: 245 km"
-                value={formData.distance}
-                onChange={handleInputChange}
-                className={errors.distance ? 'error' : ''}
-              />
-              {errors.distance && <span className="error-message">{errors.distance}</span>}
-            </div>
-
+            {/* Durée */}
             <div className="form-group">
               <label htmlFor="duration">⏱️ Durée estimée (calculée automatiquement)</label>
               <input
