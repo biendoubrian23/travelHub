@@ -29,6 +29,7 @@ const TripFormModal = ({
   const [loadingDrivers, setLoadingDrivers] = useState(false);
   const [buses, setBuses] = useState([]);
   const [loadingBuses, setLoadingBuses] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const cities = [
     'Douala', 'Yaoundé', 'Bafoussam', 'Bamenda', 'Garoua', 
@@ -272,46 +273,145 @@ const TripFormModal = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!validateForm()) {
       return;
     }
 
-    const selectedBus = buses.find(bus => bus.id === formData.busId);
-    const selectedDriver = drivers.find(driver => driver.id === formData.driverId);
+    setIsSubmitting(true);
 
-    const tripData = {
-      date: formData.date,
-      departureCity: formData.departureCity,
-      arrivalCity: formData.arrivalCity,
-      departureTime: formData.departureTime,
-      arrivalTime: formData.arrivalTime,
-      duration: formData.duration,
-      price: parseInt(formData.price),
-      bus: {
-        ...selectedBus,
-        plate: selectedBus?.license_plate,
-        totalSeats: selectedBus?.total_seats,
-        occupiedSeats: 0,
-        availableSeats: selectedBus?.total_seats || 0
-      },
-      driver: selectedDriver,
-      notes: formData.notes,
-      route: {
-        waypoints: [
-          { city: formData.departureCity, lat: 0, lng: 0 },
-          { city: formData.arrivalCity, lat: 0, lng: 0 }
-        ]
-      },
-      revenue: {
-        current: 0,
-        potential: selectedBus.totalSeats * parseInt(formData.price)
+    try {
+      // Récupérer l'utilisateur connecté
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        alert('Vous devez être connecté pour créer un trajet');
+        return;
       }
-    };
 
-    onSubmit(tripData);
+      // Récupérer l'agence de l'utilisateur
+      const { data: agencies, error: agencyError } = await supabase
+        .from('agencies')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (agencyError) {
+        alert('Erreur lors de la récupération de votre agence');
+        console.error('Erreur:', agencyError);
+        return;
+      }
+
+      // Préparer les données pour la base de données
+      const selectedBus = buses.find(bus => bus.id === formData.busId);
+      const selectedDriver = drivers.find(driver => driver.id === formData.driverId);
+
+      // Calculer les timestamps pour departure_time et arrival_time
+      const departureDateTime = new Date(`${formData.date}T${formData.departureTime}`);
+      let arrivalDateTime = new Date(`${formData.date}T${formData.arrivalTime}`);
+      
+      // Si c'est un trajet de nuit, ajouter un jour à l'arrivée
+      if (formData.isOvernight) {
+        arrivalDateTime.setDate(arrivalDateTime.getDate() + 1);
+      }
+
+      const tripData = {
+        agency_id: agencies.id,
+        departure_city: formData.departureCity,
+        arrival_city: formData.arrivalCity,
+        departure_time: departureDateTime.toISOString(),
+        arrival_time: arrivalDateTime.toISOString(),
+        total_seats: selectedBus?.total_seats || 40,
+        available_seats: selectedBus?.total_seats || 40,
+        price_fcfa: parseInt(formData.price),
+        bus_type: selectedBus?.is_vip ? 'vip' : 'standard',
+        description: formData.notes || null,
+        amenities: [], // Vous pouvez ajouter des services plus tard
+        is_active: true,
+        created_by: user.id
+      };
+
+      // Insérer le trajet dans la base de données
+      const { data: insertedTrip, error: insertError } = await supabase
+        .from('trips')
+        .insert([tripData])
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error('Erreur lors de la création du trajet:', insertError);
+        alert('Erreur lors de la création du trajet: ' + insertError.message);
+        return;
+      }
+
+      // Optionnel: Créer les données complémentaires si nécessaire
+      // Par exemple, associer le bus et le conducteur au trajet
+      // (cela dépendra de votre modèle de données)
+
+      // Succès !
+      alert('Trajet créé avec succès !');
+      
+      // Réinitialiser le formulaire et fermer le modal
+      setFormData({
+        date: selectedDate ? selectedDate.toISOString().split('T')[0] : '',
+        departureCity: '',
+        arrivalCity: '',
+        departureTime: '',
+        arrivalTime: '',
+        isOvernight: false,
+        distance: '',
+        duration: '',
+        price: '',
+        busId: '',
+        driverId: '',
+        notes: ''
+      });
+      setErrors({});
+      
+      // Appeler onSubmit avec les données formatées si nécessaire pour rafraîchir l'interface
+      if (onSubmit) {
+        const formattedTripData = {
+          id: insertedTrip.id,
+          date: formData.date,
+          departureCity: formData.departureCity,
+          arrivalCity: formData.arrivalCity,
+          departureTime: formData.departureTime,
+          arrivalTime: formData.arrivalTime,
+          duration: formData.duration,
+          price: parseInt(formData.price),
+          bus: {
+            ...selectedBus,
+            plate: selectedBus?.license_plate,
+            totalSeats: selectedBus?.total_seats,
+            occupiedSeats: 0,
+            availableSeats: selectedBus?.total_seats || 0
+          },
+          driver: selectedDriver,
+          notes: formData.notes,
+          route: {
+            waypoints: [
+              { city: formData.departureCity, lat: 0, lng: 0 },
+              { city: formData.arrivalCity, lat: 0, lng: 0 }
+            ]
+          },
+          revenue: {
+            current: 0,
+            potential: (selectedBus?.total_seats || 40) * parseInt(formData.price)
+          }
+        };
+        onSubmit(formattedTripData);
+      }
+      
+      // Fermer le modal
+      onClose();
+
+    } catch (error) {
+      console.error('Erreur lors de la création du trajet:', error);
+      alert('Erreur inattendue lors de la création du trajet');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -522,11 +622,11 @@ const TripFormModal = ({
 
           {/* Actions */}
           <div className="form-actions">
-            <button type="button" className="cancel-btn" onClick={onClose}>
+            <button type="button" className="cancel-btn" onClick={onClose} disabled={isSubmitting}>
               Annuler
             </button>
-            <button type="submit" className="submit-btn">
-              {editingTrip ? 'Modifier le trajet' : 'Créer le trajet'}
+            <button type="submit" className="submit-btn" disabled={isSubmitting}>
+              {isSubmitting ? 'Création en cours...' : (editingTrip ? 'Modifier le trajet' : 'Créer le trajet')}
             </button>
           </div>
         </form>
