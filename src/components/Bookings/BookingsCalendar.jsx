@@ -1,9 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRolePermissions } from '../RoleBasedComponents';
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
 import './BookingsCalendar.css';
 
 const BookingsCalendar = () => {
   const { hasPermission } = useRolePermissions();
+  const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedBus, setSelectedBus] = useState(null);
   const [trips, setTrips] = useState([]);
@@ -33,235 +36,164 @@ const BookingsCalendar = () => {
 
   const calendarDates = generateCalendarDates();
 
-  // Données mockées
-  useEffect(() => {
-    setTimeout(() => {
-      // Trajets avec bus pour la date sélectionnée
-      const mockTrips = [
-        {
-          id: 1,
-          date: new Date().toISOString().split('T')[0],
-          bus: {
-            id: 'BUS-001',
-            number: '001',
-            name: 'Express Voyageur',
-            plate: 'LT-234-CM',
-            totalSeats: 45
-          },
-          driver: {
-            name: 'Jean-Paul Mbarga',
-            phone: '+237670123456'
-          },
-          route: 'Douala → Yaoundé',
-          departureTime: '08:00',
-          price: 3500,
-          status: 'scheduled'
-        },
-        {
-          id: 2,
-          date: new Date().toISOString().split('T')[0],
-          bus: {
-            id: 'BUS-002',
-            number: '002',
-            name: 'Confort Plus',
-            plate: 'LT-567-CM',
-            totalSeats: 52
-          },
-          driver: {
-            name: 'Marie Essono',
-            phone: '+237670123457'
-          },
-          route: 'Yaoundé → Bafoussam',
-          departureTime: '14:00',
-          price: 2800,
-          status: 'scheduled'
-        },
-        {
-          id: 3,
-          date: new Date().toISOString().split('T')[0],
-          bus: {
-            id: 'BUS-003',
-            number: '003',
-            name: 'Grand Voyageur',
-            plate: 'LT-890-CM',
-            totalSeats: 55
-          },
-          driver: {
-            name: 'Paul Nkomo',
-            phone: '+237670123458'
-          },
-          route: 'Douala → Bamenda',
-          departureTime: '06:30',
-          price: 4200,
-          status: 'scheduled'
-        },
-        {
-          id: 4,
-          date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          bus: {
-            id: 'BUS-004',
-            number: '004',
-            name: 'Rapide Service',
-            plate: 'LT-456-CM',
-            totalSeats: 48
-          },
-          driver: {
-            name: 'Alice Mbouda',
-            phone: '+237670123459'
-          },
-          route: 'Yaoundé → Douala',
-          departureTime: '16:00',
-          price: 3500,
-          status: 'scheduled'
-        }
-      ];
+  // Fonction pour récupérer les données réelles de la base
+  const fetchTripsAndBookingsFromDatabase = useCallback(async () => {
+    console.log('🔄 Récupération des trajets et réservations depuis la base de données...');
+    setLoading(true);
 
-      // Réservations mockées
-      const mockBookings = [
-        // Bus 001
-        {
-          id: 1,
-          tripId: 1,
-          busId: 'BUS-001',
-          passengerName: 'Jean Dupont',
-          passengerPhone: '+237670111111',
-          seatNumber: 12,
-          bookingDate: new Date().toISOString(),
-          status: 'confirmed',
-          paymentStatus: 'paid'
+    try {
+      // 1. Identifier l'agence de l'utilisateur
+      let agencyId = null;
+
+      // Méthode 1: Chercher si l'utilisateur possède une agence
+      const { data: agencyData, error: agencyError } = await supabase
+        .from('agencies')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (agencyData && !agencyError) {
+        agencyId = agencyData.id;
+        console.log('🏢 Utilisateur propriétaire de l\'agence:', agencyId);
+      } else {
+        // Méthode 2: Chercher l'agence via les invitations d'employés
+        const { data: employeeData, error: employeeError } = await supabase
+          .from('agency_employee_invitations')
+          .select('agency_id')
+          .eq('user_id', user.id)
+          .eq('status', 'accepted')
+          .single();
+
+        if (employeeData && !employeeError) {
+          agencyId = employeeData.agency_id;
+          console.log('👥 Utilisateur employé de l\'agence:', agencyId);
+        }
+      }
+
+      if (!agencyId) {
+        console.error('Aucune agence trouvée pour cet utilisateur');
+        setLoading(false);
+        return;
+      }
+
+      console.log('🎯 ID de l\'agence utilisée pour filtrer:', agencyId);
+
+      // 2. Récupérer les trajets de l'agence avec les informations des conducteurs et des bus
+      const { data: tripsData, error: tripsError } = await supabase
+        .from('trips')
+        .select(`
+          *,
+          agency_employee_invitations!driver_id (
+            id,
+            first_name,
+            last_name,
+            phone
+          ),
+          buses!bus_id (
+            id,
+            name,
+            license_plate,
+            total_seats,
+            is_vip
+          )
+        `)
+        .eq('agency_id', agencyId);
+
+      if (tripsError) {
+        console.error('❌ Erreur lors de la récupération des trajets:', tripsError);
+        setLoading(false);
+        return;
+      }
+
+      // 3. Récupérer toutes les réservations pour ces trajets
+      const tripIds = tripsData?.map(trip => trip.id) || [];
+      let bookingsData = [];
+
+      if (tripIds.length > 0) {
+        const { data: fetchedBookings, error: bookingsError } = await supabase
+          .from('bookings')
+          .select('*')
+          .in('trip_id', tripIds);
+
+        if (bookingsError) {
+          console.error('❌ Erreur lors de la récupération des réservations:', bookingsError);
+        } else {
+          bookingsData = fetchedBookings || [];
+        }
+      }
+
+      // 4. Traiter et formater les données pour l'affichage
+      const formattedTrips = tripsData?.map(trip => ({
+        id: trip.id,
+        date: trip.departure_time ? trip.departure_time.split('T')[0] : new Date().toISOString().split('T')[0],
+        bus: {
+          id: trip.buses?.id || trip.bus_id,
+          number: trip.buses?.license_plate?.replace(/[^0-9]/g, '') || '000',
+          name: trip.buses?.name || 'Bus inconnu',
+          plate: trip.buses?.license_plate || 'N/A',
+          totalSeats: trip.buses?.total_seats || 50,
+          isVip: trip.buses?.is_vip || false
         },
-        {
-          id: 2,
-          tripId: 1,
-          busId: 'BUS-001',
-          passengerName: 'Marie Mbolo',
-          passengerPhone: '+237670111112',
-          seatNumber: 13,
-          bookingDate: new Date().toISOString(),
-          status: 'confirmed',
-          paymentStatus: 'paid'
+        driver: {
+          name: trip.agency_employee_invitations 
+            ? `${trip.agency_employee_invitations.first_name} ${trip.agency_employee_invitations.last_name}`
+            : 'Conducteur non assigné',
+          phone: trip.agency_employee_invitations?.phone || 'N/A'
         },
-        {
-          id: 3,
-          tripId: 1,
-          busId: 'BUS-001',
-          passengerName: 'Paul Essomba',
-          passengerPhone: '+237670111113',
-          seatNumber: 15,
-          bookingDate: new Date().toISOString(),
-          status: 'confirmed',
-          paymentStatus: 'pending'
-        },
-        {
-          id: 4,
-          tripId: 1,
-          busId: 'BUS-001',
-          passengerName: 'Alice Fouda',
-          passengerPhone: '+237670111114',
-          seatNumber: 8,
-          bookingDate: new Date().toISOString(),
-          status: 'pending',
-          paymentStatus: 'pending'
-        },
-        {
-          id: 5,
-          tripId: 1,
-          busId: 'BUS-001',
-          passengerName: 'Michel Tchuente',
-          passengerPhone: '+237670111115',
-          seatNumber: 22,
-          bookingDate: new Date().toISOString(),
-          status: 'confirmed',
-          paymentStatus: 'paid'
-        },
+        route: `${trip.departure_city} → ${trip.arrival_city}`,
+        departureTime: trip.departure_time ? new Date(trip.departure_time).toLocaleTimeString('fr-FR', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        }) : '00:00',
+        price: trip.price_fcfa || 0,
+        status: trip.status || 'scheduled'
+      })) || [];
+
+      // 5. Formater les réservations
+      const formattedBookings = bookingsData?.map(booking => ({
+        id: booking.id,
+        tripId: booking.trip_id,
+        busId: tripsData?.find(trip => trip.id === booking.trip_id)?.bus_id,
+        passengerName: booking.passenger_name,
+        passengerPhone: booking.passenger_phone,
+        seatNumber: parseInt(booking.seat_number) || 0,
+        bookingDate: booking.created_at,
+        status: booking.booking_status || 'pending',
+        paymentStatus: booking.payment_status || 'pending',
+        bookingReference: booking.booking_reference
+      })) || [];
+
+      console.log('✅ Trajets formatés:', formattedTrips.length);
+      console.log('✅ Réservations formatées:', formattedBookings.length);
+      
+      // Debug des dates avec la date actuelle
+      const today = new Date().toISOString().split('T')[0];
+      if (formattedTrips.length > 0) {
+        console.log('🔍 Premier trajet exemple:', formattedTrips[0]);
+        console.log('📅 Date du premier trajet:', formattedTrips[0]?.date);
+        console.log('📅 Date aujourd\'hui:', today);
         
-        // Bus 002
-        {
-          id: 6,
-          tripId: 2,
-          busId: 'BUS-002',
-          passengerName: 'Sophie Mbarga',
-          passengerPhone: '+237670222221',
-          seatNumber: 5,
-          bookingDate: new Date().toISOString(),
-          status: 'confirmed',
-          paymentStatus: 'paid'
-        },
-        {
-          id: 7,
-          tripId: 2,
-          busId: 'BUS-002',
-          passengerName: 'Claude Nkomo',
-          passengerPhone: '+237670222222',
-          seatNumber: 18,
-          bookingDate: new Date().toISOString(),
-          status: 'confirmed',
-          paymentStatus: 'paid'
-        },
-        {
-          id: 8,
-          tripId: 2,
-          busId: 'BUS-002',
-          passengerName: 'Diane Essono',
-          passengerPhone: '+237670222223',
-          seatNumber: 31,
-          bookingDate: new Date().toISOString(),
-          status: 'pending',
-          paymentStatus: 'pending'
-        },
+        // Vérifier combien de trajets correspondent à aujourd'hui
+        const tripsToday = formattedTrips.filter(trip => trip.date === today);
+        console.log('� Trajets pour aujourd\'hui:', tripsToday.length);
+      }
 
-        // Bus 003
-        {
-          id: 9,
-          tripId: 3,
-          busId: 'BUS-003',
-          passengerName: 'Robert Fouda',
-          passengerPhone: '+237670333331',
-          seatNumber: 2,
-          bookingDate: new Date().toISOString(),
-          status: 'confirmed',
-          paymentStatus: 'paid'
-        },
-        {
-          id: 10,
-          tripId: 3,
-          busId: 'BUS-003',
-          passengerName: 'Berthe Mbouda',
-          passengerPhone: '+237670333332',
-          seatNumber: 14,
-          bookingDate: new Date().toISOString(),
-          status: 'confirmed',
-          paymentStatus: 'paid'
-        },
-        {
-          id: 11,
-          tripId: 3,
-          busId: 'BUS-003',
-          passengerName: 'André Tchouapi',
-          passengerPhone: '+237670333333',
-          seatNumber: 27,
-          bookingDate: new Date().toISOString(),
-          status: 'confirmed',
-          paymentStatus: 'paid'
-        },
-        {
-          id: 12,
-          tripId: 3,
-          busId: 'BUS-003',
-          passengerName: 'Carole Mballa',
-          passengerPhone: '+237670333334',
-          seatNumber: 35,
-          bookingDate: new Date().toISOString(),
-          status: 'confirmed',
-          paymentStatus: 'pending'
-        }
-      ];
+      setTrips(formattedTrips);
+      setBookings(formattedBookings);
 
-      setTrips(mockTrips);
-      setBookings(mockBookings);
+    } catch (error) {
+      console.error('💥 Erreur lors de la récupération des données:', error);
+    } finally {
       setLoading(false);
-    }, 1000);
-  }, []);
+    }
+  }, [user]);
+
+  // Charger les données au démarrage et quand l'utilisateur change
+  useEffect(() => {
+    if (user?.id) {
+      fetchTripsAndBookingsFromDatabase();
+    }
+  }, [user?.id, fetchTripsAndBookingsFromDatabase]);
 
   // Obtenir les trajets pour une date donnée
   const getTripsForDate = (date) => {
@@ -553,6 +485,11 @@ const BookingsCalendar = () => {
                             <span className={`status-indicator status-${trip.status}`}>
                               {trip.status === 'scheduled' ? '📅' : '🚌'}
                             </span>
+                            {trip.bus.isVip && (
+                              <span className="vip-badge" title="Bus VIP">
+                                ⭐ VIP
+                              </span>
+                            )}
                           </div>
                         </div>
                         
