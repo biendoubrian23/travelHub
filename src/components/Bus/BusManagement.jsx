@@ -144,7 +144,7 @@ const BusManagement = () => {
           .from('agency_employee_invitations')
           .select('agency_id')
           .eq('user_id', user.id)
-          .eq('status', 'active')
+          .eq('status', 'accepted')
           .single();
         if (employeeData && !employeeError) {
           agencyId = employeeData.agency_id;
