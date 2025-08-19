@@ -365,6 +365,18 @@
   animation: vipGlow 2s ease-in-out infinite alternate;
 }
 
+.std-badge {
+  background: linear-gradient(135deg, #9E9E9E 0%, #757575 100%);
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(158, 158, 158, 0.3);
+}
+
 @keyframes vipGlow {
   0% { box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3); }
   100% { box-shadow: 0 4px 16px rgba(255, 215, 0, 0.6); }

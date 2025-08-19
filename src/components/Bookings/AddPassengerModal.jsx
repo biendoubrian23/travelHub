@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
+import SeatSelector from './SeatSelector';
 import './AddPassengerModal.css';
 
 const AddPassengerModal = ({ isOpen, onClose, selectedTrip, onPassengerAdded }) => {
@@ -14,6 +15,40 @@ const AddPassengerModal = ({ isOpen, onClose, selectedTrip, onPassengerAdded }) 
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const [occupiedSeats, setOccupiedSeats] = useState([]);
+
+  // Récupérer les sièges occupés pour ce voyage
+  React.useEffect(() => {
+    const getOccupiedSeats = async () => {
+      if (!selectedTrip?.id) return;
+      
+      try {
+        const { data: bookings, error } = await supabase
+          .from('bookings')
+          .select('seat_number')
+          .eq('trip_id', selectedTrip.id)
+          .not('seat_number', 'is', null);
+
+        if (error) {
+          console.error('Erreur lors de la récupération des sièges occupés:', error);
+          return;
+        }
+
+        const occupied = bookings
+          .map(booking => parseInt(booking.seat_number))
+          .filter(seat => !isNaN(seat));
+        
+        setOccupiedSeats(occupied);
+        console.log('🪑 Sièges occupés pour ce voyage:', occupied);
+      } catch (error) {
+        console.error('Erreur:', error);
+      }
+    };
+
+    if (isOpen && selectedTrip) {
+      getOccupiedSeats();
+    }
+  }, [isOpen, selectedTrip]);
 
   // Générer une référence de réservation unique
   const generateBookingReference = () => {
@@ -39,8 +74,15 @@ const AddPassengerModal = ({ isOpen, onClose, selectedTrip, onPassengerAdded }) 
       newErrors.passengerPhone = 'Format de téléphone invalide';
     }
 
-    if (formData.seatNumber && (isNaN(formData.seatNumber) || formData.seatNumber < 1)) {
-      newErrors.seatNumber = 'Le numéro de siège doit être un nombre positif';
+    if (formData.seatNumber) {
+      const seatNum = parseInt(formData.seatNumber);
+      if (isNaN(seatNum) || seatNum < 1) {
+        newErrors.seatNumber = 'Le numéro de siège doit être un nombre positif';
+      } else if (seatNum > selectedTrip?.bus?.totalSeats) {
+        newErrors.seatNumber = `Le siège ${seatNum} n'existe pas (maximum: ${selectedTrip?.bus?.totalSeats})`;
+      } else if (occupiedSeats.includes(seatNum)) {
+        newErrors.seatNumber = `Le siège ${seatNum} est déjà occupé pour ce voyage`;
+      }
     }
 
     setErrors(newErrors);
@@ -58,6 +100,26 @@ const AddPassengerModal = ({ isOpen, onClose, selectedTrip, onPassengerAdded }) 
     setIsSubmitting(true);
 
     try {
+      // Double vérification côté serveur pour éviter les conflits de sièges
+      if (formData.seatNumber) {
+        const { data: existingSeat, error: checkError } = await supabase
+          .from('bookings')
+          .select('id, passenger_name')
+          .eq('trip_id', selectedTrip.id)
+          .eq('seat_number', formData.seatNumber)
+          .limit(1);
+
+        if (checkError) {
+          console.error('Erreur lors de la vérification du siège:', checkError);
+        } else if (existingSeat && existingSeat.length > 0) {
+          setErrors({ 
+            seatNumber: `Le siège ${formData.seatNumber} est déjà réservé par ${existingSeat[0].passenger_name}` 
+          });
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       const bookingData = {
         user_id: user.id,
         trip_id: selectedTrip.id,
@@ -188,6 +250,23 @@ const AddPassengerModal = ({ isOpen, onClose, selectedTrip, onPassengerAdded }) 
             </div>
           </div>
 
+          {/* Sélecteur visuel de sièges */}
+          <SeatSelector
+            totalSeats={selectedTrip?.bus?.totalSeats || 50}
+            occupiedSeats={occupiedSeats}
+            selectedSeat={formData.seatNumber ? parseInt(formData.seatNumber) : null}
+            onSeatSelect={(seatNumber) => {
+              setFormData(prev => ({
+                ...prev,
+                seatNumber: seatNumber ? seatNumber.toString() : ''
+              }));
+              // Effacer l'erreur si un siège valide est sélectionné
+              if (seatNumber && errors.seatNumber) {
+                setErrors(prev => ({ ...prev, seatNumber: '' }));
+              }
+            }}
+          />
+
           <div className="bookings-form-row">
             <div className="bookings-form-group">
               <label htmlFor="seatNumber">
@@ -209,6 +288,22 @@ const AddPassengerModal = ({ isOpen, onClose, selectedTrip, onPassengerAdded }) 
               )}
               <small className="bookings-field-hint">
                 Sièges disponibles: 1 à {selectedTrip.bus.totalSeats}
+                {occupiedSeats.length > 0 && (
+                  <div style={{ marginTop: '8px' }}>
+                    <strong>🚫 Sièges occupés:</strong> {occupiedSeats.sort((a, b) => a - b).join(', ')}
+                  </div>
+                )}
+                {occupiedSeats.length > 0 && (
+                  <div style={{ marginTop: '4px', color: '#28a745' }}>
+                    <strong>✅ Sièges libres:</strong> {
+                      Array.from({ length: selectedTrip.bus.totalSeats }, (_, i) => i + 1)
+                        .filter(seat => !occupiedSeats.includes(seat))
+                        .slice(0, 10) // Afficher seulement les 10 premiers sièges libres
+                        .join(', ')
+                    }{Array.from({ length: selectedTrip.bus.totalSeats }, (_, i) => i + 1)
+                        .filter(seat => !occupiedSeats.includes(seat)).length > 10 ? '...' : ''}
+                  </div>
+                )}
               </small>
             </div>
 

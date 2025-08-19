@@ -499,6 +499,11 @@ const BookingsCalendar = () => {
                                 ⭐ VIP
                               </span>
                             )}
+                            {!trip.bus.isVip && (
+                              <span className="std-badge" title="Bus Standard">
+                                STD
+                              </span>
+                            )}
                           </div>
                         </div>
                         

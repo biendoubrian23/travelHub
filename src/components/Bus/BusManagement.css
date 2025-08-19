@@ -176,8 +176,9 @@
 }
 
 .bus-mgmt-type.bus-mgmt-standard {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, #9E9E9E 0%, #757575 100%);
   color: white;
+  box-shadow: 0 2px 4px rgba(158, 158, 158, 0.3);
 }
 
 .bus-mgmt-notes {

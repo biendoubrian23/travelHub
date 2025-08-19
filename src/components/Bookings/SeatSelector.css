@@ -1,0 +1,187 @@
+.seat-selector {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 15px 0;
+  border: 2px solid #e9ecef;
+}
+
+.seat-selector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.seat-selector-header h4 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 18px;
+}
+
+.seat-legend {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.bus-layout {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 15px;
+  padding: 20px;
+  margin: 15px 0;
+  position: relative;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.driver-area {
+  background: #343a40;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.seats-area {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.seat-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.seat-group {
+  display: flex;
+  gap: 5px;
+}
+
+.aisle {
+  width: 30px;
+  height: 2px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 1px;
+}
+
+.seat {
+  width: 35px;
+  height: 35px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  user-select: none;
+}
+
+.seat.small {
+  width: 20px;
+  height: 20px;
+  font-size: 10px;
+}
+
+.seat.available {
+  background: #28a745;
+  color: white;
+  box-shadow: 0 2px 5px rgba(40,167,69,0.3);
+}
+
+.seat.available:hover {
+  background: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(40,167,69,0.4);
+}
+
+.seat.occupied {
+  background: #dc3545;
+  color: white;
+  cursor: not-allowed;
+  opacity: 0.7;
+  box-shadow: 0 2px 5px rgba(220,53,69,0.3);
+}
+
+.seat.selected {
+  background: #ffc107;
+  color: #212529;
+  border-color: #ff6b35;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(255,193,7,0.5);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 4px 15px rgba(255,193,7,0.5); }
+  50% { box-shadow: 0 4px 20px rgba(255,193,7,0.8); }
+  100% { box-shadow: 0 4px 15px rgba(255,193,7,0.5); }
+}
+
+.seat-info {
+  text-align: center;
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.selected-info {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  margin: 0;
+  font-weight: bold;
+}
+
+.no-selection {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+  margin: 0;
+  font-style: italic;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .seat-selector-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .seat-legend {
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .bus-layout {
+    padding: 15px;
+  }
+  
+  .seat {
+    width: 30px;
+    height: 30px;
+    font-size: 11px;
+  }
+  
+  .aisle {
+    width: 20px;
+  }
+}

@@ -2168,13 +2168,12 @@
   background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
   color: #8B4513;
   box-shadow: 0 2px 4px rgba(255, 215, 0, 0.3);
-  border: 1px solid rgba(255, 215, 0, 0.4);
 }
 
 .trips-calendar .vip-tag.standard {
-  background: rgba(142, 142, 147, 0.12);
-  color: #8e8e93;
-  border: 1px solid rgba(142, 142, 147, 0.2);
+  background: linear-gradient(135deg, #9E9E9E 0%, #757575 100%);
+  color: #FFFFFF;
+  box-shadow: 0 2px 4px rgba(158, 158, 158, 0.3);
 }
 
 /* Colonne 5: Bus/Conducteur */
