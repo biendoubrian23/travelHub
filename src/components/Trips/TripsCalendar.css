@@ -845,6 +845,125 @@
   color: #1d1d1f;
 }
 
+/* ===============================================
+   ALIGNEMENT HORIZONTAL COMPLET DES TRAJETS
+   =============================================== */
+
+/* Grille principale avec espaces très réduits */
+.trips-calendar .trip-record {
+  display: grid;
+  grid-template-columns: 80px 1.8fr 1fr 1fr 180px; /* Colonne droite plus large */
+  align-items: center;
+  padding: 12px 16px; /* Padding réduit */
+  background: #f8f9fa;
+  border-radius: 16px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  gap: 6px; /* Gap très réduit */
+  min-height: 70px; /* Hauteur réduite */
+}
+
+/* Section route (départ/arrivée) */
+.trips-calendar .route-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px; /* Espace minimal */
+  grid-column: 2;
+  text-align: left;
+}
+
+/* Section heure */
+.trips-calendar .time-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px; /* Espace minimal */
+  grid-column: 3;
+  text-align: left;
+}
+
+/* Section bus/conducteur */
+.trips-calendar .bus-driver {
+  display: flex;
+  flex-direction: column;
+  gap: 1px; /* Espace minimal */
+  grid-column: 4;
+  text-align: left;
+}
+
+/* Section droite : TOUT EN LIGNE HORIZONTALE */
+.trips-calendar .record-right {
+  display: flex;
+  flex-direction: row; /* HORIZONTAL */
+  align-items: center; /* Centré verticalement */
+  gap: 8px; /* Espace entre passagers et boutons */
+  grid-column: 5;
+  text-align: right;
+  justify-self: end;
+  height: 100%; /* Utilise toute la hauteur */
+}
+
+/* Informations passagers compactes */
+.trips-calendar .occupancy-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 80px; /* Largeur fixe pour l'alignement */
+}
+
+/* Stats des sièges sur une ligne */
+.trips-calendar .seats-stats {
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Barre de progression compacte */
+.trips-calendar .occupancy-bar {
+  width: 60px; /* Plus petite */
+  height: 4px; /* Plus fine */
+  background: #e5e5ea;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+/* Pourcentage compact */
+.trips-calendar .percentage {
+  font-size: 11px;
+  color: #8e8e93;
+  font-weight: 600;
+}
+
+/* Boutons d'action horizontaux */
+.trips-calendar .record-actions {
+  display: flex;
+  flex-direction: row; /* HORIZONTAL */
+  gap: 4px; /* Espace réduit entre boutons */
+  opacity: 1; /* Toujours visible */
+  align-items: center;
+}
+
+/* Boutons style iOS compacts */
+.trips-calendar .action-btn {
+  width: 28px; /* Plus petits */
+  height: 28px;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 1px 4px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
 .driver-info {
   font-size: 13px;
   color: #8e8e93;
@@ -1980,4 +2099,167 @@
   background: linear-gradient(135deg, #ff6b00 0%, #ff4500 100%);
   color: white;
   box-shadow: 0 2px 8px rgba(255, 107, 0, 0.4);
+}
+
+/* ===============================================
+   DESIGN SIMPLE ET ÉLÉGANT - SANS CHEVAUCHEMENT
+   =============================================== */
+
+/* Grille principale simplifiée */
+.trips-calendar .trip-record {
+  display: grid;
+  grid-template-columns: 80px 2fr 1fr 1fr 1fr 100px; /* 6 colonnes bien distinctes */
+  align-items: center;
+  padding: 16px 20px;
+  background: #f8f9fa;
+  border-radius: 16px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  gap: 12px; /* Gap équilibré */
+  min-height: 75px;
+}
+
+/* Colonne 1: Icône/Statut */
+.trips-calendar .record-left {
+  grid-column: 1;
+}
+
+/* Colonne 2: Route */
+.trips-calendar .route-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  grid-column: 2;
+  text-align: left;
+}
+
+/* Colonne 3: Heures */
+.trips-calendar .time-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  grid-column: 3;
+  text-align: left;
+}
+
+/* Colonne 4: Bus/Conducteur */
+.trips-calendar .bus-driver {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  grid-column: 4;
+  text-align: left;
+}
+
+/* Colonne 5: Passagers (SIMPLE) */
+.trips-calendar .occupancy-simple {
+  grid-column: 5;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #007AFF;
+}
+
+/* Colonne 6: Boutons (SÉPARÉS) */
+.trips-calendar .record-actions {
+  grid-column: 6;
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* Boutons épurés style iOS */
+.trips-calendar .action-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px; /* Moins rond, plus moderne */
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.trips-calendar .action-btn.edit {
+  color: #007AFF;
+  border: 1px solid rgba(0, 122, 255, 0.2);
+}
+
+.trips-calendar .action-btn.edit:hover {
+  background: rgba(0, 122, 255, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 122, 255, 0.2);
+}
+
+.trips-calendar .action-btn.delete {
+  color: #FF453A;
+  border: 1px solid rgba(255, 69, 58, 0.2);
+}
+
+.trips-calendar .action-btn.delete:hover {
+  background: rgba(255, 69, 58, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(255, 69, 58, 0.2);
+}
+
+/* SUPPRESSION des anciens styles conflictuels */
+.trips-calendar .record-right {
+  display: none !important; /* Cache l'ancienne structure */
+}
+
+/* ===============================================
+   STYLES FINAUX POUR ALIGNEMENT PARFAIT
+   =============================================== */
+
+/* Force l'alignement horizontal complet */
+.trips-calendar .record-right {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 10px !important;
+  grid-column: 5;
+  text-align: right;
+  justify-self: end;
+  height: 100%;
+}
+
+/* Informations occupancy en colonne compacte */
+.trips-calendar .occupancy-info {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  gap: 2px !important;
+  min-width: 70px;
+}
+
+/* Boutons d'action en ligne */
+.trips-calendar .record-actions {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 4px !important;
+  opacity: 1 !important;
+  align-items: center !important;
+}
+
+/* Couleurs finales des boutons */
+.trips-calendar .action-btn.edit {
+  background: rgba(0, 122, 255, 0.15) !important;
+  color: #007AFF !important;
+  border: 1px solid rgba(0, 122, 255, 0.2) !important;
+}
+
+.trips-calendar .action-btn.delete {
+  background: rgba(255, 69, 58, 0.15) !important;
+  color: #FF453A !important;
+  border: 1px solid rgba(255, 69, 58, 0.2) !important;
 }

@@ -520,49 +520,33 @@ const TripsCalendar = () => {
                         </div>
                       </div>
 
-                      {/* Colonne 5: Places restantes - tout à droite */}
-                      <div className="record-right">
-                        <div className="occupancy-info">
-                          <div className="seats-stats">
-                            <span className="occupied">{trip.bus.occupiedSeats}</span>
-                            <span className="separator">/</span>
-                            <span className="total">{trip.bus.totalSeats}</span>
-                          </div>
-                          <div className="occupancy-bar">
-                            <div 
-                              className="occupancy-fill"
-                              style={{
-                                width: `${(trip.bus.occupiedSeats / trip.bus.totalSeats) * 100}%`
-                              }}
-                            ></div>
-                          </div>
-                          <div className="percentage">
-                            {Math.round((trip.bus.occupiedSeats / trip.bus.totalSeats) * 100)}%
-                          </div>
-                        </div>
+                      {/* Colonne 5: Passagers (SIMPLE) */}
+                      <div className="occupancy-simple">
+                        {trip.bus.occupiedSeats}/{trip.bus.totalSeats}
+                      </div>
 
-                        <div className="record-actions">
-                          <button
-                            className="action-btn edit"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleTripAction('edit', trip);
-                            }}
-                            title="Modifier"
-                          >
-                            ✏️
-                          </button>
-                          <button
-                            className="action-btn delete"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleTripAction('delete', trip);
-                            }}
-                            title="Supprimer"
-                          >
-                            🗑️
-                          </button>
-                        </div>
+                      {/* Colonne 6: Boutons (SÉPARÉS) */}
+                      <div className="record-actions">
+                        <button
+                          className="action-btn edit"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTripAction('edit', trip);
+                          }}
+                          title="Modifier"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          className="action-btn delete"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTripAction('delete', trip);
+                          }}
+                          title="Supprimer"
+                        >
+                          🗑️
+                        </button>
                       </div>
                     </div>
                   ))}
