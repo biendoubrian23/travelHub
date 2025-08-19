@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRolePermissions } from '../RoleBasedComponents';
 import TripFormModal from './TripFormModal';
+import { supabase } from '../../lib/supabase';
 import './TripsCalendar.css';
 
 const TripsCalendar = () => {
@@ -14,7 +15,6 @@ const TripsCalendar = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingTrip, setEditingTrip] = useState(null);
-  const [modifyFormData, setModifyFormData] = useState({});
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Générer les dates du carrousel (3 derniers + aujourd'hui + 13 prochains)
@@ -33,222 +33,167 @@ const TripsCalendar = () => {
 
   const calendarDates = generateCalendarDates();
 
-  // Données mockées des trajets
-  useEffect(() => {
-    setTimeout(() => {
-      const mockTrips = [
-        {
-          id: 1,
-          tripNumber: 'TRJ-001',
-          date: new Date().toISOString().split('T')[0],
-          departureCity: 'Douala',
-          arrivalCity: 'Yaoundé',
-          departureTime: '08:00',
-          arrivalTime: '11:30',
-          distance: '245 km',
-          duration: '3h 30min',
-          price: 3500,
-          bus: {
-            id: 'BUS-001',
-            name: 'Express Voyageur',
-            plate: 'LT-234-CM',
-            totalSeats: 45,
-            occupiedSeats: 32,
-            availableSeats: 13
-          },
-          driver: {
-            id: 1,
-            name: 'Jean-Paul Mbarga',
-            phone: '+237670123456',
-            experience: '8 ans'
-          },
-          status: 'scheduled', // scheduled, in_progress, completed, cancelled, delayed
-          route: {
-            waypoints: [
-              { city: 'Douala', lat: 4.0511, lng: 9.7679 },
-              { city: 'Edéa', lat: 3.7961, lng: 10.1343 },
-              { city: 'Yaoundé', lat: 3.8480, lng: 11.5021 }
-            ]
-          },
-          revenue: {
-            current: 112000,
-            potential: 157500
-          },
-          notes: 'Trajet express sans arrêt intermédiaire',
-          createdBy: 'admin',
-          lastModified: new Date().toISOString()
-        },
-        {
-          id: 2,
-          tripNumber: 'TRJ-002',
-          date: new Date().toISOString().split('T')[0],
-          departureCity: 'Yaoundé',
-          arrivalCity: 'Bafoussam',
-          departureTime: '14:00',
-          arrivalTime: '17:15',
-          distance: '185 km',
-          duration: '3h 15min',
-          price: 2800,
-          bus: {
-            id: 'BUS-002',
-            name: 'Confort Plus',
-            plate: 'LT-567-CM',
-            totalSeats: 52,
-            occupiedSeats: 28,
-            availableSeats: 24
-          },
-          driver: {
-            id: 2,
-            name: 'Marie Essono',
-            phone: '+237670123457',
-            experience: '5 ans'
-          },
-          status: 'in_progress',
-          route: {
-            waypoints: [
-              { city: 'Yaoundé', lat: 3.8480, lng: 11.5021 },
-              { city: 'Mfou', lat: 3.7290, lng: 11.6337 },
-              { city: 'Bafoussam', lat: 5.4781, lng: 10.4186 }
-            ]
-          },
-          revenue: {
-            current: 78400,
-            potential: 145600
-          },
-          notes: 'Trajet avec arrêt à Mfou',
-          createdBy: 'manager',
-          lastModified: new Date().toISOString()
-        },
-        {
-          id: 3,
-          tripNumber: 'TRJ-003',
-          date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Hier
-          departureCity: 'Douala',
-          arrivalCity: 'Bamenda',
-          departureTime: '06:30',
-          arrivalTime: '11:45',
-          distance: '315 km',
-          duration: '5h 15min',
-          price: 4200,
-          bus: {
-            id: 'BUS-003',
-            name: 'Grand Voyageur',
-            plate: 'LT-890-CM',
-            totalSeats: 55,
-            occupiedSeats: 55,
-            availableSeats: 0
-          },
-          driver: {
-            id: 3,
-            name: 'Paul Nkomo',
-            phone: '+237670123458',
-            experience: '12 ans'
-          },
-          status: 'completed',
-          route: {
-            waypoints: [
-              { city: 'Douala', lat: 4.0511, lng: 9.7679 },
-              { city: 'Bafoussam', lat: 5.4781, lng: 10.4186 },
-              { city: 'Bamenda', lat: 5.9631, lng: 10.1591 }
-            ]
-          },
-          revenue: {
-            current: 231000,
-            potential: 231000
-          },
-          notes: 'Trajet complet - Excellent taux de remplissage',
-          createdBy: 'admin',
-          lastModified: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: 4,
-          tripNumber: 'TRJ-004',
-          date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Demain
-          departureCity: 'Yaoundé',
-          arrivalCity: 'Douala',
-          departureTime: '16:00',
-          arrivalTime: '19:30',
-          distance: '245 km',
-          duration: '3h 30min',
-          price: 3500,
-          bus: {
-            id: 'BUS-004',
-            name: 'Rapide Service',
-            plate: 'LT-456-CM',
-            totalSeats: 48,
-            occupiedSeats: 12,
-            availableSeats: 36
-          },
-          driver: {
-            id: 4,
-            name: 'Alice Mbouda',
-            phone: '+237670123459',
-            experience: '6 ans'
-          },
-          status: 'scheduled',
-          route: {
-            waypoints: [
-              { city: 'Yaoundé', lat: 3.8480, lng: 11.5021 },
-              { city: 'Edéa', lat: 3.7961, lng: 10.1343 },
-              { city: 'Douala', lat: 4.0511, lng: 9.7679 }
-            ]
-          },
-          revenue: {
-            current: 42000,
-            potential: 168000
-          },
-          notes: 'Retour vers Douala - Places disponibles',
-          createdBy: 'manager',
-          lastModified: new Date().toISOString()
-        },
-        {
-          id: 5,
-          tripNumber: 'TRJ-005',
-          date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Après-demain
-          departureCity: 'Douala',
-          arrivalCity: 'Garoua',
-          departureTime: '20:00',
-          arrivalTime: '06:30',
-          distance: '695 km',
-          duration: '10h 30min',
-          price: 8500,
-          bus: {
-            id: 'BUS-005',
-            name: 'Nuit Express',
-            plate: 'LT-789-CM',
-            totalSeats: 42,
-            occupiedSeats: 18,
-            availableSeats: 24
-          },
-          driver: {
-            id: 5,
-            name: 'Michel Fouda',
-            phone: '+237670123460',
-            experience: '15 ans'
-          },
-          status: 'scheduled',
-          route: {
-            waypoints: [
-              { city: 'Douala', lat: 4.0511, lng: 9.7679 },
-              { city: 'Yaoundé', lat: 3.8480, lng: 11.5021 },
-              { city: 'Ngaoundéré', lat: 7.3176, lng: 13.5886 },
-              { city: 'Garoua', lat: 9.3265, lng: 13.3958 }
-            ]
-          },
-          revenue: {
-            current: 153000,
-            potential: 357000
-          },
-          notes: 'Trajet de nuit - Couchettes disponibles',
-          createdBy: 'admin',
-          lastModified: new Date().toISOString()
-        }
-      ];
+  // Récupérer les trajets depuis la base de données
+  const fetchTripsFromDatabase = async () => {
+    setLoading(true);
+    try {
+      // Récupérer l'utilisateur connecté
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.error('Utilisateur non connecté');
+        setLoading(false);
+        return;
+      }
 
-      setTrips(mockTrips);
+      // Récupérer l'agence de l'utilisateur
+      const { data: agency, error: agencyError } = await supabase
+        .from('agencies')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (agencyError) {
+        console.error('Erreur lors de la récupération de l\'agence:', agencyError);
+        setLoading(false);
+        return;
+      }
+
+      // Récupérer les trajets de l'agence avec les informations des conducteurs
+      const { data: tripsData, error: tripsError } = await supabase
+        .from('trips')
+        .select(`
+          *,
+          agency_employee_invitations!driver_id (
+            id,
+            first_name,
+            last_name,
+            phone
+          )
+        `)
+        .eq('agency_id', agency.id)
+        .eq('is_active', true)
+        .order('departure_time', { ascending: true });
+
+      if (tripsError) {
+        console.error('Erreur lors de la récupération des trajets:', tripsError);
+        setLoading(false);
+        return;
+      }
+
+      console.log('Trajets récupérés:', tripsData); // Debug
+
+      // Récupérer les réservations pour calculer les places occupées
+      const { data: bookingsData, error: bookingsError } = await supabase
+        .from('bookings')
+        .select('trip_id, booking_status')
+        .in('trip_id', tripsData.map(trip => trip.id));
+
+      if (bookingsError) {
+        console.warn('Erreur lors de la récupération des réservations:', bookingsError);
+      }
+
+      // Transformer les données pour correspondre au format attendu
+      const formattedTrips = tripsData.map((trip, index) => {
+        // Calculer les places occupées à partir des réservations
+        const tripBookings = bookingsData?.filter(booking => 
+          booking.trip_id === trip.id && 
+          (booking.booking_status === 'confirmed' || booking.booking_status === 'pending')
+        ) || [];
+        
+        const occupiedSeats = tripBookings.length;
+        const availableSeats = trip.total_seats - occupiedSeats;
+        const currentRevenue = occupiedSeats * trip.price_fcfa;
+        const potentialRevenue = trip.total_seats * trip.price_fcfa;
+
+        // Récupérer les informations du conducteur
+        const driver = trip.agency_employee_invitations;
+        const driverName = driver ? `${driver.first_name} ${driver.last_name}` : 'Non assigné';
+
+        return {
+          id: trip.id,
+          tripNumber: `TRJ-${String(index + 1).padStart(3, '0')}`,
+          date: trip.departure_time.split('T')[0],
+          departureCity: trip.departure_city,
+          arrivalCity: trip.arrival_city,
+          departureTime: new Date(trip.departure_time).toLocaleTimeString('fr-FR', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          }),
+          arrivalTime: new Date(trip.arrival_time).toLocaleTimeString('fr-FR', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          }),
+          distance: '-- km', // À calculer ou récupérer d'une autre source
+          duration: calculateDuration(trip.departure_time, trip.arrival_time),
+          price: trip.price_fcfa,
+          bus: {
+            id: 'N/A',
+            name: `Bus ${trip.bus_type || 'Standard'}`,
+            plate: 'N/A',
+            totalSeats: trip.total_seats,
+            occupiedSeats: occupiedSeats,
+            availableSeats: availableSeats
+          },
+          driver: {
+            id: driver?.id || null,
+            name: driverName,
+            phone: driver?.phone || '',
+            experience: ''
+          },
+          status: determineStatus(trip.departure_time, trip.arrival_time),
+          route: {
+            waypoints: [
+              { city: trip.departure_city, lat: 0, lng: 0 }, // Coordonnées à ajouter plus tard
+              { city: trip.arrival_city, lat: 0, lng: 0 }
+            ]
+          },
+          revenue: {
+            current: currentRevenue,
+            potential: potentialRevenue
+          },
+          notes: trip.description || '',
+          createdBy: 'admin',
+          lastModified: trip.updated_at
+        };
+      });
+
+      console.log('Trajets formatés:', formattedTrips); // Debug
+      setTrips(formattedTrips);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des trajets:', error);
+    } finally {
       setLoading(false);
-    }, 1000);
-  }, []);
+    }
+  };
+
+  // Fonction pour calculer la durée du trajet
+  const calculateDuration = (departureTime, arrivalTime) => {
+    const departure = new Date(departureTime);
+    const arrival = new Date(arrivalTime);
+    const durationMs = arrival - departure;
+    const hours = Math.floor(durationMs / (1000 * 60 * 60));
+    const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+    return `${hours}h ${minutes.toString().padStart(2, '0')}min`;
+  };
+
+  // Fonction pour déterminer le statut du trajet
+  const determineStatus = (departureTime, arrivalTime) => {
+    const now = new Date();
+    const departure = new Date(departureTime);
+    const arrival = new Date(arrivalTime);
+
+    if (now < departure) {
+      return 'scheduled'; // Programmé
+    } else if (now >= departure && now <= arrival) {
+      return 'in_progress'; // En cours
+    } else {
+      return 'completed'; // Terminé
+    }
+  };
+
+  useEffect(() => {
+    fetchTripsFromDatabase();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Filtrer les trajets par date sélectionnée
   const getTripsForDate = (date) => {
@@ -306,18 +251,6 @@ const TripsCalendar = () => {
       delayed: '⏰'
     };
     return icons[status] || '📅';
-  };
-
-  // Obtenir le texte du statut
-  const getStatusText = (status) => {
-    const texts = {
-      scheduled: 'Programmé',
-      in_progress: 'En cours',
-      completed: 'Terminé',
-      cancelled: 'Annulé',
-      delayed: 'Retardé'
-    };
-    return texts[status] || 'Inconnu';
   };
 
   // Actions sur les trajets
@@ -382,36 +315,28 @@ const TripsCalendar = () => {
   };
 
   // Gérer l'ajout d'un nouveau trajet
-  const handleAddTrip = (tripData) => {
-    const newTrip = {
-      id: trips.length + 1,
-      tripNumber: `TRJ-${String(trips.length + 1).padStart(3, '0')}`,
-      ...tripData,
-      status: 'scheduled',
-      createdBy: currentRole,
-      lastModified: new Date().toISOString()
-    };
-    
-    setTrips([...trips, newTrip]);
-    setShowAddModal(false);
+  const handleAddTrip = async () => {
+    try {
+      // Le trajet a déjà été sauvegardé dans la base de données via TripFormModal
+      // On recharge simplement les données pour rafraîchir l'affichage
+      await fetchTripsFromDatabase();
+      setShowAddModal(false);
+    } catch (error) {
+      console.error('Erreur lors du rafraîchissement des trajets:', error);
+    }
   };
 
   // Gérer la modification d'un trajet
-  const handleEditTrip = (tripData) => {
-    const updatedTrips = trips.map(trip => 
-      trip.id === editingTrip.id 
-        ? { ...trip, ...tripData, lastModified: new Date().toISOString() }
-        : trip
-    );
-    
-    setTrips(updatedTrips);
-    
-    if (selectedTrip?.id === editingTrip.id) {
-      setSelectedTrip({ ...selectedTrip, ...tripData });
+  const handleEditTrip = async () => {
+    try {
+      // Le trajet a déjà été modifié dans la base de données
+      // On recharge simplement les données pour rafraîchir l'affichage
+      await fetchTripsFromDatabase();
+      setShowEditModal(false);
+      setEditingTrip(null);
+    } catch (error) {
+      console.error('Erreur lors du rafraîchissement des trajets:', error);
     }
-    
-    setShowEditModal(false);
-    setEditingTrip(null);
   };
 
   return (
