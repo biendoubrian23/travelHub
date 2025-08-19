@@ -118,6 +118,8 @@ const TripsCalendar = () => {
         const driverName = driver ? `${driver.first_name} ${driver.last_name}` : 'Non assigné';
         const busName = bus ? bus.name : `Bus ${trip.bus_type || 'Standard'}`;
 
+        console.log(`Trajet ${trip.id}: Bus VIP = ${bus?.is_vip}, Bus:`, bus); // Debug VIP
+
         return {
           id: trip.id,
           tripNumber: `TRJ-${String(index + 1).padStart(3, '0')}`,
@@ -135,13 +137,15 @@ const TripsCalendar = () => {
           distance: '-- km', // À calculer ou récupérer d'une autre source
           duration: calculateDuration(trip.departure_time, trip.arrival_time),
           price: trip.price_fcfa,
+          isVip: bus?.is_vip || false, // Information VIP du bus
           bus: {
             id: bus?.id || 'N/A',
             name: busName,
             plate: bus?.license_plate || 'N/A',
             totalSeats: trip.total_seats,
             occupiedSeats: occupiedSeats,
-            availableSeats: availableSeats
+            availableSeats: availableSeats,
+            isVip: bus?.is_vip || false // Information VIP du bus
           },
           driver: {
             id: driver?.id || null,
@@ -510,7 +514,14 @@ const TripsCalendar = () => {
                         </div>
                       </div>
 
-                      {/* Colonne 4: Bus et Conducteur */}
+                      {/* Colonne 4: Badge VIP */}
+                      <div className="vip-badge">
+                        <span className={`vip-tag ${trip.isVip ? 'is-vip' : 'standard'}`}>
+                          {trip.isVip ? 'VIP' : 'STD'}
+                        </span>
+                      </div>
+
+                      {/* Colonne 5: Bus et Conducteur */}
                       <div className="bus-driver">
                         <div className="bus-info">
                           🚌 {trip.bus.name}
@@ -520,12 +531,12 @@ const TripsCalendar = () => {
                         </div>
                       </div>
 
-                      {/* Colonne 5: Passagers (SIMPLE) */}
+                      {/* Colonne 6: Passagers (SIMPLE) */}
                       <div className="occupancy-simple">
                         {trip.bus.occupiedSeats}/{trip.bus.totalSeats}
                       </div>
 
-                      {/* Colonne 6: Boutons (SÉPARÉS) */}
+                      {/* Colonne 7: Boutons (SÉPARÉS) */}
                       <div className="record-actions">
                         <button
                           className="action-btn edit"

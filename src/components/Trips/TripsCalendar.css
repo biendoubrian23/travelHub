@@ -2105,10 +2105,10 @@
    DESIGN SIMPLE ET ÉLÉGANT - SANS CHEVAUCHEMENT
    =============================================== */
 
-/* Grille principale simplifiée */
+/* Grille principale simplifiée avec colonne VIP */
 .trips-calendar .trip-record {
   display: grid;
-  grid-template-columns: 80px 2fr 1fr 1fr 1fr 100px; /* 6 colonnes bien distinctes */
+  grid-template-columns: 80px 2fr 1fr 80px 1fr 1fr 100px; /* 7 colonnes avec VIP */
   align-items: center;
   padding: 16px 20px;
   background: #f8f9fa;
@@ -2145,27 +2145,59 @@
   text-align: left;
 }
 
-/* Colonne 4: Bus/Conducteur */
+/* Colonne 4: Badge VIP */
+.trips-calendar .vip-badge {
+  grid-column: 4;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.trips-calendar .vip-tag {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+}
+
+.trips-calendar .vip-tag.is-vip {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #8B4513;
+  box-shadow: 0 2px 4px rgba(255, 215, 0, 0.3);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+}
+
+.trips-calendar .vip-tag.standard {
+  background: rgba(142, 142, 147, 0.12);
+  color: #8e8e93;
+  border: 1px solid rgba(142, 142, 147, 0.2);
+}
+
+/* Colonne 5: Bus/Conducteur */
 .trips-calendar .bus-driver {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  grid-column: 4;
+  grid-column: 5;
   text-align: left;
 }
 
-/* Colonne 5: Passagers (SIMPLE) */
+/* Colonne 6: Passagers (SIMPLE) */
 .trips-calendar .occupancy-simple {
-  grid-column: 5;
+  grid-column: 6;
   text-align: center;
   font-size: 14px;
   font-weight: 600;
   color: #007AFF;
 }
 
-/* Colonne 6: Boutons (SÉPARÉS) */
+/* Colonne 7: Boutons (SÉPARÉS) */
 .trips-calendar .record-actions {
-  grid-column: 6;
+  grid-column: 7;
   display: flex;
   flex-direction: row;
   gap: 6px;
