@@ -9,7 +9,7 @@ const TripsCalendar = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [trips, setTrips] = useState([]);
   const [selectedTrip, setSelectedTrip] = useState(null);
-  const [activeTab, setActiveTab] = useState('details');
+  const [activeTab, setActiveTab] = useState('calendar');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -290,19 +290,14 @@ const TripsCalendar = () => {
         }, 100);
         break;
       case 'edit':
-        if (hasPermission('trips', 'modify')) {
-          setEditingTrip(trip);
-          setShowEditModal(true);
-        }
+        console.log('Action edit déclenchée pour le trajet:', trip.id);
+        setEditingTrip(trip);
+        setShowEditModal(true);
         break;
       case 'delete':
-        if (hasPermission('trips', 'delete') && trip.status === 'scheduled') {
-          if (window.confirm(`Êtes-vous sûr de vouloir supprimer le trajet ${trip.tripNumber} ?`)) {
-            setTrips(trips.filter(t => t.id !== trip.id));
-            if (selectedTrip?.id === trip.id) {
-              setSelectedTrip(null);
-            }
-          }
+        console.log('Action delete déclenchée pour le trajet:', trip.id);
+        if (window.confirm(`Êtes-vous sûr de vouloir supprimer le trajet ${trip.departure_city} → ${trip.arrival_city} ?`)) {
+          handleDeleteTrip(trip);
         }
         break;
       case 'cancel':
@@ -320,6 +315,39 @@ const TripsCalendar = () => {
         break;
       default:
         break;
+    }
+  };
+
+  // Fonction pour supprimer un trajet de la base de données
+  const handleDeleteTrip = async (trip) => {
+    console.log('Suppression du trajet:', trip.id);
+    try {
+      // Supprimer le trajet de la base de données
+      const { error } = await supabase
+        .from('trips')
+        .delete()
+        .eq('id', trip.id);
+
+      if (error) {
+        console.error('Erreur lors de la suppression du trajet:', error);
+        alert('Erreur lors de la suppression du trajet: ' + error.message);
+        return;
+      }
+
+      console.log('Trajet supprimé avec succès');
+      
+      // Recharger les données pour rafraîchir l'affichage
+      await fetchTripsFromDatabase();
+      
+      // Fermer les détails si le trajet supprimé était sélectionné
+      if (selectedTrip?.id === trip.id) {
+        setSelectedTrip(null);
+      }
+
+      alert('Trajet supprimé avec succès !');
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+      alert('Erreur inattendue lors de la suppression');
     }
   };
 
@@ -514,18 +542,26 @@ const TripsCalendar = () => {
                         </div>
 
                         <div className="record-actions">
-                          {hasPermission('trips', 'modify') && currentRole !== 'driver' && (
-                            <button
-                              className="action-btn edit"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleTripAction('edit', trip);
-                              }}
-                              title="Modifier"
-                            >
-                              ✏️
-                            </button>
-                          )}
+                          <button
+                            className="action-btn edit"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTripAction('edit', trip);
+                            }}
+                            title="Modifier"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            className="action-btn delete"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTripAction('delete', trip);
+                            }}
+                            title="Supprimer"
+                          >
+                            🗑️
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -548,13 +584,6 @@ const TripsCalendar = () => {
                     </button>
                   </div>
                   <div className="panel-tabs">
-                    <button
-                      key="modify"
-                      className={`tab-btn modify-tab ${activeTab === 'modify' ? 'active' : ''}`}
-                      onClick={() => setActiveTab('modify')}
-                    >
-                      ✏️ Modifier
-                    </button>
                     {['details', 'passengers', 'revenue'].map(tab => (
                       <button
                         key={tab}

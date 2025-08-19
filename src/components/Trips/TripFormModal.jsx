@@ -238,55 +238,28 @@ const TripFormModal = ({
     }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!formData.date) newErrors.date = 'La date est requise';
-    if (!formData.departureCity) newErrors.departureCity = 'La ville de départ est requise';
-    if (!formData.arrivalCity) newErrors.arrivalCity = 'La ville d\'arrivée est requise';
-    if (!formData.departureTime) newErrors.departureTime = 'L\'heure de départ est requise';
-    if (!formData.arrivalTime) newErrors.arrivalTime = 'L\'heure d\'arrivée est requise';
-    if (!formData.duration) newErrors.duration = 'La durée est requise';
-    if (!formData.price) newErrors.price = 'Le prix est requis';
-    if (!formData.busId) newErrors.busId = 'Le bus est requis';
-    if (!formData.driverId) newErrors.driverId = 'Le conducteur est requis';
-
-    if (formData.departureCity === formData.arrivalCity) {
-      newErrors.arrivalCity = 'La ville d\'arrivée doit être différente de la ville de départ';
-    }
-
-    if (formData.departureTime && formData.arrivalTime) {
-      const depTime = new Date(`1970-01-01T${formData.departureTime}`);
-      const arrTime = new Date(`1970-01-01T${formData.arrivalTime}`);
-      
-      // Validation intelligente pour les trajets de nuit
-      if (arrTime <= depTime && !formData.isOvernight) {
-        newErrors.arrivalTime = 'L\'heure d\'arrivée semble être le lendemain. Cochez "Trajet de nuit".';
-      }
-    }
-
-    if (formData.price && isNaN(formData.price)) {
-      newErrors.price = 'Le prix doit être un nombre valide';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
+    setIsSubmitting(true);
+
+    // Validation
+    if (!formData.date || !formData.departureCity || !formData.arrivalCity) {
+      alert('Veuillez remplir tous les champs obligatoires');
+      setIsSubmitting(false);
       return;
     }
 
-    setIsSubmitting(true);
+    if (!formData.departureTime || !formData.arrivalTime) {
+      alert('Veuillez spécifier les heures de départ et d\'arrivée');
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       // Récupérer l'utilisateur connecté
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        alert('Vous devez être connecté pour créer un trajet');
+        alert('Vous devez être connecté pour créer/modifier un trajet');
         return;
       }
 
@@ -305,7 +278,6 @@ const TripFormModal = ({
 
       // Préparer les données pour la base de données
       const selectedBus = buses.find(bus => bus.id === formData.busId);
-      const selectedDriver = drivers.find(driver => driver.id === formData.driverId);
 
       // Calculer les timestamps pour departure_time et arrival_time
       const departureDateTime = new Date(`${formData.date}T${formData.departureTime}`);
@@ -326,33 +298,49 @@ const TripFormModal = ({
         available_seats: selectedBus?.total_seats || 40,
         price_fcfa: parseInt(formData.price),
         bus_type: selectedBus?.is_vip ? 'vip' : 'standard',
-        bus_id: formData.busId || null, // Ajouter le bus_id
-        driver_id: formData.driverId || null, // Ajouter le driver_id
+        bus_id: formData.busId || null,
+        driver_id: formData.driverId || null,
         description: formData.notes || null,
-        amenities: [], // Vous pouvez ajouter des services plus tard
+        amenities: [],
         is_active: true,
         created_by: user.id
       };
 
-      // Insérer le trajet dans la base de données
-      const { data: insertedTrip, error: insertError } = await supabase
-        .from('trips')
-        .insert([tripData])
-        .select()
-        .single();
+      if (editingTrip) {
+        // Mode modification : UPDATE
+        console.log('Modification du trajet:', editingTrip.id);
+        console.log('Nouvelles données:', tripData);
+        
+        const { error: updateError } = await supabase
+          .from('trips')
+          .update(tripData)
+          .eq('id', editingTrip.id);
 
-      if (insertError) {
-        console.error('Erreur lors de la création du trajet:', insertError);
-        alert('Erreur lors de la création du trajet: ' + insertError.message);
-        return;
+        if (updateError) {
+          console.error('Erreur lors de la modification du trajet:', updateError);
+          alert('Erreur lors de la modification du trajet: ' + updateError.message);
+          return;
+        }
+
+        console.log('Trajet modifié avec succès');
+        alert('Trajet modifié avec succès !');
+      } else {
+        // Mode création : INSERT
+        console.log('Création du trajet avec les données:', tripData);
+        
+        const { error: insertError } = await supabase
+          .from('trips')
+          .insert([tripData]);
+
+        if (insertError) {
+          console.error('Erreur lors de la création du trajet:', insertError);
+          alert('Erreur lors de la création du trajet: ' + insertError.message);
+          return;
+        }
+
+        console.log('Trajet créé avec succès');
+        alert('Trajet créé avec succès !');
       }
-
-      // Optionnel: Créer les données complémentaires si nécessaire
-      // Par exemple, associer le bus et le conducteur au trajet
-      // (cela dépendra de votre modèle de données)
-
-      // Succès !
-      alert('Trajet créé avec succès !');
       
       // Réinitialiser le formulaire et fermer le modal
       setFormData({
@@ -371,41 +359,11 @@ const TripFormModal = ({
       });
       setErrors({});
       
-      // Appeler onSubmit avec les données formatées si nécessaire pour rafraîchir l'interface
+      // Appeler onSubmit pour rafraîchir la liste des trajets si nécessaire
       if (onSubmit) {
-        const formattedTripData = {
-          id: insertedTrip.id,
-          date: formData.date,
-          departureCity: formData.departureCity,
-          arrivalCity: formData.arrivalCity,
-          departureTime: formData.departureTime,
-          arrivalTime: formData.arrivalTime,
-          duration: formData.duration,
-          price: parseInt(formData.price),
-          bus: {
-            ...selectedBus,
-            plate: selectedBus?.license_plate,
-            totalSeats: selectedBus?.total_seats,
-            occupiedSeats: 0,
-            availableSeats: selectedBus?.total_seats || 0
-          },
-          driver: selectedDriver,
-          notes: formData.notes,
-          route: {
-            waypoints: [
-              { city: formData.departureCity, lat: 0, lng: 0 },
-              { city: formData.arrivalCity, lat: 0, lng: 0 }
-            ]
-          },
-          revenue: {
-            current: 0,
-            potential: (selectedBus?.total_seats || 40) * parseInt(formData.price)
-          }
-        };
-        onSubmit(formattedTripData);
+        onSubmit();
       }
       
-      // Fermer le modal
       onClose();
 
     } catch (error) {
