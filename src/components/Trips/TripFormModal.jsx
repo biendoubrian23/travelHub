@@ -27,20 +27,56 @@ const TripFormModal = ({
   const [errors, setErrors] = useState({});
   const [drivers, setDrivers] = useState([]);
   const [loadingDrivers, setLoadingDrivers] = useState(false);
-
-  // Données mockées pour les bus (à remplacer plus tard par des vraies données)
-  const mockBuses = [
-    { id: 'BUS-001', name: 'Express Voyageur', plate: 'LT-234-CM', totalSeats: 45 },
-    { id: 'BUS-002', name: 'Confort Plus', plate: 'LT-567-CM', totalSeats: 52 },
-    { id: 'BUS-003', name: 'Grand Voyageur', plate: 'LT-890-CM', totalSeats: 55 },
-    { id: 'BUS-004', name: 'Rapide Service', plate: 'LT-456-CM', totalSeats: 48 },
-    { id: 'BUS-005', name: 'Nuit Express', plate: 'LT-789-CM', totalSeats: 42 }
-  ];
+  const [buses, setBuses] = useState([]);
+  const [loadingBuses, setLoadingBuses] = useState(false);
 
   const cities = [
     'Douala', 'Yaoundé', 'Bafoussam', 'Bamenda', 'Garoua', 
     'Maroua', 'Ngaoundéré', 'Bertoua', 'Buea', 'Limbé'
   ];
+
+  // Fonction pour récupérer les bus de l'agence
+  const fetchAgencyBuses = async () => {
+    setLoadingBuses(true);
+    try {
+      // Récupérer l'ID de l'agence de l'utilisateur connecté
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.error('Utilisateur non connecté');
+        return;
+      }
+
+      // D'abord récupérer l'agence de l'utilisateur
+      const { data: agencies, error: agencyError } = await supabase
+        .from('agencies')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (agencyError) {
+        console.error('Erreur lors de la récupération de l\'agence:', agencyError);
+        return;
+      }
+
+      // Ensuite récupérer les bus de cette agence
+      const { data: agencyBuses, error: busesError } = await supabase
+        .from('buses')
+        .select('id, name, license_plate, total_seats, is_vip')
+        .eq('agency_id', agencies.id)
+        .order('name', { ascending: true });
+
+      if (busesError) {
+        console.error('Erreur lors de la récupération des bus:', busesError);
+        return;
+      }
+
+      setBuses(agencyBuses || []);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des bus:', error);
+    } finally {
+      setLoadingBuses(false);
+    }
+  };
 
   // Fonction pour récupérer les conducteurs de l'agence
   const fetchAgencyDrivers = async () => {
@@ -126,10 +162,11 @@ const TripFormModal = ({
     setErrors({});
   }, [editingTrip, selectedDate, isOpen]);
 
-  // Récupérer les conducteurs quand le modal s'ouvre
+  // Récupérer les conducteurs et bus quand le modal s'ouvre
   useEffect(() => {
     if (isOpen) {
       fetchAgencyDrivers();
+      fetchAgencyBuses();
     }
   }, [isOpen]);
 
@@ -242,7 +279,7 @@ const TripFormModal = ({
       return;
     }
 
-    const selectedBus = mockBuses.find(bus => bus.id === formData.busId);
+    const selectedBus = buses.find(bus => bus.id === formData.busId);
     const selectedDriver = drivers.find(driver => driver.id === formData.driverId);
 
     const tripData = {
@@ -255,8 +292,10 @@ const TripFormModal = ({
       price: parseInt(formData.price),
       bus: {
         ...selectedBus,
+        plate: selectedBus?.license_plate,
+        totalSeats: selectedBus?.total_seats,
         occupiedSeats: 0,
-        availableSeats: selectedBus.totalSeats
+        availableSeats: selectedBus?.total_seats || 0
       },
       driver: selectedDriver,
       notes: formData.notes,
@@ -425,11 +464,14 @@ const TripFormModal = ({
                 value={formData.busId}
                 onChange={handleInputChange}
                 className={errors.busId ? 'error' : ''}
+                disabled={loadingBuses}
               >
-                <option value="">Sélectionnez un bus</option>
-                {mockBuses.map(bus => (
+                <option value="">
+                  {loadingBuses ? 'Chargement des bus...' : 'Sélectionnez un bus'}
+                </option>
+                {buses.map(bus => (
                   <option key={bus.id} value={bus.id}>
-                    {bus.name} ({bus.plate}) - {bus.totalSeats} places
+                    {bus.name} ({bus.license_plate}) - {bus.total_seats} places{bus.is_vip ? ' - VIP' : ''}
                   </option>
                 ))}
               </select>
