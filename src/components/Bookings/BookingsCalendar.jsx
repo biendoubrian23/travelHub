@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRolePermissions } from '../RoleBasedComponents';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
+import AddPassengerModal from './AddPassengerModal';
 import './BookingsCalendar.css';
 
 const BookingsCalendar = () => {
@@ -15,6 +16,7 @@ const BookingsCalendar = () => {
   const [loading, setLoading] = useState(true);
   const [globalSearchResult, setGlobalSearchResult] = useState(null);
   const [isGlobalSearch, setIsGlobalSearch] = useState(false);
+  const [showAddPassengerModal, setShowAddPassengerModal] = useState(false);
   
   // Référence pour le scroll automatique
   const busContainerRef = useRef(null);
@@ -250,6 +252,13 @@ const BookingsCalendar = () => {
       setGlobalSearchResult([]);
       setIsGlobalSearch(true);
     }
+  };
+
+  // Gérer l'ajout d'un nouveau passager
+  const handlePassengerAdded = (newBooking) => {
+    console.log('✅ Nouveau passager ajouté:', newBooking);
+    // Rafraîchir les données
+    fetchTripsAndBookingsFromDatabase();
   };
 
   // Scroll automatique vers un bus spécifique
@@ -536,13 +545,24 @@ const BookingsCalendar = () => {
               <div className="bookings-section" ref={searchResultRef}>
                 <div className="section-header">
                   <h2>👥 Passagers - Bus #{selectedBus.bus.number}</h2>
-                  <div className="bookings-info">
-                    <span className="bus-name">{selectedBus.bus.name}</span>
-                    <span className="separator">•</span>
-                    <span className="route">{selectedBus.route}</span>
-                    <span className="separator">•</span>
-                    <span className="time">{selectedBus.departureTime}</span>
-                  </div>
+                </div>
+                
+                <div className="bookings-add-passenger-container">
+                  <button 
+                    className="bookings-add-passenger-btn"
+                    onClick={() => setShowAddPassengerModal(true)}
+                    title="Ajouter un nouveau passager"
+                  >
+                    ➕ Ajouter un Passager
+                  </button>
+                </div>
+                
+                <div className="bookings-info">
+                  <span className="bus-name">{selectedBus.bus.name}</span>
+                  <span className="separator">•</span>
+                  <span className="route">{selectedBus.route}</span>
+                  <span className="separator">•</span>
+                  <span className="time">{selectedBus.departureTime}</span>
                 </div>
 
                 {filteredBookings.length === 0 ? (
@@ -652,6 +672,14 @@ const BookingsCalendar = () => {
           </>
         )}
       </div>
+
+      {/* Modal d'ajout de passager */}
+      <AddPassengerModal
+        isOpen={showAddPassengerModal}
+        onClose={() => setShowAddPassengerModal(false)}
+        selectedTrip={selectedBus}
+        onPassengerAdded={handlePassengerAdded}
+      />
     </div>
   );
 };

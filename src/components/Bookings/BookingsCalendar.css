@@ -277,6 +277,13 @@
   font-weight: 500;
 }
 
+.bookings-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
 .bookings-info .separator {
   margin: 0 8px;
   opacity: 0.5;
@@ -941,4 +948,36 @@
     font-size: 13px;
     text-align: center;
   }
+}
+
+/* Bouton d'ajout de passager centré */
+.bookings-add-passenger-container {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0;
+}
+
+.bookings-add-passenger-btn {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.bookings-add-passenger-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+}
+
+.bookings-add-passenger-btn:active {
+  transform: translateY(0);
 }
