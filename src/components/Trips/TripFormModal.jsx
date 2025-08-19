@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabase';
 import './TripFormModal.css';
 
 const TripFormModal = ({ 
@@ -24,8 +25,10 @@ const TripFormModal = ({
   });
 
   const [errors, setErrors] = useState({});
+  const [drivers, setDrivers] = useState([]);
+  const [loadingDrivers, setLoadingDrivers] = useState(false);
 
-  // Données mockées pour les bus et conducteurs
+  // Données mockées pour les bus (à remplacer plus tard par des vraies données)
   const mockBuses = [
     { id: 'BUS-001', name: 'Express Voyageur', plate: 'LT-234-CM', totalSeats: 45 },
     { id: 'BUS-002', name: 'Confort Plus', plate: 'LT-567-CM', totalSeats: 52 },
@@ -34,18 +37,62 @@ const TripFormModal = ({
     { id: 'BUS-005', name: 'Nuit Express', plate: 'LT-789-CM', totalSeats: 42 }
   ];
 
-  const mockDrivers = [
-    { id: 1, name: 'Jean-Paul Mbarga', phone: '+237670123456' },
-    { id: 2, name: 'Marie Essono', phone: '+237670123457' },
-    { id: 3, name: 'Paul Nkomo', phone: '+237670123458' },
-    { id: 4, name: 'Alice Mbouda', phone: '+237670123459' },
-    { id: 5, name: 'Michel Fouda', phone: '+237670123460' }
-  ];
-
   const cities = [
     'Douala', 'Yaoundé', 'Bafoussam', 'Bamenda', 'Garoua', 
     'Maroua', 'Ngaoundéré', 'Bertoua', 'Buea', 'Limbé'
   ];
+
+  // Fonction pour récupérer les conducteurs de l'agence
+  const fetchAgencyDrivers = async () => {
+    setLoadingDrivers(true);
+    try {
+      // Récupérer l'ID de l'agence de l'utilisateur connecté
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.error('Utilisateur non connecté');
+        return;
+      }
+
+      // D'abord récupérer l'agence de l'utilisateur
+      const { data: agencies, error: agencyError } = await supabase
+        .from('agencies')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (agencyError) {
+        console.error('Erreur lors de la récupération de l\'agence:', agencyError);
+        return;
+      }
+
+      // Ensuite récupérer les conducteurs de cette agence
+      const { data: agencyDrivers, error: driversError } = await supabase
+        .from('agency_employee_invitations')
+        .select('id, first_name, last_name, phone, employee_role, status')
+        .eq('agency_id', agencies.id)
+        .eq('status', 'accepted')
+        .in('employee_role', ['driver', 'conducteur', 'chauffeur']);
+
+      if (driversError) {
+        console.error('Erreur lors de la récupération des conducteurs:', driversError);
+        return;
+      }
+
+      // Formatter les données pour l'affichage
+      const formattedDrivers = agencyDrivers.map(driver => ({
+        id: driver.id,
+        name: `${driver.first_name} ${driver.last_name}`,
+        phone: driver.phone || 'Non renseigné',
+        role: driver.employee_role
+      }));
+
+      setDrivers(formattedDrivers);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des conducteurs:', error);
+    } finally {
+      setLoadingDrivers(false);
+    }
+  };
 
   // Initialiser le formulaire avec les données d'édition
   useEffect(() => {
@@ -59,7 +106,7 @@ const TripFormModal = ({
         duration: editingTrip.duration,
         price: editingTrip.price.toString(),
         busId: editingTrip.bus.id,
-        driverId: editingTrip.driver.id.toString(),
+        driverId: editingTrip.driver.id || editingTrip.driver.id.toString(),
         notes: editingTrip.notes || ''
       });
     } else {
@@ -78,6 +125,13 @@ const TripFormModal = ({
     }
     setErrors({});
   }, [editingTrip, selectedDate, isOpen]);
+
+  // Récupérer les conducteurs quand le modal s'ouvre
+  useEffect(() => {
+    if (isOpen) {
+      fetchAgencyDrivers();
+    }
+  }, [isOpen]);
 
   // Fonction pour calculer la durée automatiquement
   const calculateDuration = (departureTime, arrivalTime, isOvernight = false) => {
@@ -189,7 +243,7 @@ const TripFormModal = ({
     }
 
     const selectedBus = mockBuses.find(bus => bus.id === formData.busId);
-    const selectedDriver = mockDrivers.find(driver => driver.id.toString() === formData.driverId);
+    const selectedDriver = drivers.find(driver => driver.id === formData.driverId);
 
     const tripData = {
       date: formData.date,
@@ -391,15 +445,23 @@ const TripFormModal = ({
                 value={formData.driverId}
                 onChange={handleInputChange}
                 className={errors.driverId ? 'error' : ''}
+                disabled={loadingDrivers}
               >
-                <option value="">Sélectionnez un conducteur</option>
-                {mockDrivers.map(driver => (
+                <option value="">
+                  {loadingDrivers ? 'Chargement des conducteurs...' : 'Sélectionnez un conducteur'}
+                </option>
+                {drivers.map(driver => (
                   <option key={driver.id} value={driver.id}>
                     {driver.name} ({driver.phone})
                   </option>
                 ))}
               </select>
               {errors.driverId && <span className="error-message">{errors.driverId}</span>}
+              {drivers.length === 0 && !loadingDrivers && (
+                <small className="help-text">
+                  ⚠️ Aucun conducteur trouvé. Assurez-vous d'avoir des employés avec le rôle "conducteur" acceptés dans votre agence.
+                </small>
+              )}
             </div>
           </div>
 
