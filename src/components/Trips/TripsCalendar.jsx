@@ -58,7 +58,7 @@ const TripsCalendar = () => {
         return;
       }
 
-      // Récupérer les trajets de l'agence avec les informations des conducteurs
+      // Récupérer les trajets de l'agence avec les informations des conducteurs et des bus
       const { data: tripsData, error: tripsError } = await supabase
         .from('trips')
         .select(`
@@ -68,6 +68,13 @@ const TripsCalendar = () => {
             first_name,
             last_name,
             phone
+          ),
+          buses!bus_id (
+            id,
+            name,
+            license_plate,
+            total_seats,
+            is_vip
           )
         `)
         .eq('agency_id', agency.id)
@@ -105,9 +112,11 @@ const TripsCalendar = () => {
         const currentRevenue = occupiedSeats * trip.price_fcfa;
         const potentialRevenue = trip.total_seats * trip.price_fcfa;
 
-        // Récupérer les informations du conducteur
+        // Récupérer les informations du conducteur et du bus
         const driver = trip.agency_employee_invitations;
+        const bus = trip.buses;
         const driverName = driver ? `${driver.first_name} ${driver.last_name}` : 'Non assigné';
+        const busName = bus ? bus.name : `Bus ${trip.bus_type || 'Standard'}`;
 
         return {
           id: trip.id,
@@ -127,9 +136,9 @@ const TripsCalendar = () => {
           duration: calculateDuration(trip.departure_time, trip.arrival_time),
           price: trip.price_fcfa,
           bus: {
-            id: 'N/A',
-            name: `Bus ${trip.bus_type || 'Standard'}`,
-            plate: 'N/A',
+            id: bus?.id || 'N/A',
+            name: busName,
+            plate: bus?.license_plate || 'N/A',
             totalSeats: trip.total_seats,
             occupiedSeats: occupiedSeats,
             availableSeats: availableSeats

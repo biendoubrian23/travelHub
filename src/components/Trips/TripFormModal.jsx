@@ -326,6 +326,8 @@ const TripFormModal = ({
         available_seats: selectedBus?.total_seats || 40,
         price_fcfa: parseInt(formData.price),
         bus_type: selectedBus?.is_vip ? 'vip' : 'standard',
+        bus_id: formData.busId || null, // Ajouter le bus_id
+        driver_id: formData.driverId || null, // Ajouter le driver_id
         description: formData.notes || null,
         amenities: [], // Vous pouvez ajouter des services plus tard
         is_active: true,
