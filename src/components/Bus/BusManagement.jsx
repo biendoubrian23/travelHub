@@ -1,307 +1,524 @@
 import React, { useState, useEffect } from 'react';
-import { useRolePermissions } from '../RoleBasedComponents';
-import BusList from './BusList';
-import BusDetail from './BusDetail';
-import BusForm from './BusForm';
-import BusSeatingMap from './BusSeatingMap';
+import { supabase } from '../../lib/supabase';
 import './BusManagement.css';
 
 const BusManagement = () => {
-  const { currentRole, hasPermission } = useRolePermissions();
-  const [currentView, setCurrentView] = useState('list');
-  const [selectedBus, setSelectedBus] = useState(null);
+  // États
   const [buses, setBuses] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
-
-  // États pour les données
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingBus, setEditingBus] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // Données mockées pour la démo
-  useEffect(() => {
-    // Simulation d'un appel API
-    setTimeout(() => {
-      setBuses([
-        {
-          id: 1,
-          number: 'BUS-001',
-          brand: 'Mercedes-Benz',
-          model: 'Travego',
-          capacity: 45,
-          status: 'available',
-          currentRoute: null,
-          driver: null,
-          seating: generateSeatingMap(45),
-          maintenance: {
-            lastCheck: '2024-01-15',
-            nextCheck: '2024-04-15',
-            status: 'good'
-          },
-          features: ['AC', 'WiFi', 'USB', 'TV'],
-          licensePlate: 'CAM-001-AA'
-        },
-        {
-          id: 2,
-          number: 'BUS-002',
-          brand: 'Scania',
-          model: 'Touring',
-          capacity: 52,
-          status: 'in_service',
-          currentRoute: {
-            id: 1,
-            from: 'Douala',
-            to: 'Yaoundé',
-            departure: '2024-01-20T08:00:00',
-            arrival: '2024-01-20T12:00:00'
-          },
-          driver: {
-            id: 1,
-            name: 'Jean Mboma',
-            phone: '+237670123456'
-          },
-          seating: generateSeatingMap(52, [1, 5, 12, 23]), // Sièges occupés
-          maintenance: {
-            lastCheck: '2024-01-10',
-            nextCheck: '2024-04-10',
-            status: 'good'
-          },
-          features: ['AC', 'WiFi', 'USB', 'TV', 'Toilet'],
-          licensePlate: 'CAM-002-BB'
-        },
-        {
-          id: 3,
-          number: 'BUS-003',
-          brand: 'Volvo',
-          model: '9700',
-          capacity: 48,
-          status: 'maintenance',
-          currentRoute: null,
-          driver: null,
-          seating: generateSeatingMap(48),
-          maintenance: {
-            lastCheck: '2024-01-18',
-            nextCheck: '2024-02-01',
-            status: 'needs_attention'
-          },
-          features: ['AC', 'WiFi', 'USB'],
-          licensePlate: 'CAM-003-CC'
-        }
-      ]);
-      setLoading(false);
-    }, 1000);
-  }, []);
-
-  // Génération du plan de siège
-  function generateSeatingMap(capacity, occupiedSeats = []) {
-    const seats = [];
-    for (let i = 1; i <= capacity; i++) {
-      seats.push({
-        number: i,
-        status: occupiedSeats.includes(i) ? 'occupied' : 'available',
-        passenger: occupiedSeats.includes(i) ? {
-          name: `Passager ${i}`,
-          phone: '+237670000000'
-        } : null
-      });
-    }
-    return seats;
-  }
-
-  // Gestion des vues
-  const handleViewChange = (view, bus = null) => {
-    setCurrentView(view);
-    setSelectedBus(bus);
-  };
-
-  // Filtrage des bus
-  const filteredBuses = buses.filter(bus => {
-    const matchesSearch = bus.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         bus.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         bus.model.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesFilter = filterStatus === 'all' || bus.status === filterStatus;
-    
-    return matchesSearch && matchesFilter;
+  // États du formulaire
+  const [formData, setFormData] = useState({
+    name: '',
+    licensePlate: '',
+    totalSeats: '',
+    isVip: false,
+    notes: ''
   });
+  const [formErrors, setFormErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
 
-  // Actions sur les bus
-  const handleBusAction = async (action, busData) => {
+  // Récupérer les bus de l'agence
+  const fetchBuses = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      
-      switch (action) {
-        case 'create': {
-          // Simulation création
-          const newBus = {
-            ...busData,
-            id: Date.now(),
-            seating: generateSeatingMap(busData.capacity),
-            status: 'available'
-          };
-          setBuses(prev => [...prev, newBus]);
-          setCurrentView('list');
-          break;
-        }
-          
-        case 'update': {
-          setBuses(prev => prev.map(bus => 
-            bus.id === busData.id ? { ...bus, ...busData } : bus
-          ));
-          setCurrentView('list');
-          break;
-        }
-          
-        case 'delete': {
-          if (window.confirm('Êtes-vous sûr de vouloir supprimer ce bus ?')) {
-            setBuses(prev => prev.filter(bus => bus.id !== busData.id));
-            setCurrentView('list');
-          }
-          break;
-        }
-          
-        default:
-          console.log('Action non reconnue:', action);
+      // Récupérer l'utilisateur connecté
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.error('Utilisateur non connecté');
+        return;
       }
+
+      // Récupérer l'agence de l'utilisateur
+      const { data: agencies, error: agencyError } = await supabase
+        .from('agencies')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (agencyError) {
+        console.error('Erreur lors de la récupération de l\'agence:', agencyError);
+        return;
+      }
+
+      // Récupérer les bus de l'agence
+      const { data: agencyBuses, error: busesError } = await supabase
+        .from('buses')
+        .select('*')
+        .eq('agency_id', agencies.id)
+        .order('created_at', { ascending: false });
+
+      if (busesError) {
+        console.error('Erreur lors de la récupération des bus:', busesError);
+        return;
+      }
+
+      setBuses(agencyBuses || []);
     } catch (error) {
-      setError('Erreur lors de l\'opération: ' + error.message);
+      console.error('Erreur générale:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading && buses.length === 0) {
-    return (
-      <div className="bus-loading-container">
-        <div className="simple-loader">
-          <div className="bus-emoji">🚌</div>
-          <h3>Chargement...</h3>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    fetchBuses();
+  }, []);
+
+  // Fonction de filtrage
+  const filteredBuses = buses.filter(bus =>
+    bus.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    bus.license_plate.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Validation du formulaire
+  const validateForm = () => {
+    const errors = {};
+
+    if (!formData.name.trim()) {
+      errors.name = 'Le nom du bus est requis';
+    }
+
+    if (!formData.licensePlate.trim()) {
+      errors.licensePlate = 'La plaque d\'immatriculation est requise';
+    }
+
+    if (!formData.totalSeats || formData.totalSeats < 1) {
+      errors.totalSeats = 'Le nombre de places doit être supérieur à 0';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Soumettre le formulaire
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
+
+    setSubmitting(true);
+    
+    try {
+      // Récupérer l'utilisateur connecté
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        alert('Vous devez être connecté pour effectuer cette action');
+        return;
+      }
+
+      // Récupérer l'agence de l'utilisateur
+      const { data: agencies, error: agencyError } = await supabase
+        .from('agencies')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (agencyError) {
+        alert('Erreur lors de la récupération de votre agence');
+        console.error('Erreur:', agencyError);
+        return;
+      }
+
+      const busData = {
+        name: formData.name.trim(),
+        license_plate: formData.licensePlate.trim(),
+        total_seats: parseInt(formData.totalSeats),
+        is_vip: formData.isVip,
+        notes: formData.notes.trim() || null,
+        agency_id: agencies.id
+      };
+
+      let result;
+      if (editingBus) {
+        // Modification
+        result = await supabase
+          .from('buses')
+          .update(busData)
+          .eq('id', editingBus.id)
+          .eq('agency_id', agencies.id);
+      } else {
+        // Ajout
+        result = await supabase
+          .from('buses')
+          .insert([busData]);
+      }
+
+      if (result.error) {
+        alert('Erreur lors de l\'enregistrement du bus');
+        console.error('Erreur:', result.error);
+        return;
+      }
+
+      // Succès
+      await fetchBuses();
+      closeModal();
+      alert(editingBus ? 'Bus modifié avec succès !' : 'Bus ajouté avec succès !');
+    
+    } catch (error) {
+      console.error('Erreur lors de l\'enregistrement du bus:', error);
+      alert('Erreur lors de l\'enregistrement du bus');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Supprimer un bus
+  const handleDeleteBus = async (bus) => {
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer le bus "${bus.name}" ?`)) {
+      return;
+    }
+
+    try {
+      const { error: deleteError } = await supabase
+        .from('buses')
+        .delete()
+        .eq('id', bus.id);
+
+      if (deleteError) {
+        alert('Erreur lors de la suppression du bus');
+        console.error('Erreur:', deleteError);
+        return;
+      }
+
+      await fetchBuses();
+      alert('Bus supprimé avec succès !');
+    } catch (error) {
+      console.error('Erreur lors de la suppression du bus:', error);
+      alert('Erreur lors de la suppression du bus');
+    }
+  };
+
+  // Ouvrir le modal d'édition
+  const openEditModal = (bus) => {
+    setEditingBus(bus);
+    setFormData({
+      name: bus.name,
+      licensePlate: bus.license_plate,
+      totalSeats: bus.total_seats.toString(),
+      isVip: bus.is_vip,
+      notes: bus.notes || ''
+    });
+    setFormErrors({});
+    setShowEditModal(true);
+  };
+
+  // Fermer les modals
+  const closeModal = () => {
+    setShowAddModal(false);
+    setShowEditModal(false);
+    setEditingBus(null);
+    resetForm();
+  };
+
+  // Réinitialiser le formulaire
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      licensePlate: '',
+      totalSeats: '',
+      isVip: false,
+      notes: ''
+    });
+    setFormErrors({});
+  };
 
   return (
-    <div className="bus-management">
-      {/* Header avec actions globales */}
-      <div className="bus-management-header">
-        <div className="header-title">
-          <h1>🚌 Gestion des Bus</h1>
-          <div className="bus-stats">
-            <span className="stat">
-              <strong>{buses.length}</strong> Bus total
-            </span>
-            <span className="stat available">
-              <strong>{buses.filter(b => b.status === 'available').length}</strong> Disponibles
-            </span>
-            <span className="stat in-service">
-              <strong>{buses.filter(b => b.status === 'in_service').length}</strong> En service
-            </span>
-            <span className="stat maintenance">
-              <strong>{buses.filter(b => b.status === 'maintenance').length}</strong> Maintenance
-            </span>
+    <div className="bus-mgmt-container">
+      {/* En-tête */}
+      <div className="bus-mgmt-header">
+        <div className="bus-mgmt-header-content">
+          <div className="bus-mgmt-header-info">
+            <span className="bus-mgmt-icon">🚌</span>
+            <div>
+              <h1>Gestion des Bus</h1>
+              <p>Gérez votre flotte de bus</p>
+            </div>
           </div>
-        </div>
-
-        <div className="header-actions">
-          {hasPermission('buses', 'create') && (
-            <button 
-              className="btn-primary"
-              onClick={() => handleViewChange('create')}
-            >
-              ➕ Nouveau Bus
-            </button>
-          )}
           
-          <div className="view-toggle">
-            <button 
-              className={currentView === 'list' ? 'active' : ''}
-              onClick={() => handleViewChange('list')}
-            >
-              📋 Liste
-            </button>
-            <button 
-              className={currentView === 'grid' ? 'active' : ''}
-              onClick={() => handleViewChange('grid')}
-            >
-              🔲 Grille
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Filtres et recherche */}
-      <div className="bus-filters">
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="🔍 Rechercher un bus (numéro, marque, modèle...)"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-        </div>
-
-        <div className="filter-container">
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="filter-select"
+          <button 
+            className="bus-mgmt-add-btn"
+            onClick={() => setShowAddModal(true)}
           >
-            <option value="all">Tous les statuts</option>
-            <option value="available">Disponible</option>
-            <option value="in_service">En service</option>
-            <option value="maintenance">Maintenance</option>
-          </select>
+            + Ajouter un bus
+          </button>
         </div>
       </div>
 
-      {/* Contenu principal */}
-      <div className="bus-content">
-        {error && (
-          <div className="error-message">
-            ⚠️ {error}
+      {/* Barre de recherche */}
+      <div className="bus-mgmt-search-container">
+        <input
+          type="text"
+          placeholder="Rechercher par nom ou plaque..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="bus-mgmt-search-input"
+        />
+      </div>
+
+      {/* Tableau des bus */}
+      <div className="bus-mgmt-table-container">
+        {loading ? (
+          <div className="bus-mgmt-loading">
+            <div className="bus-mgmt-spinner"></div>
+            <p>Chargement des bus...</p>
           </div>
-        )}
-
-        {currentView === 'list' && (
-          <BusList 
-            buses={filteredBuses}
-            onViewBus={(bus) => handleViewChange('detail', bus)}
-            onEditBus={(bus) => handleViewChange('edit', bus)}
-            onDeleteBus={(bus) => handleBusAction('delete', bus)}
-            onViewSeating={(bus) => handleViewChange('seating', bus)}
-            currentRole={currentRole}
-          />
-        )}
-
-        {currentView === 'detail' && selectedBus && (
-          <BusDetail 
-            bus={selectedBus}
-            onBack={() => handleViewChange('list')}
-            onEdit={() => handleViewChange('edit', selectedBus)}
-            onViewSeating={() => handleViewChange('seating', selectedBus)}
-            currentRole={currentRole}
-          />
-        )}
-
-        {(currentView === 'create' || currentView === 'edit') && (
-          <BusForm 
-            bus={currentView === 'edit' ? selectedBus : null}
-            onSave={(busData) => handleBusAction(currentView === 'edit' ? 'update' : 'create', busData)}
-            onCancel={() => handleViewChange('list')}
-            currentRole={currentRole}
-          />
-        )}
-
-        {currentView === 'seating' && selectedBus && (
-          <BusSeatingMap 
-            bus={selectedBus}
-            onBack={() => handleViewChange('detail', selectedBus)}
-            currentRole={currentRole}
-          />
+        ) : filteredBuses.length === 0 ? (
+          <div className="bus-mgmt-empty">
+            <div className="bus-mgmt-empty-icon">🚌</div>
+            <h3>Aucun bus trouvé</h3>
+            <p>
+              {searchTerm 
+                ? 'Aucun bus ne correspond à votre recherche.'
+                : 'Commencez par ajouter votre premier bus.'
+              }
+            </p>
+          </div>
+        ) : (
+          <table className="bus-mgmt-table">
+            <thead>
+              <tr>
+                <th>Nom du Bus</th>
+                <th>Plaque</th>
+                <th>Places</th>
+                <th>Type</th>
+                <th>Notes</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredBuses.map(bus => (
+                <tr key={bus.id}>
+                  <td>
+                    <span className="bus-mgmt-name">{bus.name}</span>
+                  </td>
+                  <td>
+                    <span className="bus-mgmt-plate">{bus.license_plate}</span>
+                  </td>
+                  <td>
+                    <div className="bus-mgmt-seats">
+                      <span className="bus-mgmt-icon">🪑</span>
+                      {bus.total_seats} places
+                    </div>
+                  </td>
+                  <td>
+                    <span className={`bus-mgmt-type ${bus.is_vip ? 'bus-mgmt-vip' : 'bus-mgmt-standard'}`}>
+                      {bus.is_vip ? 'VIP' : 'Standard'}
+                    </span>
+                  </td>
+                  <td>
+                    <span className="bus-mgmt-notes">
+                      {bus.notes || '-'}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="bus-mgmt-actions">
+                      <button 
+                        className="bus-mgmt-action-btn bus-mgmt-edit-btn"
+                        onClick={() => openEditModal(bus)}
+                        title="Modifier"
+                      >
+                        ✏️
+                      </button>
+                      <button 
+                        className="bus-mgmt-action-btn bus-mgmt-delete-btn"
+                        onClick={() => handleDeleteBus(bus)}
+                        title="Supprimer"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
+
+      {/* Modal d'ajout */}
+      {showAddModal && (
+        <div className="bus-mgmt-modal-overlay">
+          <div className="bus-mgmt-modal">
+            <div className="bus-mgmt-modal-header">
+              <h2>+ Ajouter un bus</h2>
+              <button className="bus-mgmt-close-btn" onClick={closeModal}>
+                ×
+              </button>
+            </div>
+            
+            <form onSubmit={handleSubmit} className="bus-mgmt-form">
+              <div className="bus-mgmt-form-group">
+                <label htmlFor="name">Nom du bus *</label>
+                <input
+                  type="text"
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  className={formErrors.name ? 'bus-mgmt-error' : ''}
+                  placeholder="Ex: Express Voyageur"
+                />
+                {formErrors.name && <span className="bus-mgmt-error-message">{formErrors.name}</span>}
+              </div>
+
+              <div className="bus-mgmt-form-group">
+                <label htmlFor="licensePlate">Plaque d'immatriculation *</label>
+                <input
+                  type="text"
+                  id="licensePlate"
+                  value={formData.licensePlate}
+                  onChange={(e) => setFormData({...formData, licensePlate: e.target.value})}
+                  className={formErrors.licensePlate ? 'bus-mgmt-error' : ''}
+                  placeholder="Ex: LT-234-CM"
+                />
+                {formErrors.licensePlate && <span className="bus-mgmt-error-message">{formErrors.licensePlate}</span>}
+              </div>
+
+              <div className="bus-mgmt-form-group">
+                <label htmlFor="totalSeats">Nombre de places *</label>
+                <input
+                  type="number"
+                  id="totalSeats"
+                  min="1"
+                  value={formData.totalSeats}
+                  onChange={(e) => setFormData({...formData, totalSeats: e.target.value})}
+                  className={formErrors.totalSeats ? 'bus-mgmt-error' : ''}
+                  placeholder="Ex: 45"
+                />
+                {formErrors.totalSeats && <span className="bus-mgmt-error-message">{formErrors.totalSeats}</span>}
+              </div>
+
+              <div className="bus-mgmt-checkbox-group">
+                <label className="bus-mgmt-checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={formData.isVip}
+                    onChange={(e) => setFormData({...formData, isVip: e.target.checked})}
+                  />
+                  <span className="bus-mgmt-checkmark"></span>
+                  Bus VIP
+                </label>
+              </div>
+
+              <div className="bus-mgmt-form-group">
+                <label htmlFor="notes">Notes (optionnel)</label>
+                <textarea
+                  id="notes"
+                  value={formData.notes}
+                  onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                  placeholder="Informations supplémentaires..."
+                  maxLength="500"
+                />
+                <div className="bus-mgmt-character-count">{formData.notes.length}/500 caractères</div>
+              </div>
+
+              <div className="bus-mgmt-form-actions">
+                <button type="button" className="bus-mgmt-cancel-btn" onClick={closeModal}>
+                  Annuler
+                </button>
+                <button type="submit" className="bus-mgmt-submit-btn" disabled={submitting}>
+                  {submitting && <span className="bus-mgmt-loading-spinner"></span>}
+                  Ajouter le bus
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal d'édition */}
+      {showEditModal && (
+        <div className="bus-mgmt-modal-overlay">
+          <div className="bus-mgmt-modal">
+            <div className="bus-mgmt-modal-header">
+              <h2>✏️ Modifier le bus</h2>
+              <button className="bus-mgmt-close-btn" onClick={closeModal}>
+                ×
+              </button>
+            </div>
+            
+            <form onSubmit={handleSubmit} className="bus-mgmt-form">
+              <div className="bus-mgmt-form-group">
+                <label htmlFor="edit-name">Nom du bus *</label>
+                <input
+                  type="text"
+                  id="edit-name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  className={formErrors.name ? 'bus-mgmt-error' : ''}
+                  placeholder="Ex: Express Voyageur"
+                />
+                {formErrors.name && <span className="bus-mgmt-error-message">{formErrors.name}</span>}
+              </div>
+
+              <div className="bus-mgmt-form-group">
+                <label htmlFor="edit-licensePlate">Plaque d'immatriculation *</label>
+                <input
+                  type="text"
+                  id="edit-licensePlate"
+                  value={formData.licensePlate}
+                  onChange={(e) => setFormData({...formData, licensePlate: e.target.value})}
+                  className={formErrors.licensePlate ? 'bus-mgmt-error' : ''}
+                  placeholder="Ex: LT-234-CM"
+                />
+                {formErrors.licensePlate && <span className="bus-mgmt-error-message">{formErrors.licensePlate}</span>}
+              </div>
+
+              <div className="bus-mgmt-form-group">
+                <label htmlFor="edit-totalSeats">Nombre de places *</label>
+                <input
+                  type="number"
+                  id="edit-totalSeats"
+                  min="1"
+                  value={formData.totalSeats}
+                  onChange={(e) => setFormData({...formData, totalSeats: e.target.value})}
+                  className={formErrors.totalSeats ? 'bus-mgmt-error' : ''}
+                  placeholder="Ex: 45"
+                />
+                {formErrors.totalSeats && <span className="bus-mgmt-error-message">{formErrors.totalSeats}</span>}
+              </div>
+
+              <div className="bus-mgmt-checkbox-group">
+                <label className="bus-mgmt-checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={formData.isVip}
+                    onChange={(e) => setFormData({...formData, isVip: e.target.checked})}
+                  />
+                  <span className="bus-mgmt-checkmark"></span>
+                  Bus VIP
+                </label>
+              </div>
+
+              <div className="bus-mgmt-form-group">
+                <label htmlFor="edit-notes">Notes (optionnel)</label>
+                <textarea
+                  id="edit-notes"
+                  value={formData.notes}
+                  onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                  placeholder="Informations supplémentaires..."
+                  maxLength="500"
+                />
+                <div className="bus-mgmt-character-count">{formData.notes.length}/500 caractères</div>
+              </div>
+
+              <div className="bus-mgmt-form-actions">
+                <button type="button" className="bus-mgmt-cancel-btn" onClick={closeModal}>
+                  Annuler
+                </button>
+                <button type="submit" className="bus-mgmt-submit-btn" disabled={submitting}>
+                  {submitting && <span className="bus-mgmt-loading-spinner"></span>}
+                  Modifier le bus
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
