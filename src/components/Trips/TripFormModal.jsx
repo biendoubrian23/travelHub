@@ -26,15 +26,208 @@ const TripFormModal = ({
 
   const [errors, setErrors] = useState({});
   const [drivers, setDrivers] = useState([]);
+  const [availableDrivers, setAvailableDrivers] = useState([]);
   const [loadingDrivers, setLoadingDrivers] = useState(false);
   const [buses, setBuses] = useState([]);
+  const [availableBuses, setAvailableBuses] = useState([]);
   const [loadingBuses, setLoadingBuses] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [conflictWarnings, setConflictWarnings] = useState({});
 
   const cities = [
     'Douala', 'Yaoundé', 'Bafoussam', 'Bamenda', 'Garoua', 
     'Maroua', 'Ngaoundéré', 'Bertoua', 'Buea', 'Limbé'
   ];
+
+  // ========================================
+  // FONCTIONS DE GESTION DES CONFLITS D'HORAIRES
+  // ========================================
+
+  // Fonction pour vérifier les conflits d'horaires pour les conducteurs (1h avant arrivée)
+  const checkDriverConflicts = async (driverId, departureDateTime, arrivalDateTime, currentTripId = null) => {
+    if (!driverId || !departureDateTime || !arrivalDateTime) return { hasConflict: false };
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return { hasConflict: false };
+
+      // Récupérer l'agence ID
+      let agencyId = null;
+      const { data: agencyOwner } = await supabase
+        .from('agencies')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (agencyOwner) {
+        agencyId = agencyOwner.id;
+      } else {
+        const { data: employeeData } = await supabase
+          .from('agency_employee_invitations')
+          .select('agency_id')
+          .eq('user_id', user.id)
+          .eq('status', 'accepted')
+          .single();
+        if (employeeData) agencyId = employeeData.agency_id;
+      }
+
+      if (!agencyId) return { hasConflict: false };
+
+      // Calculer la fenêtre de conflit : 1h après l'heure d'arrivée prévue
+      const newDepartureTime = new Date(departureDateTime);
+
+      // Récupérer tous les trajets existants pour ce conducteur
+      const query = supabase
+        .from('trips')
+        .select('id, departure_time, arrival_time, departure_city, arrival_city')
+        .eq('driver_id', driverId)
+        .eq('agency_id', agencyId);
+
+      // Exclure le trajet en cours de modification si c'est une édition
+      if (currentTripId) {
+        query.neq('id', currentTripId);
+      }
+
+      const { data: existingTrips, error } = await query;
+
+      if (error) {
+        console.error('Erreur lors de la vérification des conflits conducteur:', error);
+        return { hasConflict: false };
+      }
+
+      // Vérifier les conflits
+      for (const trip of existingTrips || []) {
+        const tripArrival = new Date(trip.arrival_time);
+        const driverFreeTime = new Date(tripArrival.getTime() + (60 * 60 * 1000)); // +1h après arrivée
+
+        // Conflit si le nouveau trajet commence avant que le conducteur soit libre
+        if (newDepartureTime < driverFreeTime) {
+          return {
+            hasConflict: true,
+            conflictTrip: trip,
+            message: `Ce conducteur ne sera disponible qu'à partir de ${driverFreeTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} (1h après son arrivée de ${trip.departure_city} → ${trip.arrival_city})`
+          };
+        }
+      }
+
+      return { hasConflict: false };
+    } catch (error) {
+      console.error('Erreur lors de la vérification des conflits conducteur:', error);
+      return { hasConflict: false };
+    }
+  };
+
+  // Fonction pour vérifier les conflits d'horaires pour les bus (15min avant arrivée)
+  const checkBusConflicts = async (busId, departureDateTime, arrivalDateTime, currentTripId = null) => {
+    if (!busId || !departureDateTime || !arrivalDateTime) return { hasConflict: false };
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return { hasConflict: false };
+
+      // Récupérer l'agence ID
+      let agencyId = null;
+      const { data: agencyOwner } = await supabase
+        .from('agencies')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (agencyOwner) {
+        agencyId = agencyOwner.id;
+      } else {
+        const { data: employeeData } = await supabase
+          .from('agency_employee_invitations')
+          .select('agency_id')
+          .eq('user_id', user.id)
+          .eq('status', 'accepted')
+          .single();
+        if (employeeData) agencyId = employeeData.agency_id;
+      }
+
+      if (!agencyId) return { hasConflict: false };
+
+      // Calculer la fenêtre de conflit : 15min après l'heure d'arrivée prévue
+      const newDepartureTime = new Date(departureDateTime);
+
+      // Récupérer tous les trajets existants pour ce bus
+      const query = supabase
+        .from('trips')
+        .select('id, departure_time, arrival_time, departure_city, arrival_city')
+        .eq('bus_id', busId)
+        .eq('agency_id', agencyId);
+
+      // Exclure le trajet en cours de modification si c'est une édition
+      if (currentTripId) {
+        query.neq('id', currentTripId);
+      }
+
+      const { data: existingTrips, error } = await query;
+
+      if (error) {
+        console.error('Erreur lors de la vérification des conflits bus:', error);
+        return { hasConflict: false };
+      }
+
+      // Vérifier les conflits
+      for (const trip of existingTrips || []) {
+        const tripArrival = new Date(trip.arrival_time);
+        const busFreeTime = new Date(tripArrival.getTime() + (15 * 60 * 1000)); // +15min après arrivée
+
+        // Conflit si le nouveau trajet commence avant que le bus soit libre
+        if (newDepartureTime < busFreeTime) {
+          return {
+            hasConflict: true,
+            conflictTrip: trip,
+            message: `Ce bus ne sera disponible qu'à partir de ${busFreeTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} (15min après son arrivée de ${trip.departure_city} → ${trip.arrival_city})`
+          };
+        }
+      }
+
+      return { hasConflict: false };
+    } catch (error) {
+      console.error('Erreur lors de la vérification des conflits bus:', error);
+      return { hasConflict: false };
+    }
+  };
+
+  // Fonction pour filtrer les conducteurs et bus disponibles
+  const filterAvailableResources = async () => {
+    if (!formData.date || !formData.departureTime || !formData.arrivalTime) {
+      setAvailableDrivers(drivers);
+      setAvailableBuses(buses);
+      return;
+    }
+
+    const departureDateTime = `${formData.date}T${formData.departureTime}`;
+    const arrivalDateTime = `${formData.date}T${formData.arrivalTime}`;
+    const currentTripId = editingTrip?.id;
+
+    // Filtrer les conducteurs disponibles
+    const availableDriversList = [];
+    for (const driver of drivers) {
+      const conflict = await checkDriverConflicts(driver.id, departureDateTime, arrivalDateTime, currentTripId);
+      if (!conflict.hasConflict) {
+        availableDriversList.push(driver);
+      }
+    }
+
+    // Filtrer les bus disponibles
+    const availableBusesList = [];
+    for (const bus of buses) {
+      const conflict = await checkBusConflicts(bus.id, departureDateTime, arrivalDateTime, currentTripId);
+      if (!conflict.hasConflict) {
+        availableBusesList.push(bus);
+      }
+    }
+
+    setAvailableDrivers(availableDriversList);
+    setAvailableBuses(availableBusesList);
+  };
+
+  // ========================================
+  // FIN FONCTIONS DE GESTION DES CONFLITS
+  // ========================================
 
   // Fonction pour récupérer les bus de l'agence
   const fetchAgencyBuses = async () => {
@@ -232,7 +425,7 @@ const TripFormModal = ({
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = async (e) => {
     const { name, value, type, checked } = e.target;
     let updatedFormData = {
       ...formData,
@@ -265,12 +458,66 @@ const TripFormModal = ({
     
     setFormData(updatedFormData);
     
-    // Supprimer l'erreur du champ modifié
-    if (errors[name]) {
-      setErrors(prev => ({
+    // Vérifier les conflits si les horaires ont changé
+    if (name === 'departureTime' || name === 'arrivalTime' || name === 'date') {
+      await filterAvailableResources();
+    }
+    
+    // Vérifier les conflits spécifiques si un conducteur ou bus est sélectionné
+    if (name === 'driverId' && value && updatedFormData.date && updatedFormData.departureTime && updatedFormData.arrivalTime) {
+      await checkDriverAvailability(value, updatedFormData);
+    }
+    
+    if (name === 'busId' && value && updatedFormData.date && updatedFormData.departureTime && updatedFormData.arrivalTime) {
+      await checkBusAvailability(value, updatedFormData);
+    }
+  };
+
+  // Fonction pour vérifier la disponibilité d'un conducteur spécifique
+  const checkDriverAvailability = async (driverId, currentFormData) => {
+    if (!driverId || !currentFormData.date || !currentFormData.departureTime || !currentFormData.arrivalTime) return;
+    
+    const departureDateTime = `${currentFormData.date}T${currentFormData.departureTime}`;
+    const arrivalDateTime = `${currentFormData.date}T${currentFormData.arrivalTime}`;
+    const currentTripId = editingTrip?.id;
+    
+    const conflict = await checkDriverConflicts(driverId, departureDateTime, arrivalDateTime, currentTripId);
+    
+    if (conflict.hasConflict) {
+      setConflictWarnings(prev => ({
         ...prev,
-        [name]: ''
+        driver: conflict.message
       }));
+    } else {
+      setConflictWarnings(prev => {
+        const newWarnings = { ...prev };
+        delete newWarnings.driver;
+        return newWarnings;
+      });
+    }
+  };
+
+  // Fonction pour vérifier la disponibilité d'un bus spécifique
+  const checkBusAvailability = async (busId, currentFormData) => {
+    if (!busId || !currentFormData.date || !currentFormData.departureTime || !currentFormData.arrivalTime) return;
+    
+    const departureDateTime = `${currentFormData.date}T${currentFormData.departureTime}`;
+    const arrivalDateTime = `${currentFormData.date}T${currentFormData.arrivalTime}`;
+    const currentTripId = editingTrip?.id;
+    
+    const conflict = await checkBusConflicts(busId, departureDateTime, arrivalDateTime, currentTripId);
+    
+    if (conflict.hasConflict) {
+      setConflictWarnings(prev => ({
+        ...prev,
+        bus: conflict.message
+      }));
+    } else {
+      setConflictWarnings(prev => {
+        const newWarnings = { ...prev };
+        delete newWarnings.bus;
+        return newWarnings;
+      });
     }
   };
 
@@ -583,13 +830,18 @@ const TripFormModal = ({
                 <option value="">
                   {loadingBuses ? 'Chargement des bus...' : 'Sélectionnez un bus'}
                 </option>
-                {buses.map(bus => (
+                {(formData.date && formData.departureTime && formData.arrivalTime ? availableBuses : buses).map(bus => (
                   <option key={bus.id} value={bus.id}>
                     {bus.name} ({bus.license_plate}) - {bus.total_seats} places{bus.is_vip ? ' - VIP' : ''}
                   </option>
                 ))}
               </select>
               {errors.busId && <span className="error-message">{errors.busId}</span>}
+              {conflictWarnings.bus && (
+                <div className="conflict-warning">
+                  ⚠️ {conflictWarnings.bus}
+                </div>
+              )}
             </div>
 
             {/* Conducteur */}
@@ -606,13 +858,18 @@ const TripFormModal = ({
                 <option value="">
                   {loadingDrivers ? 'Chargement des conducteurs...' : 'Sélectionnez un conducteur'}
                 </option>
-                {drivers.map(driver => (
+                {(formData.date && formData.departureTime && formData.arrivalTime ? availableDrivers : drivers).map(driver => (
                   <option key={driver.id} value={driver.id}>
                     {driver.name} ({driver.phone})
                   </option>
                 ))}
               </select>
               {errors.driverId && <span className="error-message">{errors.driverId}</span>}
+              {conflictWarnings.driver && (
+                <div className="conflict-warning">
+                  ⚠️ {conflictWarnings.driver}
+                </div>
+              )}
               {drivers.length === 0 && !loadingDrivers && (
                 <small className="help-text">
                   ⚠️ Aucun conducteur trouvé. Assurez-vous d'avoir des employés avec le rôle "conducteur" acceptés dans votre agence.
