@@ -49,6 +49,55 @@
   min-width: 160px;
 }
 
+/* ==============================================
+   STYLES PERSONNALISÉS TRAVELHUB - BOUTONS DÉSACTIVÉS
+   ============================================== */
+
+/* Bouton désactivé global - TravelHub */
+.tvhub-disabled-btn {
+  background-color: #e5e5ea !important;
+  color: #8e8e93 !important;
+  border-color: #e5e5ea !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.tvhub-disabled-btn:hover {
+  background-color: #d1d1d6 !important;
+  color: #8e8e93 !important;
+  border-color: #d1d1d6 !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.tvhub-disabled-btn:active {
+  background-color: #c7c7cc !important;
+  color: #8e8e93 !important;
+  transform: none !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Boutons d'action dans le tableau - états désactivés */
+.btn-view.tvhub-disabled-btn,
+.btn-edit.tvhub-disabled-btn,
+.btn-cancel.tvhub-disabled-btn,
+.btn-refund.tvhub-disabled-btn {
+  background: #f2f2f7 !important;
+  color: #8e8e93 !important;
+  border: 1px solid #e5e5ea !important;
+  font-size: 12px !important;
+  border-radius: 6px !important;
+}
+
+.btn-view.tvhub-disabled-btn:hover,
+.btn-edit.tvhub-disabled-btn:hover,
+.btn-cancel.tvhub-disabled-btn:hover,
+.btn-refund.tvhub-disabled-btn:hover {
+  background: #e5e5ea !important;
+  transform: none !important;
+}
+
 .passenger-info {
   display: flex;
   flex-direction: column;
@@ -494,6 +543,22 @@
 .card-actions button:hover {
   transform: translateY(-1px);
   opacity: 0.9;
+}
+
+/* Boutons désactivés dans les cartes - TravelHub */
+.card-actions .tvhub-disabled-btn {
+  background: linear-gradient(135deg, #f2f2f7 0%, #e5e5ea 100%) !important;
+  color: #8e8e93 !important;
+  border: 1px solid #e5e5ea !important;
+  cursor: not-allowed !important;
+  opacity: 0.7 !important;
+}
+
+.card-actions .tvhub-disabled-btn:hover {
+  transform: none !important;
+  background: linear-gradient(135deg, #e5e5ea 0%, #d1d1d6 100%) !important;
+  opacity: 0.7 !important;
+  box-shadow: none !important;
 }
 
 /* État vide */

@@ -261,6 +261,25 @@ const BookingsCalendar = () => {
     fetchTripsAndBookingsFromDatabase();
   };
 
+  // Fonction pour vérifier si la date du trajet sélectionné est passée
+  const isTripDatePassed = () => {
+    if (!selectedBus || !selectedBus.date) return false;
+    
+    const tripDate = new Date(selectedBus.date);
+    const currentDate = new Date();
+    
+    // Reset time to start of day for accurate comparison
+    currentDate.setHours(0, 0, 0, 0);
+    tripDate.setHours(0, 0, 0, 0);
+    
+    return tripDate < currentDate;
+  };
+
+  // Fonction pour gérer le clic sur le bouton "Ajouter un Passager" désactivé
+  const handleDisabledAddPassengerClick = () => {
+    alert("⚠️ Impossible d'ajouter un passager : ce trajet a déjà eu lieu. Vous ne pouvez pas ajouter de nouveaux passagers pour des trajets dont la date est passée.");
+  };
+
   // Scroll automatique vers un bus spécifique
   const scrollToBus = (busId) => {
     const busElement = document.querySelector(`[data-bus-id="${busId}"]`);
@@ -554,9 +573,15 @@ const BookingsCalendar = () => {
                 
                 <div className="bookings-add-passenger-container">
                   <button 
-                    className="bookings-add-passenger-btn"
-                    onClick={() => setShowAddPassengerModal(true)}
-                    title="Ajouter un nouveau passager"
+                    className={`bookings-add-passenger-btn ${isTripDatePassed() ? 'tvhub-disabled-btn' : ''}`}
+                    onClick={() => {
+                      if (isTripDatePassed()) {
+                        handleDisabledAddPassengerClick();
+                      } else {
+                        setShowAddPassengerModal(true);
+                      }
+                    }}
+                    title={isTripDatePassed() ? "Date passée - Impossible d'ajouter un passager" : "Ajouter un nouveau passager"}
                   >
                     ➕ Ajouter un Passager
                   </button>

@@ -5,7 +5,7 @@ import { supabase } from '../../lib/supabase';
 import './TripsCalendar.css';
 
 const TripsCalendar = () => {
-  const { currentRole, hasPermission } = useRolePermissions();
+  const { hasPermission } = useRolePermissions();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [trips, setTrips] = useState([]);
   const [selectedTrip, setSelectedTrip] = useState(null);
@@ -389,6 +389,20 @@ const TripsCalendar = () => {
     }
   };
 
+  // Fonction pour vérifier si la date sélectionnée est passée
+  const isSelectedDatePassed = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to start of day
+    const selected = new Date(selectedDate);
+    selected.setHours(0, 0, 0, 0); // Reset time to start of day
+    return selected < today;
+  };
+
+  // Fonction pour gérer le clic sur le bouton "Ajouter un trajet" désactivé
+  const handleDisabledAddTripClick = () => {
+    alert("⚠️ Impossible d'ajouter un trajet : vous ne pouvez pas créer des trajets pour des dates passées. Veuillez sélectionner une date future.");
+  };
+
   // Gérer la modification d'un trajet
   const handleEditTrip = async () => {
     try {
@@ -479,9 +493,15 @@ const TripsCalendar = () => {
                 {hasPermission('trips', 'create') && (
                   <div className="add-trip-section">
                     <button
-                      className="add-trip-btn-green"
-                      onClick={() => setShowAddModal(true)}
-                      title="Ajouter un nouveau trajet"
+                      className={`add-trip-btn-green ${isSelectedDatePassed() ? 'tvhub-disabled-btn' : ''}`}
+                      onClick={() => {
+                        if (isSelectedDatePassed()) {
+                          handleDisabledAddTripClick();
+                        } else {
+                          setShowAddModal(true);
+                        }
+                      }}
+                      title={isSelectedDatePassed() ? "Date passée - Impossible d'ajouter un trajet" : "Ajouter un nouveau trajet"}
                     >
                       <span className="btn-icon">➕</span>
                       <span className="btn-text">Ajouter un trajet</span>

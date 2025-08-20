@@ -11,6 +11,28 @@ const BookingsList = ({
 }) => {
   const { hasPermission } = useRolePermissions();
 
+  // Fonction pour vérifier si la date est passée
+  const isDatePassed = (dateString) => {
+    if (!dateString) return false;
+    const tripDate = new Date(dateString);
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0); // Reset time to start of day
+    tripDate.setHours(0, 0, 0, 0); // Reset time to start of day
+    return tripDate < currentDate;
+  };
+
+  // Fonction pour gérer les clics sur les boutons désactivés
+  const handleDisabledButtonClick = (action) => {
+    const messages = {
+      view: "⚠️ Impossible de voir les détails : cette réservation concerne un trajet dont la date est déjà passée. Vous ne pouvez que consulter les informations.",
+      edit: "⚠️ Impossible de modifier : cette réservation concerne un trajet dont la date est déjà passée.",
+      cancel: "⚠️ Impossible d'annuler : cette réservation concerne un trajet dont la date est déjà passée.",
+      refund: "⚠️ Impossible de rembourser : cette réservation concerne un trajet dont la date est déjà passée."
+    };
+    
+    alert(messages[action] || "⚠️ Action impossible : la date du trajet est déjà passée.");
+  };
+
   // Fonction utilitaire pour extraire les données selon la structure
   const getBookingData = (booking) => {
     return {
@@ -157,35 +179,59 @@ const BookingsList = ({
                   <td className="actions-cell">
                     <div className="action-buttons">
                       <button
-                        className="btn-view"
-                        onClick={() => onBookingAction('view', booking)}
-                        title="Voir les détails"
+                        className={`btn-view ${isDatePassed(bookingData.departure_time) ? 'tvhub-disabled-btn' : ''}`}
+                        onClick={() => {
+                          if (isDatePassed(bookingData.departure_time)) {
+                            handleDisabledButtonClick('view');
+                          } else {
+                            onBookingAction('view', booking);
+                          }
+                        }}
+                        title={isDatePassed(bookingData.departure_time) ? "Date passée - Consultation uniquement" : "Voir les détails"}
                       >
                         👁️
                       </button>
                       {hasPermission('bookings', 'modify') && (
                         <button
-                          className="btn-edit"
-                          onClick={() => onBookingAction('edit', booking)}
-                          title="Modifier"
+                          className={`btn-edit ${isDatePassed(bookingData.departure_time) ? 'tvhub-disabled-btn' : ''}`}
+                          onClick={() => {
+                            if (isDatePassed(bookingData.departure_time)) {
+                              handleDisabledButtonClick('edit');
+                            } else {
+                              onBookingAction('edit', booking);
+                            }
+                          }}
+                          title={isDatePassed(bookingData.departure_time) ? "Date passée - Modification impossible" : "Modifier"}
                         >
                           ✏️
                         </button>
                       )}
                       {hasPermission('bookings', 'cancel') && booking.status === 'confirmed' && (
                         <button
-                          className="btn-cancel"
-                          onClick={() => onBookingAction('cancel', booking)}
-                          title="Annuler"
+                          className={`btn-cancel ${isDatePassed(bookingData.departure_time) ? 'tvhub-disabled-btn' : ''}`}
+                          onClick={() => {
+                            if (isDatePassed(bookingData.departure_time)) {
+                              handleDisabledButtonClick('cancel');
+                            } else {
+                              onBookingAction('cancel', booking);
+                            }
+                          }}
+                          title={isDatePassed(bookingData.departure_time) ? "Date passée - Annulation impossible" : "Annuler"}
                         >
                           ❌
                         </button>
                       )}
                       {hasPermission('bookings', 'refund') && booking.status === 'cancelled' && (
                         <button
-                          className="btn-refund"
-                          onClick={() => onBookingAction('refund', booking)}
-                          title="Rembourser"
+                          className={`btn-refund ${isDatePassed(bookingData.departure_time) ? 'tvhub-disabled-btn' : ''}`}
+                          onClick={() => {
+                            if (isDatePassed(bookingData.departure_time)) {
+                              handleDisabledButtonClick('refund');
+                            } else {
+                              onBookingAction('refund', booking);
+                            }
+                          }}
+                          title={isDatePassed(bookingData.departure_time) ? "Date passée - Remboursement impossible" : "Rembourser"}
                         >
                           💰
                         </button>
@@ -291,31 +337,55 @@ const BookingsList = ({
 
             <div className="card-actions">
               <button
-                className="btn-view"
-                onClick={() => onBookingAction('view', booking)}
+                className={`btn-view ${isDatePassed(bookingData.departure_time) ? 'tvhub-disabled-btn' : ''}`}
+                onClick={() => {
+                  if (isDatePassed(bookingData.departure_time)) {
+                    handleDisabledButtonClick('view');
+                  } else {
+                    onBookingAction('view', booking);
+                  }
+                }}
               >
-                👁️ Détails
+                👁️ {isDatePassed(bookingData.departure_time) ? 'Consulter' : 'Détails'}
               </button>
               {hasPermission('bookings', 'modify') && (
                 <button
-                  className="btn-edit"
-                  onClick={() => onBookingAction('edit', booking)}
+                  className={`btn-edit ${isDatePassed(bookingData.departure_time) ? 'tvhub-disabled-btn' : ''}`}
+                  onClick={() => {
+                    if (isDatePassed(bookingData.departure_time)) {
+                      handleDisabledButtonClick('edit');
+                    } else {
+                      onBookingAction('edit', booking);
+                    }
+                  }}
                 >
                   ✏️ Modifier
                 </button>
               )}
               {hasPermission('bookings', 'cancel') && bookingData.status === 'confirmed' && (
                 <button
-                  className="btn-cancel"
-                  onClick={() => onBookingAction('cancel', booking)}
+                  className={`btn-cancel ${isDatePassed(bookingData.departure_time) ? 'tvhub-disabled-btn' : ''}`}
+                  onClick={() => {
+                    if (isDatePassed(bookingData.departure_time)) {
+                      handleDisabledButtonClick('cancel');
+                    } else {
+                      onBookingAction('cancel', booking);
+                    }
+                  }}
                 >
                   ❌ Annuler
                 </button>
               )}
               {hasPermission('bookings', 'refund') && bookingData.status === 'cancelled' && (
                 <button
-                  className="btn-refund"
-                  onClick={() => onBookingAction('refund', booking)}
+                  className={`btn-refund ${isDatePassed(bookingData.departure_time) ? 'tvhub-disabled-btn' : ''}`}
+                  onClick={() => {
+                    if (isDatePassed(bookingData.departure_time)) {
+                      handleDisabledButtonClick('refund');
+                    } else {
+                      onBookingAction('refund', booking);
+                    }
+                  }}
                 >
                   💰 Rembourser
                 </button>
