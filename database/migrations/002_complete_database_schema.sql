@@ -405,13 +405,13 @@ BEGIN
     agency_name := LOWER(REGEXP_REPLACE(agency_name, '[^a-zA-Z]', '', 'g'));
     
     -- Créer l'email de base
-    base_email := first_name || '.' || last_name || '@' || agency_name || '.travelhub.cm';
+    base_email := first_name || '.' || last_name || '@' || agency_name || '.com';
     final_email := base_email;
     
     -- Vérifier l'unicité et ajouter un numéro si nécessaire
     WHILE EXISTS (SELECT 1 FROM users WHERE email = final_email) LOOP
         counter := counter + 1;
-        final_email := first_name || '.' || last_name || counter || '@' || agency_name || '.travelhub.cm';
+        final_email := first_name || '.' || last_name || counter || '@' || agency_name || '.com';
     END LOOP;
     
     RETURN final_email;

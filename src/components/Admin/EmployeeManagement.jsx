@@ -271,7 +271,7 @@ const EmployeeManagement = () => {
     } catch (error) {
       console.error('Erreur génération identifiants:', error);
       // Fallback en cas d'erreur
-      const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${agency.name.toLowerCase().replace(/\s+/g, '')}.travelhub.cm`;
+      const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${agency.name.toLowerCase().replace(/\s+/g, '')}.com`;
       const password = Math.random().toString(36).slice(-8);
       return { email, password };
     }
@@ -290,7 +290,7 @@ const EmployeeManagement = () => {
 
     try {
       // Générer l'email automatiquement
-      const email = `${newEmployee.firstName.toLowerCase()}.${newEmployee.lastName.toLowerCase()}@${agency.name.toLowerCase().replace(/\s+/g, '')}.travelhub.cm`;
+      const email = `${newEmployee.firstName.toLowerCase()}.${newEmployee.lastName.toLowerCase()}@${agency.name.toLowerCase().replace(/\s+/g, '')}.com`;
       
       console.log('📧 Email généré:', email);
       console.log('� Création de l\'invitation...');
@@ -1295,7 +1295,7 @@ const EmployeeManagement = () => {
                       <div className="preview-details">
                         <div className="preview-item" style={{wordBreak:'break-all', overflowWrap:'break-word', fontSize:'15px'}}>
                           {newEmployee.firstName && newEmployee.lastName 
-                            ? `${newEmployee.firstName.toLowerCase()}.${newEmployee.lastName.toLowerCase()}@${agency?.name?.toLowerCase().replace(/\s+/g, '')}.travelhub.cm`
+                            ? `${newEmployee.firstName.toLowerCase()}.${newEmployee.lastName.toLowerCase()}@${agency?.name?.toLowerCase().replace(/\s+/g, '')}.com`
                             : 'Sera généré automatiquement'}
                         </div>
                       </div>
