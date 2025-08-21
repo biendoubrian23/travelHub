@@ -22,6 +22,7 @@ import './ToggleStyles.css'; // Styles pour les toggles de statut
 import './ResponsiveTableStyles.css'; // Styles responsive pour le tableau
 import './FinalModalScrollbar.css'; // Solution ultime pour la barre de défilement
 import './InvitationModalFix.css'; // Correction spécifique pour les modals d'invitation
+import './ValidationStyles.css'; // Styles de validation pour les formulaires
 import { 
   Users, 
   Plus, 
@@ -58,6 +59,16 @@ const EmployeeManagement = () => {
     dateOfBirth: '',
     role: 'employee',
     notes: ''
+  });
+
+  // État pour les erreurs de validation
+  const [validationErrors, setValidationErrors] = useState({
+    firstName: '',
+    lastName: '',
+    ville: '',
+    phone: '',
+    dateOfBirth: '',
+    role: ''
   });
 
   const [generatedCredentials, setGeneratedCredentials] = useState(null);
@@ -246,6 +257,123 @@ const EmployeeManagement = () => {
     return () => clearInterval(interval);
   }, [agency, refreshData]);
 
+  // Fonctions de validation
+  const validateField = (field, value) => {
+    let error = '';
+    
+    switch (field) {
+      case 'firstName':
+        value = value.trim();
+        if (!value) {
+          error = 'Le prénom est obligatoire';
+        } else if (value.length < 2) {
+          error = 'Le prénom doit contenir au moins 2 caractères';
+        } else if (!/^[a-zA-ZÀ-ÿ\s-']+$/.test(value)) {
+          error = 'Le prénom ne peut contenir que des lettres, espaces, tirets et apostrophes';
+        }
+        break;
+        
+      case 'lastName':
+        value = value.trim();
+        if (!value) {
+          error = 'Le nom de famille est obligatoire';
+        } else if (value.length < 2) {
+          error = 'Le nom de famille doit contenir au moins 2 caractères';
+        } else if (!/^[a-zA-ZÀ-ÿ\s-']+$/.test(value)) {
+          error = 'Le nom de famille ne peut contenir que des lettres, espaces, tirets et apostrophes';
+        }
+        break;
+        
+      case 'ville':
+        value = value.trim();
+        if (!value) {
+          error = 'La ville est obligatoire';
+        } else if (value.length < 2) {
+          error = 'La ville doit contenir au moins 2 caractères';
+        } else if (!/^[a-zA-ZÀ-ÿ\s-']+$/.test(value)) {
+          error = 'La ville ne peut contenir que des lettres, espaces, tirets et apostrophes';
+        }
+        break;
+        
+      case 'phone':
+        value = value.trim();
+        if (!value) {
+          error = 'Le numéro de téléphone est obligatoire';
+        } else if (!/^(\+237|237)?[67]\d{8}$/.test(value.replace(/\s/g, ''))) {
+          error = 'Format invalide. Utilisez +237 6XX XXX XXX ou +237 7XX XXX XXX';
+        }
+        break;
+        
+      case 'dateOfBirth':
+        if (value) {
+          const birthDate = new Date(value);
+          const today = new Date();
+          const age = today.getFullYear() - birthDate.getFullYear();
+          const monthDiff = today.getMonth() - birthDate.getMonth();
+          const dayDiff = today.getDate() - birthDate.getDate();
+          
+          let exactAge = age;
+          if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+            exactAge--;
+          }
+          
+          if (exactAge < 15) {
+            error = 'L\'employé doit avoir au moins 15 ans';
+          } else if (exactAge > 100) {
+            error = 'L\'âge ne peut pas dépasser 100 ans';
+          } else if (birthDate > today) {
+            error = 'La date de naissance ne peut pas être dans le futur';
+          }
+        }
+        break;
+        
+      case 'role':
+        if (!value) {
+          error = 'Le rôle est obligatoire';
+        }
+        break;
+    }
+    
+    return error;
+  };
+
+  const handleFieldChange = (field, value) => {
+    // Nettoyer automatiquement les espaces en début et fin pour certains champs
+    if (['firstName', 'lastName', 'ville'].includes(field)) {
+      value = value.trim();
+    }
+    
+    // Mettre à jour la valeur
+    setNewEmployee(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    
+    // Valider en temps réel
+    const error = validateField(field, value);
+    setValidationErrors(prev => ({
+      ...prev,
+      [field]: error
+    }));
+  };
+
+  const validateAllFields = () => {
+    const errors = {};
+    let hasErrors = false;
+    
+    // Valider tous les champs
+    Object.keys(newEmployee).forEach(field => {
+      if (field !== 'notes') { // Les notes ne sont pas obligatoires
+        const error = validateField(field, newEmployee[field]);
+        errors[field] = error;
+        if (error) hasErrors = true;
+      }
+    });
+    
+    setValidationErrors(errors);
+    return !hasErrors;
+  };
+
   const generateEmployeeCredentials = async (firstName, lastName) => {
     try {
       // Générer l'email via la fonction SQL
@@ -280,8 +408,21 @@ const EmployeeManagement = () => {
   const handleAddEmployee = async (e) => {
     e.preventDefault();
     
-    if (!newEmployee.firstName || !newEmployee.lastName || !newEmployee.ville || !newEmployee.phone || !newEmployee.role) {
-      setError('Veuillez remplir tous les champs obligatoires');
+    // Nettoyer les espaces et valider tous les champs
+    const cleanedEmployee = {
+      ...newEmployee,
+      firstName: newEmployee.firstName.trim(),
+      lastName: newEmployee.lastName.trim(),
+      ville: newEmployee.ville.trim(),
+      phone: newEmployee.phone.trim()
+    };
+    
+    // Mettre à jour avec les valeurs nettoyées
+    setNewEmployee(cleanedEmployee);
+    
+    // Validation complète
+    if (!validateAllFields()) {
+      setError('Veuillez corriger les erreurs dans le formulaire');
       return;
     }
 
@@ -289,8 +430,8 @@ const EmployeeManagement = () => {
     setError('');
 
     try {
-      // Générer l'email automatiquement
-      const email = `${newEmployee.firstName.toLowerCase()}.${newEmployee.lastName.toLowerCase()}@${agency.name.toLowerCase().replace(/\s+/g, '')}.com`;
+      // Générer l'email automatiquement avec les valeurs nettoyées
+      const email = `${cleanedEmployee.firstName.toLowerCase()}.${cleanedEmployee.lastName.toLowerCase()}@${agency.name.toLowerCase().replace(/\s+/g, '')}.com`;
       
       console.log('📧 Email généré:', email);
       console.log('� Création de l\'invitation...');
@@ -301,13 +442,13 @@ const EmployeeManagement = () => {
         .insert({
           agency_id: agency.id,
           email: email,
-          first_name: newEmployee.firstName,
-          last_name: newEmployee.lastName,
-          ville: newEmployee.ville,
-          phone: newEmployee.phone,
-          date_of_birth: newEmployee.dateOfBirth || null,
-          employee_role: newEmployee.role,
-          notes: newEmployee.notes,
+          first_name: cleanedEmployee.firstName,
+          last_name: cleanedEmployee.lastName,
+          ville: cleanedEmployee.ville,
+          phone: cleanedEmployee.phone,
+          date_of_birth: cleanedEmployee.dateOfBirth || null,
+          employee_role: cleanedEmployee.role,
+          notes: cleanedEmployee.notes,
           invited_by: userProfile.id
         })
         .select()
@@ -334,11 +475,11 @@ const EmployeeManagement = () => {
       
       // Afficher les détails de l'invitation
       setGeneratedCredentials({
-        firstName: newEmployee.firstName,
-        lastName: newEmployee.lastName,
+        firstName: cleanedEmployee.firstName,
+        lastName: cleanedEmployee.lastName,
         email: email,
-        role: newEmployee.role,
-        phone: newEmployee.phone,
+        role: cleanedEmployee.role,
+        phone: cleanedEmployee.phone,
         invitationLink: invitationLink,
         agencyName: agency.name, // Utiliser directement agency.name
         isInvitation: true // Flag pour identifier que c'est une invitation
@@ -354,6 +495,16 @@ const EmployeeManagement = () => {
         dateOfBirth: '',
         role: 'employee',
         notes: ''
+      });
+
+      // Réinitialiser les erreurs de validation
+      setValidationErrors({
+        firstName: '',
+        lastName: '',
+        ville: '',
+        phone: '',
+        dateOfBirth: '',
+        role: ''
       });
 
       setSuccess('Invitation envoyée avec succès !');
@@ -1194,6 +1345,22 @@ const EmployeeManagement = () => {
             <div className="new-employee-content">
               <form className="new-employee-form" onSubmit={handleAddEmployee}>
                 
+                {/* Zone d'erreur du modal */}
+                {error && (
+                  <div className="employee-modal-error">
+                    <div className="error-content">
+                      <strong>Erreur :</strong> {error}
+                    </div>
+                    <button 
+                      type="button" 
+                      className="error-close" 
+                      onClick={() => setError('')}
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
+                
                 {/* Grille des champs principaux */}
                 <div className="form-grid">
                   <div className="form-field">
@@ -1201,11 +1368,14 @@ const EmployeeManagement = () => {
                     <input
                       type="text"
                       value={newEmployee.firstName}
-                      onChange={(e) => setNewEmployee({...newEmployee, firstName: e.target.value})}
-                      className="field-input"
+                      onChange={(e) => handleFieldChange('firstName', e.target.value)}
+                      className={`field-input ${validationErrors.firstName ? 'input-error' : ''}`}
                       placeholder="Entrez le prénom"
                       required
                     />
+                    {validationErrors.firstName && (
+                      <div className="field-error-message">{validationErrors.firstName}</div>
+                    )}
                   </div>
                   
                   <div className="form-field">
@@ -1213,11 +1383,14 @@ const EmployeeManagement = () => {
                     <input
                       type="text"
                       value={newEmployee.lastName}
-                      onChange={(e) => setNewEmployee({...newEmployee, lastName: e.target.value})}
-                      className="field-input"
+                      onChange={(e) => handleFieldChange('lastName', e.target.value)}
+                      className={`field-input ${validationErrors.lastName ? 'input-error' : ''}`}
                       placeholder="Entrez le nom de famille"
                       required
                     />
+                    {validationErrors.lastName && (
+                      <div className="field-error-message">{validationErrors.lastName}</div>
+                    )}
                   </div>
                   
                   <div className="form-field">
@@ -1225,11 +1398,14 @@ const EmployeeManagement = () => {
                     <input
                       type="text"
                       value={newEmployee.ville}
-                      onChange={(e) => setNewEmployee({...newEmployee, ville: e.target.value})}
-                      className="field-input"
+                      onChange={(e) => handleFieldChange('ville', e.target.value)}
+                      className={`field-input ${validationErrors.ville ? 'input-error' : ''}`}
                       placeholder="Entrez la ville"
                       required
                     />
+                    {validationErrors.ville && (
+                      <div className="field-error-message">{validationErrors.ville}</div>
+                    )}
                   </div>
                   
                   <div className="form-field">
@@ -1237,11 +1413,14 @@ const EmployeeManagement = () => {
                     <input
                       type="tel"
                       value={newEmployee.phone}
-                      onChange={(e) => setNewEmployee({...newEmployee, phone: e.target.value})}
-                      className="field-input"
+                      onChange={(e) => handleFieldChange('phone', e.target.value)}
+                      className={`field-input ${validationErrors.phone ? 'input-error' : ''}`}
                       placeholder="+237 6XX XXX XXX"
                       required
                     />
+                    {validationErrors.phone && (
+                      <div className="field-error-message">{validationErrors.phone}</div>
+                    )}
                   </div>
                   
                   <div className="form-field">
@@ -1249,9 +1428,14 @@ const EmployeeManagement = () => {
                     <input
                       type="date"
                       value={newEmployee.dateOfBirth}
-                      onChange={(e) => setNewEmployee({...newEmployee, dateOfBirth: e.target.value})}
-                      className="field-input"
+                      onChange={(e) => handleFieldChange('dateOfBirth', e.target.value)}
+                      className={`field-input ${validationErrors.dateOfBirth ? 'input-error' : ''}`}
+                      max={new Date(new Date().setFullYear(new Date().getFullYear() - 15)).toISOString().split('T')[0]}
+                      min={new Date(new Date().setFullYear(new Date().getFullYear() - 100)).toISOString().split('T')[0]}
                     />
+                    {validationErrors.dateOfBirth && (
+                      <div className="field-error-message">{validationErrors.dateOfBirth}</div>
+                    )}
                   </div>
                 </div>
 
@@ -1260,8 +1444,8 @@ const EmployeeManagement = () => {
                   <label className="field-label field-required">Rôle dans l'agence</label>
                   <select
                     value={newEmployee.role}
-                    onChange={(e) => setNewEmployee({...newEmployee, role: e.target.value})}
-                    className="field-select"
+                    onChange={(e) => handleFieldChange('role', e.target.value)}
+                    className={`field-select ${validationErrors.role ? 'input-error' : ''}`}
                     required
                   >
                     <option value="">Sélectionner un rôle...</option>
@@ -1271,6 +1455,9 @@ const EmployeeManagement = () => {
                       </option>
                     ))}
                   </select>
+                  {validationErrors.role && (
+                    <div className="field-error-message">{validationErrors.role}</div>
+                  )}
                 </div>
 
                 {/* Notes - pleine largeur */}
