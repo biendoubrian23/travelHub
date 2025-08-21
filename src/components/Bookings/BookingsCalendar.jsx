@@ -3,6 +3,8 @@ import { useRolePermissions } from '../RoleBasedComponents';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import AddPassengerModal from './AddPassengerModal';
+import RefreshButton from '../UI/RefreshButton';
+import { useRefresh } from '../../hooks/useRefresh';
 import './BookingsCalendar.css';
 
 const BookingsCalendar = () => {
@@ -190,7 +192,10 @@ const BookingsCalendar = () => {
     }
   }, [user]);
 
-  // Charger les données au démarrage et quand l'utilisateur change
+  // Hook pour gérer le rechargement des données
+  const { refresh } = useRefresh(fetchTripsAndBookingsFromDatabase);
+
+  // Charger les données au démarrage seulement (suppression du rechargement automatique)
   useEffect(() => {
     if (user?.id) {
       fetchTripsAndBookingsFromDatabase();
@@ -389,6 +394,12 @@ const BookingsCalendar = () => {
 
   return (
     <div className="bookings-calendar">
+      {/* Bouton de rechargement */}
+      <RefreshButton 
+        onRefresh={refresh}
+        tooltip="Actualiser les réservations"
+      />
+      
       {/* En-tête avec recherche */}
       <div className="calendar-header">
         <div className="header-content">

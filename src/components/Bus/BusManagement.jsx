@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
+import RefreshButton from '../UI/RefreshButton';
+import { useRefresh } from '../../hooks/useRefresh';
 import './BusManagement.css';
 
 const BusManagement = () => {
@@ -86,6 +88,9 @@ const BusManagement = () => {
   useEffect(() => {
     fetchBuses();
   }, []);
+
+  // Hook pour gérer le rechargement des données
+  const { refresh } = useRefresh(fetchBuses);
 
   // Fonction de filtrage
   const filteredBuses = buses.filter(bus =>
@@ -260,6 +265,12 @@ const BusManagement = () => {
 
   return (
     <div className="bus-mgmt-container">
+      {/* Bouton de rechargement */}
+      <RefreshButton 
+        onRefresh={refresh}
+        tooltip="Actualiser la liste des bus"
+      />
+      
       {/* En-tête */}
       <div className="bus-mgmt-header">
         <div className="bus-mgmt-header-content">

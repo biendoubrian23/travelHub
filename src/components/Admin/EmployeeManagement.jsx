@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRolePermissions } from '../RoleBasedComponents';
 import { supabase } from '../../lib/supabase';
+import RefreshButton from '../UI/RefreshButton';
+import { useRefresh } from '../../hooks/useRefresh';
 import './EmployeeManagement.css';
 import './EmployeeDetailsStyle.css';
 import './EmployeeDetailsEnhanced.css';
@@ -240,22 +242,27 @@ const EmployeeManagement = () => {
     }
   };
 
-  // Fonction pour rafraîchir automatiquement les données
+  // Fonction pour rafraîchir manuellement les données
   const refreshData = useCallback(async () => {
+    console.log('🔄 Actualisation manuelle des données employés...');
     await Promise.all([loadEmployees(), loadInvitations()]);
+    console.log('✅ Données employés actualisées');
   }, [agency]);
 
-  // Polling pour détecter les nouveaux employés créés via invitation
-  useEffect(() => {
-    if (!agency) return;
-    
-    const interval = setInterval(() => {
-      // Recharger discrètement toutes les 30 secondes
-      refreshData();
-    }, 30000);
-    
-    return () => clearInterval(interval);
-  }, [agency, refreshData]);
+  // Hook pour gérer le rechargement des données
+  const { refresh } = useRefresh(refreshData);
+
+  // Chargement initial supprimé pour éviter les rechargements automatiques
+  // useEffect(() => {
+  //   if (!agency) return;
+  //   
+  //   const interval = setInterval(() => {
+  //     // Recharger discrètement toutes les 30 secondes
+  //     refreshData();
+  //   }, 30000);
+  //   
+  //   return () => clearInterval(interval);
+  // }, [agency, refreshData]);
 
   // Fonctions de validation
   const validateField = (field, value) => {
@@ -886,6 +893,12 @@ const EmployeeManagement = () => {
 
   return (
     <div className="employee-management">
+      {/* Bouton de rechargement */}
+      <RefreshButton 
+        onRefresh={refresh}
+        tooltip="Actualiser les employés et invitations"
+      />
+      
       <div className="page-header">
         <div className="header-content">
           <div className="header-info">

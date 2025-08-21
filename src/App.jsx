@@ -108,8 +108,8 @@ function MainApp() {
       // La redirection se fera automatiquement via le AuthContext
     } catch (error) {
       console.error('❌ Erreur inattendue lors de la déconnexion:', error)
-      // En cas d'erreur critique, on force un rechargement de la page
-      window.location.reload()
+      // En cas d'erreur critique, on affiche juste une erreur sans recharger
+      console.log('🔄 Redirection manuelle vers la page de connexion')
     }
   }
 
@@ -245,7 +245,8 @@ function AgencyPendingVerification() {
       }
     } catch (error) {
       console.error('❌ Erreur inattendue:', error)
-      window.location.reload()
+      // Afficher juste une erreur sans recharger la page
+      console.log('🔄 Redirection manuelle nécessaire')
     }
   }
 

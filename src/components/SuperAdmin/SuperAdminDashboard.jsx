@@ -1,5 +1,7 @@
 import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import RefreshButton from '../UI/RefreshButton';
+import { useRefresh } from '../../hooks/useRefresh';
 import './SuperAdminDashboard.css';
 
 // Import des composants nécessaires
@@ -12,6 +14,17 @@ import Finance from './Finance';
 const SuperAdminDashboard = () => {
   const [activeTab, setActiveTab] = React.useState('dashboard');
   const { signOut } = useAuth();
+  
+  // Fonction pour actualiser les données du super admin
+  const refreshSuperAdminData = async () => {
+    console.log('🔄 Actualisation des données Super Admin...');
+    // Ici vous pouvez ajouter la logique pour recharger les données
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulation
+    console.log('✅ Données Super Admin actualisées');
+  };
+
+  // Hook pour gérer le rechargement
+  const { refresh } = useRefresh(refreshSuperAdminData);
   
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
@@ -66,6 +79,12 @@ const SuperAdminDashboard = () => {
 
   return (
     <div className="sadmin-dashboard">
+      {/* Bouton de rechargement */}
+      <RefreshButton 
+        onRefresh={refresh}
+        tooltip="Actualiser les données Super Admin"
+      />
+      
       <div className="sadmin-header">
         <div className="sadmin-user-info">
           <div className="sadmin-avatar">

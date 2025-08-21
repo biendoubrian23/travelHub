@@ -1,0 +1,135 @@
+.refresh-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: #007bff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+  transition: all 0.3s ease;
+  min-width: 48px;
+  min-height: 48px;
+  justify-content: center;
+}
+
+.refresh-button:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.refresh-button:active {
+  transform: translateY(0);
+}
+
+.refresh-button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.refresh-icon {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease;
+}
+
+.refresh-button.refreshing .refresh-icon {
+  animation: spin 1s linear infinite;
+}
+
+.refresh-text {
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Variantes de couleur */
+.refresh-button.success {
+  background: #28a745;
+}
+
+.refresh-button.success:hover {
+  background: #1e7e34;
+}
+
+.refresh-button.warning {
+  background: #ffc107;
+  color: #212529;
+}
+
+.refresh-button.warning:hover {
+  background: #e0a800;
+}
+
+.refresh-button.danger {
+  background: #dc3545;
+}
+
+.refresh-button.danger:hover {
+  background: #c82333;
+}
+
+/* Version compacte */
+.refresh-button.compact {
+  padding: 8px;
+  min-width: 36px;
+  min-height: 36px;
+  top: 15px;
+  right: 15px;
+}
+
+.refresh-button.compact .refresh-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Adaptation responsive */
+@media (max-width: 768px) {
+  .refresh-button {
+    top: 15px;
+    right: 15px;
+    padding: 10px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  .refresh-text {
+    display: none;
+  }
+}
+
+/* Position relative pour les pages avec header fixe */
+.refresh-button.relative {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+/* Style pour les pages sombres */
+.refresh-button.dark {
+  background: #343a40;
+  color: #ffffff;
+}
+
+.refresh-button.dark:hover {
+  background: #23272b;
+}

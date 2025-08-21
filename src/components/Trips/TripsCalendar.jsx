@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRolePermissions } from '../RoleBasedComponents';
 import TripFormModal from './TripFormModal';
+import RefreshButton from '../UI/RefreshButton';
+import { useRefresh } from '../../hooks/useRefresh';
 import { supabase } from '../../lib/supabase';
 import './TripsCalendar.css';
 
@@ -201,6 +203,9 @@ const TripsCalendar = () => {
     }
   };
 
+  // Hook pour gérer le rechargement des données
+  const { refresh, isRefreshing } = useRefresh(fetchTripsFromDatabase);
+
   // Fonction pour calculer la durée du trajet
   const calculateDuration = (departureTime, arrivalTime) => {
     const departure = new Date(departureTime);
@@ -227,6 +232,7 @@ const TripsCalendar = () => {
   };
 
   useEffect(() => {
+    // Charger les données au premier rendu seulement
     fetchTripsFromDatabase();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -418,6 +424,12 @@ const TripsCalendar = () => {
 
   return (
     <div className="trips-calendar">
+      {/* Bouton de rechargement */}
+      <RefreshButton 
+        onRefresh={refresh}
+        tooltip="Actualiser les trajets"
+      />
+      
       {/* En-tête avec recherche */}
       <div className="calendar-header">
         <div className="header-content">

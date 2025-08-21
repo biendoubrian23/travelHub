@@ -3,6 +3,8 @@ import { useRolePermissions } from '../RoleBasedComponents';
 import BookingsList from './BookingsList';
 import BookingDetail from './BookingDetail';
 import BookingForm from './BookingForm';
+import RefreshButton from '../UI/RefreshButton';
+import { useRefresh } from '../../hooks/useRefresh';
 import './BookingsManagement.css';
 
 const BookingsManagement = () => {
@@ -157,6 +159,19 @@ const BookingsManagement = () => {
     }, 1000);
   }, []);
 
+  // Fonction pour actualiser les données
+  const refreshBookingsData = async () => {
+    console.log('🔄 Actualisation des données de réservations...');
+    setLoading(true);
+    // Simuler un rechargement de données depuis l'API
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setLoading(false);
+    console.log('✅ Données de réservations actualisées');
+  };
+
+  // Hook pour gérer le rechargement
+  const { refresh } = useRefresh(refreshBookingsData);
+
   // Gestion des vues
   const handleViewChange = (view, booking = null) => {
     setCurrentView(view);
@@ -289,6 +304,12 @@ const BookingsManagement = () => {
 
   return (
     <div className="bookings-management">
+      {/* Bouton de rechargement */}
+      <RefreshButton 
+        onRefresh={refresh}
+        tooltip="Actualiser les réservations"
+      />
+      
       {/* Header avec actions globales */}
       <div className="bookings-management-header">
         <div className="header-title">

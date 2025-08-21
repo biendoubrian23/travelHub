@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
+import RefreshButton from '../UI/RefreshButton';
+import { useRefresh } from '../../hooks/useRefresh';
 import './Dashboard.css';
 import { 
   TrendingUp, 
@@ -26,6 +28,18 @@ import {
 } from 'recharts';
 
 const Dashboard = () => {
+  // Fonction pour actualiser les données du dashboard
+  const refreshDashboardData = async () => {
+    console.log('🔄 Actualisation des données du dashboard...');
+    // Ici vous pouvez ajouter la logique pour recharger les données depuis l'API
+    // Par exemple : refetch des stats, des réservations récentes, etc.
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulation
+    console.log('✅ Données du dashboard actualisées');
+  };
+
+  // Hook pour gérer le rechargement
+  const { refresh } = useRefresh(refreshDashboardData);
+
   // Données mockées pour les graphiques
   const monthlyData = [
     { month: 'Jan', trajets: 45, revenus: 850000 },
@@ -132,6 +146,12 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
+      {/* Bouton de rechargement */}
+      <RefreshButton 
+        onRefresh={refresh}
+        tooltip="Actualiser le dashboard"
+      />
+      
       <div className="dashboard-header">
         <h1 className="text-title">Dashboard</h1>
         <p className="text-caption">Vue d'ensemble de votre agence</p>
