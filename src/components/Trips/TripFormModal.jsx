@@ -26,10 +26,8 @@ const TripFormModal = ({
 
   const [errors, setErrors] = useState({});
   const [drivers, setDrivers] = useState([]);
-  const [availableDrivers, setAvailableDrivers] = useState([]);
   const [loadingDrivers, setLoadingDrivers] = useState(false);
   const [buses, setBuses] = useState([]);
-  const [availableBuses, setAvailableBuses] = useState([]);
   const [loadingBuses, setLoadingBuses] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [conflictWarnings, setConflictWarnings] = useState({});
@@ -191,38 +189,10 @@ const TripFormModal = ({
     }
   };
 
-  // Fonction pour filtrer les conducteurs et bus disponibles
+  // Fonction pour filtrer les conducteurs et bus disponibles (simplifiée)
   const filterAvailableResources = async () => {
-    if (!formData.date || !formData.departureTime || !formData.arrivalTime) {
-      setAvailableDrivers(drivers);
-      setAvailableBuses(buses);
-      return;
-    }
-
-    const departureDateTime = `${formData.date}T${formData.departureTime}`;
-    const arrivalDateTime = `${formData.date}T${formData.arrivalTime}`;
-    const currentTripId = editingTrip?.id;
-
-    // Filtrer les conducteurs disponibles
-    const availableDriversList = [];
-    for (const driver of drivers) {
-      const conflict = await checkDriverConflicts(driver.id, departureDateTime, arrivalDateTime, currentTripId);
-      if (!conflict.hasConflict) {
-        availableDriversList.push(driver);
-      }
-    }
-
-    // Filtrer les bus disponibles
-    const availableBusesList = [];
-    for (const bus of buses) {
-      const conflict = await checkBusConflicts(bus.id, departureDateTime, arrivalDateTime, currentTripId);
-      if (!conflict.hasConflict) {
-        availableBusesList.push(bus);
-      }
-    }
-
-    setAvailableDrivers(availableDriversList);
-    setAvailableBuses(availableBusesList);
+    // Cette fonction ne fait plus rien car nous affichons les avertissements de conflit au lieu de filtrer
+    // Les listes complètes des drivers et buses sont toujours affichées
   };
 
   // ========================================
@@ -830,7 +800,7 @@ const TripFormModal = ({
                 <option value="">
                   {loadingBuses ? 'Chargement des bus...' : 'Sélectionnez un bus'}
                 </option>
-                {(formData.date && formData.departureTime && formData.arrivalTime ? availableBuses : buses).map(bus => (
+                {buses.map(bus => (
                   <option key={bus.id} value={bus.id}>
                     {bus.name} ({bus.license_plate}) - {bus.total_seats} places{bus.is_vip ? ' - VIP' : ''}
                   </option>
@@ -858,7 +828,7 @@ const TripFormModal = ({
                 <option value="">
                   {loadingDrivers ? 'Chargement des conducteurs...' : 'Sélectionnez un conducteur'}
                 </option>
-                {(formData.date && formData.departureTime && formData.arrivalTime ? availableDrivers : drivers).map(driver => (
+                {drivers.map(driver => (
                   <option key={driver.id} value={driver.id}>
                     {driver.name} ({driver.phone})
                   </option>
