@@ -49,6 +49,40 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* ===============================================
+   INTÉGRATION DU PLAN DE SIÈGES
+   =============================================== */
+
+.seat-selection-container {
+  margin: 20px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 16px;
+  border: 2px solid #e9ecef;
+}
+
+.manual-seat-selection {
+  margin-top: 20px;
+  padding: 16px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #dee2e6;
+}
+
+.manual-seat-selection .form-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.manual-seat-selection .help-text {
+  font-size: 13px;
+  color: #6c757d;
+  margin-top: 6px;
+  font-style: italic;
+}
+
 .form-header p {
   font-size: 16px;
   color: #7f8c8d;

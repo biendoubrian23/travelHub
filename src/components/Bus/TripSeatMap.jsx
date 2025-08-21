@@ -1,657 +1,395 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
-import { useRolePermissions } from '../RoleBasedComponents';
 import './TripSeatMap.css';
 
-const TripSeatMap = ({ trip, onBack, mode = 'admin' }) => {
-  const { userProfile, agency } = useAuth();
-  const { hasPermission } = useRolePermissions();
-  const [seatMaps, setSeatMaps] = useState([]);
+const TripSeatMap = ({ tripId, busCapacity = 50, onSeatSelect, readOnly = false, showLegend = true }) => {
+  const { userProfile } = useAuth();
+  const [seatMap, setSeatMap] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedSeat, setSelectedSeat] = useState(null);
   const [error, setError] = useState('');
-  const [viewMode, setViewMode] = useState('visual'); // 'visual' ou 'list'
+  const [selectedSeats, setSelectedSeats] = useState([]);
 
-  useEffect(() => {
-    if (trip?.id) {
-      loadSeatMaps();
-      loadBookings();
-    }
-  }, [trip?.id]);
+  // Configuration du plan de siège standard (2-2 layout)
+  const SEATS_PER_ROW = 4;
+  const ROWS_COUNT = Math.ceil(busCapacity / SEATS_PER_ROW);
 
-  // Charger la configuration des sièges pour ce voyage
-  const loadSeatMaps = async () => {
+  // Charger les données des sièges et réservations
+  const loadSeatData = useCallback(async () => {
+    if (!tripId) return;
+
     try {
+      setLoading(true);
       setError('');
-      console.log('🪑 Chargement du plan des sièges pour le voyage:', trip.id);
 
-      const { data, error } = await supabase
+      // 1. Charger les informations de la table seat_maps
+      const { data: seatMapsData, error: seatMapsError } = await supabase
         .from('seat_maps')
         .select('*')
-        .eq('trip_id', trip.id)
-        .order('position_row', { ascending: true })
-        .order('position_column', { ascending: true });
+        .eq('trip_id', tripId)
+        .order('position_row, position_column');
 
-      if (error) {
-        console.error('❌ Erreur chargement seat_maps:', error);
-        throw error;
+      if (seatMapsError) {
+        console.error('Erreur lors du chargement des seat_maps:', seatMapsError);
       }
 
-      console.log('✅ Plan des sièges chargé:', data?.length || 0, 'sièges');
-      setSeatMaps(data || []);
-
-      // Si aucun plan de sièges n'existe, créer un plan par défaut
-      if (!data || data.length === 0) {
-        await createDefaultSeatMap();
-      }
-    } catch (error) {
-      console.error('❌ Erreur lors du chargement du plan des sièges:', error);
-      setError('Erreur lors du chargement du plan des sièges');
-    }
-  };
-
-  // Charger les réservations pour ce voyage
-  const loadBookings = async () => {
-    try {
-      console.log('📋 Chargement des réservations pour le voyage:', trip.id);
-
-      const { data, error } = await supabase
+      // 2. Charger les réservations confirmées pour ce voyage
+      const { data: bookingsData, error: bookingsError } = await supabase
         .from('bookings')
         .select(`
-          *,
-          user:user_id (
-            id,
-            full_name,
-            email,
-            phone
-          )
+          id,
+          seat_number,
+          passenger_name,
+          passenger_phone,
+          booking_status,
+          payment_status
         `)
-        .eq('trip_id', trip.id)
-        .in('status', ['confirmed', 'pending']); // Statuts actifs
+        .eq('trip_id', tripId)
+        .in('booking_status', ['confirmed', 'pending']);
 
-      if (error) {
-        console.error('❌ Erreur chargement bookings:', error);
-        throw error;
+      if (bookingsError) {
+        console.error('Erreur lors du chargement des réservations:', bookingsError);
+        throw bookingsError;
       }
 
-      console.log('✅ Réservations chargées:', data?.length || 0);
-      setBookings(data || []);
+      // 3. Générer la carte des sièges si elle n'existe pas dans seat_maps
+      let seatMapStructure = seatMapsData || [];
+      
+      if (!seatMapsData || seatMapsData.length === 0) {
+        // Créer automatiquement la structure de siège si elle n'existe pas
+        seatMapStructure = await generateDefaultSeatMap();
+      }
+
+      // 4. Combiner les données
+      const combinedSeatData = seatMapStructure.map(seat => {
+        const booking = bookingsData?.find(b => b.seat_number === seat.seat_number);
+        return {
+          ...seat,
+          isOccupied: !!booking,
+          booking: booking || null,
+          status: booking ? 'occupied' : (seat.is_available ? 'available' : 'unavailable')
+        };
+      });
+
+      setSeatMap(combinedSeatData);
+      setBookings(bookingsData || []);
+
     } catch (error) {
-      console.error('❌ Erreur lors du chargement des réservations:', error);
+      console.error('Erreur lors du chargement des données de siège:', error);
+      setError('Erreur lors du chargement du plan des sièges');
     } finally {
       setLoading(false);
     }
-  };
+  }, [tripId]);
 
-  // Créer un plan de sièges par défaut basé sur la capacité du bus
-  const createDefaultSeatMap = async () => {
-    try {
-      console.log('🆕 Création du plan de sièges par défaut...');
-      
-      // Obtenir les infos du bus pour ce voyage
-      const { data: tripData, error: tripError } = await supabase
-        .from('trips')
-        .select(`
-          *,
-          bus:bus_id (
-            id,
-            capacity,
-            number
-          )
-        `)
-        .eq('id', trip.id)
-        .single();
+  // Générer une carte de siège par défaut
+  const generateDefaultSeatMap = async () => {
+    const defaultSeats = [];
+    let seatNumber = 1;
 
-      if (tripError || !tripData?.bus?.capacity) {
-        console.warn('⚠️ Impossible de récupérer la capacité du bus');
-        return;
-      }
-
-      const capacity = tripData.bus.capacity;
-      const seatsToCreate = [];
-
-      // Configuration standard : 4 sièges par rangée (2-2 avec allée centrale)
-      const seatsPerRow = 4;
-      const totalRows = Math.ceil(capacity / seatsPerRow);
-
-      let seatNumber = 1;
-
-      for (let row = 1; row <= totalRows; row++) {
-        for (let col = 1; col <= seatsPerRow && seatNumber <= capacity; col++) {
-          seatsToCreate.push({
-            trip_id: trip.id,
+    for (let row = 1; row <= ROWS_COUNT; row++) {
+      for (let col = 1; col <= SEATS_PER_ROW; col++) {
+        if (seatNumber <= busCapacity) {
+          const seatData = {
+            trip_id: tripId,
             seat_number: seatNumber.toString(),
             position_row: row,
             position_column: col,
-            seat_type: 'standard', // Type par défaut
+            seat_type: 'standard',
             is_available: true,
             price_modifier_fcfa: 0
-          });
+          };
+
+          defaultSeats.push(seatData);
           seatNumber++;
         }
       }
+    }
 
-      console.log('📊 Création de', seatsToCreate.length, 'sièges...');
-
-      const { data, error } = await supabase
+    // Sauvegarder dans la base de données
+    try {
+      const { data: insertedSeats, error: insertError } = await supabase
         .from('seat_maps')
-        .insert(seatsToCreate)
+        .insert(defaultSeats)
         .select();
 
-      if (error) {
-        console.error('❌ Erreur création plan par défaut:', error);
-        throw error;
+      if (insertError) {
+        console.error('Erreur lors de la création des sièges:', insertError);
+        return defaultSeats; // Retourner les données locales en cas d'erreur
       }
 
-      console.log('✅ Plan de sièges par défaut créé:', data?.length || 0, 'sièges');
-      setSeatMaps(data || []);
-
+      return insertedSeats;
     } catch (error) {
-      console.error('❌ Erreur lors de la création du plan par défaut:', error);
-      setError('Erreur lors de la création du plan de sièges');
+      console.error('Erreur lors de la sauvegarde des sièges:', error);
+      return defaultSeats;
     }
   };
 
-  // Organiser les sièges par rangée pour l'affichage
-  const organizeSeats = () => {
-    const rows = [];
-    const seatsByRow = {};
+  // Gérer la sélection d'un siège
+  const handleSeatClick = (seat) => {
+    if (readOnly || seat.status === 'occupied' || !seat.is_available) {
+      return;
+    }
 
-    // Grouper les sièges par rangée
-    seatMaps.forEach(seat => {
-      if (!seatsByRow[seat.position_row]) {
-        seatsByRow[seat.position_row] = [];
+    const seatNumber = parseInt(seat.seat_number);
+    const isSelected = selectedSeats.includes(seatNumber);
+
+    let newSelection;
+    if (isSelected) {
+      newSelection = selectedSeats.filter(s => s !== seatNumber);
+    } else {
+      newSelection = [...selectedSeats, seatNumber];
+    }
+
+    setSelectedSeats(newSelection);
+    
+    if (onSeatSelect) {
+      onSeatSelect(newSelection);
+    }
+  };
+
+  // Organiser les sièges par rangée
+  const organizeSeatsByRow = () => {
+    const rows = {};
+    
+    seatMap.forEach(seat => {
+      const rowNum = seat.position_row;
+      if (!rows[rowNum]) {
+        rows[rowNum] = [];
       }
-      seatsByRow[seat.position_row].push(seat);
+      rows[rowNum].push(seat);
     });
 
-    // Créer les rangées organisées
-    Object.keys(seatsByRow)
-      .sort((a, b) => parseInt(a) - parseInt(b))
-      .forEach(rowNumber => {
-        const rowSeats = seatsByRow[rowNumber].sort((a, b) => a.position_column - b.position_column);
-        
-        rows.push({
-          number: parseInt(rowNumber),
-          seats: {
-            left: rowSeats.filter(s => s.position_column <= 2),
-            right: rowSeats.filter(s => s.position_column > 2)
-          }
-        });
-      });
+    // Trier les sièges par colonne dans chaque rangée
+    Object.keys(rows).forEach(rowNum => {
+      rows[rowNum].sort((a, b) => a.position_column - b.position_column);
+    });
 
     return rows;
   };
 
-  // Obtenir le statut d'un siège (disponible, occupé, réservé)
-  const getSeatStatus = (seat) => {
-    // Vérifier d'abord si le siège est disponible dans seat_maps
-    if (!seat.is_available) {
-      return 'maintenance';
-    }
-
-    // Vérifier s'il y a une réservation pour ce siège
-    const booking = bookings.find(b => 
-      b.seat_number === seat.seat_number || 
-      (b.seat_numbers && b.seat_numbers.includes(seat.seat_number))
-    );
-
-    if (booking) {
-      return booking.status === 'confirmed' ? 'occupied' : 'reserved';
-    }
-
-    return 'available';
-  };
-
-  // Obtenir la classe CSS d'un siège
+  // Obtenir la classe CSS pour un siège
   const getSeatClass = (seat) => {
-    const status = getSeatStatus(seat);
-    let classes = ['travelhub-seat'];
-    classes.push(`travelhub-seat-${status}`);
-    
-    if (selectedSeat && selectedSeat.id === seat.id) {
-      classes.push('travelhub-seat-selected');
+    const baseClass = 'travelhub-seat';
+    const seatNumber = parseInt(seat.seat_number);
+    const isSelected = selectedSeats.includes(seatNumber);
+
+    let statusClass = '';
+    if (seat.status === 'occupied') {
+      statusClass = 'travelhub-seat-occupied';
+    } else if (!seat.is_available) {
+      statusClass = 'travelhub-seat-unavailable';
+    } else if (isSelected) {
+      statusClass = 'travelhub-seat-selected';
+    } else {
+      statusClass = 'travelhub-seat-available';
     }
 
-    // Ajouter le type de siège
-    if (seat.seat_type && seat.seat_type !== 'standard') {
-      classes.push(`travelhub-seat-${seat.seat_type}`);
-    }
-    
-    return classes.join(' ');
+    return `${baseClass} ${statusClass}`;
   };
 
-  // Obtenir l'icône d'un siège
+  // Obtenir l'icône pour un siège
   const getSeatIcon = (seat) => {
-    const status = getSeatStatus(seat);
-    
-    switch (status) {
-      case 'available':
-        return '💺';
-      case 'occupied':
-        return '👤';
-      case 'reserved':
-        return '🔒';
-      case 'maintenance':
-        return '🔧';
-      default:
-        return '❓';
-    }
+    if (seat.status === 'occupied') return '👤';
+    if (!seat.is_available) return '❌';
+    if (selectedSeats.includes(parseInt(seat.seat_number))) return '✅';
+    return '💺';
   };
 
-  // Gérer le clic sur un siège
-  const handleSeatClick = (seat) => {
-    setSelectedSeat(seat);
-  };
-
-  // Mettre à jour le statut d'un siège
-  const updateSeatAvailability = async (seatId, isAvailable) => {
+  // Reserver un siège (pour les agents)
+  const reserveSeat = async (seatNumber, passengerData) => {
     try {
-      console.log('🔄 Mise à jour disponibilité siège:', seatId, isAvailable);
+      // Créer une réservation temporaire
+      const { data: booking, error: bookingError } = await supabase
+        .from('bookings')
+        .insert({
+          user_id: userProfile.id,
+          trip_id: tripId,
+          passenger_name: passengerData.name,
+          passenger_phone: passengerData.phone,
+          seat_number: seatNumber.toString(),
+          total_price_fcfa: passengerData.price,
+          booking_reference: generateBookingReference(),
+          booking_status: 'confirmed',
+          payment_status: 'pending'
+        })
+        .select()
+        .single();
 
-      const { error } = await supabase
-        .from('seat_maps')
-        .update({ is_available: isAvailable })
-        .eq('id', seatId);
-
-      if (error) {
-        console.error('❌ Erreur mise à jour siège:', error);
-        throw error;
+      if (bookingError) {
+        throw bookingError;
       }
 
       // Recharger les données
-      await loadSeatMaps();
-      setSelectedSeat(null);
-
-      console.log('✅ Siège mis à jour avec succès');
+      await loadSeatData();
+      
+      return booking;
     } catch (error) {
-      console.error('❌ Erreur lors de la mise à jour du siège:', error);
-      setError('Erreur lors de la mise à jour du siège');
+      console.error('Erreur lors de la réservation:', error);
+      throw error;
     }
   };
 
-  // Obtenir les statistiques d'occupation
-  const getOccupancyStats = () => {
-    const total = seatMaps.length;
-    const available = seatMaps.filter(seat => getSeatStatus(seat) === 'available').length;
-    const occupied = seatMaps.filter(seat => getSeatStatus(seat) === 'occupied').length;
-    const reserved = seatMaps.filter(seat => getSeatStatus(seat) === 'reserved').length;
-    const maintenance = seatMaps.filter(seat => getSeatStatus(seat) === 'maintenance').length;
-
-    return {
-      total,
-      available,
-      occupied,
-      reserved,
-      maintenance,
-      occupancyRate: total > 0 ? Math.round(((occupied + reserved) / total) * 100) : 0
-    };
+  // Générer une référence de réservation
+  const generateBookingReference = () => {
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+    return `BKG-${timestamp}-${random}`;
   };
 
-  // Obtenir les informations de réservation pour un siège
-  const getSeatBookingInfo = (seat) => {
-    return bookings.find(b => 
-      b.seat_number === seat.seat_number || 
-      (b.seat_numbers && b.seat_numbers.includes(seat.seat_number))
-    );
-  };
+  useEffect(() => {
+    loadSeatData();
+  }, [loadSeatData]);
 
   if (loading) {
     return (
-      <div className="travelhub-loading-container">
+      <div className="travelhub-seat-map-loading">
         <div className="travelhub-loading-spinner"></div>
         <p>Chargement du plan des sièges...</p>
       </div>
     );
   }
 
-  const stats = getOccupancyStats();
-  const rows = organizeSeats();
+  if (error) {
+    return (
+      <div className="travelhub-seat-map-error">
+        <p>❌ {error}</p>
+        <button onClick={loadSeatData} className="travelhub-retry-btn">
+          Réessayer
+        </button>
+      </div>
+    );
+  }
+
+  const seatRows = organizeSeatsByRow();
+  const occupiedCount = seatMap.filter(seat => seat.status === 'occupied').length;
+  const availableCount = seatMap.filter(seat => seat.status === 'available').length;
 
   return (
-    <div className="travelhub-trip-seat-map">
-      {/* Header */}
-      <div className="travelhub-seating-header">
-        <div className="travelhub-header-left">
-          <button className="travelhub-btn-back" onClick={onBack}>
-            ← Retour
-          </button>
-          <div className="travelhub-trip-info">
-            <h1>🚌 Plan des Sièges</h1>
-            <p>
-              <strong>{trip.departure_city}</strong> → <strong>{trip.arrival_city}</strong>
-            </p>
-            <p>
-              {new Date(trip.departure_time).toLocaleDateString('fr-FR')} à{' '}
-              {new Date(trip.departure_time).toLocaleTimeString('fr-FR', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-              })}
-            </p>
-          </div>
-        </div>
-
-        <div className="travelhub-header-right">
-          <div className="travelhub-view-toggle">
-            <button 
-              className={viewMode === 'visual' ? 'active' : ''}
-              onClick={() => setViewMode('visual')}
-            >
-              🎯 Visuel
-            </button>
-            <button 
-              className={viewMode === 'list' ? 'active' : ''}
-              onClick={() => setViewMode('list')}
-            >
-              📋 Liste
-            </button>
-          </div>
+    <div className="travelhub-seat-map-container">
+      {/* En-tête avec statistiques */}
+      <div className="travelhub-seat-map-header">
+        <h3>🚌 Plan des sièges</h3>
+        <div className="travelhub-seat-stats">
+          <span className="travelhub-stat-item travelhub-occupied">
+            👤 {occupiedCount} occupés
+          </span>
+          <span className="travelhub-stat-item travelhub-available">
+            💺 {availableCount} libres
+          </span>
+          <span className="travelhub-stat-item travelhub-total">
+            📊 {busCapacity} total
+          </span>
         </div>
       </div>
 
-      {/* Zone d'erreur */}
-      {error && (
-        <div className="travelhub-error-message">
-          <strong>Erreur :</strong> {error}
-          <button onClick={() => setError('')}>×</button>
+      {/* Plan de siège visuel */}
+      <div className="travelhub-seat-map">
+        {/* Avant du bus */}
+        <div className="travelhub-bus-front">
+          <div className="travelhub-driver-area">🚗 Conducteur</div>
         </div>
-      )}
 
-      {/* Statistiques */}
-      <div className="travelhub-occupancy-stats">
-        <div className="travelhub-stat-card">
-          <div className="travelhub-stat-number">{stats.total}</div>
-          <div className="travelhub-stat-label">Places total</div>
-        </div>
-        <div className="travelhub-stat-card available">
-          <div className="travelhub-stat-number">{stats.available}</div>
-          <div className="travelhub-stat-label">Disponibles</div>
-        </div>
-        <div className="travelhub-stat-card occupied">
-          <div className="travelhub-stat-number">{stats.occupied}</div>
-          <div className="travelhub-stat-label">Occupées</div>
-        </div>
-        <div className="travelhub-stat-card reserved">
-          <div className="travelhub-stat-number">{stats.reserved}</div>
-          <div className="travelhub-stat-label">Réservées</div>
-        </div>
-        <div className="travelhub-stat-card maintenance">
-          <div className="travelhub-stat-number">{stats.maintenance}</div>
-          <div className="travelhub-stat-label">Maintenance</div>
-        </div>
-        <div className="travelhub-stat-card rate">
-          <div className="travelhub-stat-number">{stats.occupancyRate}%</div>
-          <div className="travelhub-stat-label">Taux d'occupation</div>
-        </div>
-      </div>
-
-      {/* Vue visuelle */}
-      {viewMode === 'visual' && (
-        <div className="travelhub-visual-view">
-          <div className="travelhub-bus-layout">
-            {/* Direction du bus */}
-            <div className="travelhub-bus-front">
-              <div className="travelhub-driver-area">
-                🚗 Conducteur
-              </div>
-            </div>
-
-            {/* Plan des sièges */}
-            <div className="travelhub-seating-area">
-              {rows.map(row => (
-                <div key={row.number} className="travelhub-seat-row">
-                  <div className="travelhub-row-number">{row.number}</div>
-                  
-                  {/* Sièges côté gauche */}
-                  <div className="travelhub-seat-group left">
-                    {row.seats.left.map((seat, index) => (
-                      <div
-                        key={seat?.id || `empty-${row.number}-${index}`}
-                        className={seat ? getSeatClass(seat) : 'travelhub-seat-empty'}
-                        onClick={() => seat && handleSeatClick(seat)}
-                        title={seat ? `Siège ${seat.seat_number} - ${getSeatStatus(seat)}` : ''}
-                      >
-                        <span className="travelhub-seat-icon">
-                          {seat ? getSeatIcon(seat) : ''}
-                        </span>
-                        <span className="travelhub-seat-number">
-                          {seat?.seat_number || ''}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Allée centrale */}
-                  <div className="travelhub-aisle"></div>
-
-                  {/* Sièges côté droit */}
-                  <div className="travelhub-seat-group right">
-                    {row.seats.right.map((seat, index) => (
-                      <div
-                        key={seat?.id || `empty-${row.number}-${index + 2}`}
-                        className={seat ? getSeatClass(seat) : 'travelhub-seat-empty'}
-                        onClick={() => seat && handleSeatClick(seat)}
-                        title={seat ? `Siège ${seat.seat_number} - ${getSeatStatus(seat)}` : ''}
-                      >
-                        <span className="travelhub-seat-icon">
-                          {seat ? getSeatIcon(seat) : ''}
-                        </span>
-                        <span className="travelhub-seat-number">
-                          {seat?.seat_number || ''}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Légende */}
-          <div className="travelhub-legend">
-            <h3>Légende</h3>
-            <div className="travelhub-legend-items">
-              <div className="travelhub-legend-item">
-                <span className="travelhub-seat travelhub-seat-available">💺</span>
-                <span>Disponible</span>
-              </div>
-              <div className="travelhub-legend-item">
-                <span className="travelhub-seat travelhub-seat-occupied">👤</span>
-                <span>Occupé</span>
-              </div>
-              <div className="travelhub-legend-item">
-                <span className="travelhub-seat travelhub-seat-reserved">🔒</span>
-                <span>Réservé</span>
-              </div>
-              <div className="travelhub-legend-item">
-                <span className="travelhub-seat travelhub-seat-maintenance">🔧</span>
-                <span>Maintenance</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Vue liste */}
-      {viewMode === 'list' && (
-        <div className="travelhub-list-view">
-          <div className="travelhub-seats-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>N° Siège</th>
-                  <th>Position</th>
-                  <th>Statut</th>
-                  <th>Type</th>
-                  <th>Prix</th>
-                  <th>Passager</th>
-                  {mode === 'admin' && hasPermission('trips', 'edit') && <th>Actions</th>}
-                </tr>
-              </thead>
-              <tbody>
-                {seatMaps.map(seat => {
-                  const status = getSeatStatus(seat);
-                  const booking = getSeatBookingInfo(seat);
-                  return (
-                    <tr key={seat.id} className={`travelhub-seat-row-${status}`}>
-                      <td>
-                        <span className="travelhub-seat-number-badge">
-                          {getSeatIcon(seat)} {seat.seat_number}
-                        </span>
-                      </td>
-                      <td>
-                        Rangée {seat.position_row}, Place {seat.position_column}
-                      </td>
-                      <td>
-                        <span className={`travelhub-status-badge travelhub-status-${status}`}>
-                          {status === 'available' && 'Disponible'}
-                          {status === 'occupied' && 'Occupé'}
-                          {status === 'reserved' && 'Réservé'}
-                          {status === 'maintenance' && 'Maintenance'}
-                        </span>
-                      </td>
-                      <td>
-                        {seat.seat_type === 'premium' && '⭐ Premium'}
-                        {seat.seat_type === 'standard' && '💺 Standard'}
-                        {seat.seat_type === 'economy' && '💰 Économique'}
-                      </td>
-                      <td>
-                        {trip.price_fcfa + (seat.price_modifier_fcfa || 0)} FCFA
-                        {seat.price_modifier_fcfa > 0 && (
-                          <span className="travelhub-price-modifier">
-                            (+{seat.price_modifier_fcfa})
-                          </span>
-                        )}
-                      </td>
-                      <td>
-                        {booking ? (
-                          <div className="travelhub-passenger-info">
-                            <strong>{booking.user?.full_name || 'Anonyme'}</strong>
-                            <br />
-                            <small>{booking.user?.phone || 'N/A'}</small>
-                          </div>
-                        ) : (
-                          <span className="travelhub-no-passenger">-</span>
-                        )}
-                      </td>
-                      {mode === 'admin' && hasPermission('trips', 'edit') && (
-                        <td>
-                          <div className="travelhub-seat-actions">
-                            {seat.is_available ? (
-                              <button
-                                className="travelhub-btn-maintenance"
-                                onClick={() => updateSeatAvailability(seat.id, false)}
-                                title="Mettre en maintenance"
-                              >
-                                🔧
-                              </button>
-                            ) : (
-                              <button
-                                className="travelhub-btn-activate"
-                                onClick={() => updateSeatAvailability(seat.id, true)}
-                                title="Rendre disponible"
-                              >
-                                ✅
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      )}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Modal détails siège sélectionné */}
-      {selectedSeat && (
-        <div className="travelhub-seat-modal-overlay" onClick={() => setSelectedSeat(null)}>
-          <div className="travelhub-seat-modal" onClick={e => e.stopPropagation()}>
-            <div className="travelhub-modal-header">
-              <h3>Détails du siège {selectedSeat.seat_number}</h3>
-              <button 
-                className="travelhub-modal-close"
-                onClick={() => setSelectedSeat(null)}
-              >
-                ×
-              </button>
-            </div>
-            
-            <div className="travelhub-modal-content">
-              <div className="travelhub-seat-details">
-                <div className="travelhub-detail-row">
-                  <strong>Position :</strong> 
-                  Rangée {selectedSeat.position_row}, Place {selectedSeat.position_column}
-                </div>
-                <div className="travelhub-detail-row">
-                  <strong>Statut :</strong> 
-                  <span className={`travelhub-status-badge travelhub-status-${getSeatStatus(selectedSeat)}`}>
-                    {getSeatIcon(selectedSeat)} {getSeatStatus(selectedSeat)}
-                  </span>
-                </div>
-                <div className="travelhub-detail-row">
-                  <strong>Type :</strong> {selectedSeat.seat_type || 'Standard'}
-                </div>
-                <div className="travelhub-detail-row">
-                  <strong>Prix :</strong> 
-                  {trip.price_fcfa + (selectedSeat.price_modifier_fcfa || 0)} FCFA
-                  {selectedSeat.price_modifier_fcfa > 0 && (
-                    <span className="travelhub-price-modifier">
-                      (+{selectedSeat.price_modifier_fcfa})
-                    </span>
-                  )}
-                </div>
-                
-                {(() => {
-                  const booking = getSeatBookingInfo(selectedSeat);
-                  return booking ? (
-                    <div className="travelhub-booking-details">
-                      <h4>Informations de réservation</h4>
-                      <div className="travelhub-detail-row">
-                        <strong>Passager :</strong> {booking.user?.full_name || 'Anonyme'}
-                      </div>
-                      <div className="travelhub-detail-row">
-                        <strong>Téléphone :</strong> {booking.user?.phone || 'N/A'}
-                      </div>
-                      <div className="travelhub-detail-row">
-                        <strong>Email :</strong> {booking.user?.email || 'N/A'}
-                      </div>
-                      <div className="travelhub-detail-row">
-                        <strong>Statut réservation :</strong> 
-                        <span className={`travelhub-status-badge travelhub-booking-${booking.status}`}>
-                          {booking.status}
-                        </span>
-                      </div>
-                    </div>
-                  ) : null;
-                })()}
-              </div>
+        {/* Rangées de sièges */}
+        <div className="travelhub-seat-rows">
+          {Object.keys(seatRows).sort((a, b) => a - b).map(rowNum => (
+            <div key={rowNum} className="travelhub-seat-row">
+              <div className="travelhub-row-number">{rowNum}</div>
               
-              {mode === 'admin' && hasPermission('trips', 'edit') && (
-                <div className="travelhub-modal-actions">
-                  {selectedSeat.is_available ? (
-                    <button
-                      className="travelhub-btn-maintenance"
-                      onClick={() => updateSeatAvailability(selectedSeat.id, false)}
+              {/* Sièges gauche */}
+              <div className="travelhub-seats-left">
+                {seatRows[rowNum]
+                  .filter(seat => seat.position_column <= 2)
+                  .map(seat => (
+                    <div
+                      key={seat.seat_number}
+                      className={getSeatClass(seat)}
+                      onClick={() => handleSeatClick(seat)}
+                      title={`Siège ${seat.seat_number}${seat.booking ? ` - ${seat.booking.passenger_name}` : ''}`}
                     >
-                      🔧 Mettre en maintenance
-                    </button>
-                  ) : (
-                    <button
-                      className="travelhub-btn-activate"
-                      onClick={() => updateSeatAvailability(selectedSeat.id, true)}
+                      <span className="travelhub-seat-icon">
+                        {getSeatIcon(seat)}
+                      </span>
+                      <span className="travelhub-seat-number">
+                        {seat.seat_number}
+                      </span>
+                    </div>
+                  ))
+                }
+              </div>
+
+              {/* Allée */}
+              <div className="travelhub-aisle"></div>
+
+              {/* Sièges droite */}
+              <div className="travelhub-seats-right">
+                {seatRows[rowNum]
+                  .filter(seat => seat.position_column > 2)
+                  .map(seat => (
+                    <div
+                      key={seat.seat_number}
+                      className={getSeatClass(seat)}
+                      onClick={() => handleSeatClick(seat)}
+                      title={`Siège ${seat.seat_number}${seat.booking ? ` - ${seat.booking.passenger_name}` : ''}`}
                     >
-                      ✅ Rendre disponible
-                    </button>
-                  )}
-                </div>
-              )}
+                      <span className="travelhub-seat-icon">
+                        {getSeatIcon(seat)}
+                      </span>
+                      <span className="travelhub-seat-number">
+                        {seat.seat_number}
+                      </span>
+                    </div>
+                  ))
+                }
+              </div>
             </div>
+          ))}
+        </div>
+
+        {/* Arrière du bus */}
+        <div className="travelhub-bus-back">
+          <div className="travelhub-emergency-exit">
+            🚪 Sortie de secours
+          </div>
+        </div>
+      </div>
+
+      {/* Légende */}
+      {showLegend && (
+        <div className="travelhub-seat-legend">
+          <h4>Légende :</h4>
+          <div className="travelhub-legend-items">
+            <div className="travelhub-legend-item">
+              <span className="travelhub-seat travelhub-seat-available">💺</span>
+              <span>Libre</span>
+            </div>
+            <div className="travelhub-legend-item">
+              <span className="travelhub-seat travelhub-seat-occupied">👤</span>
+              <span>Occupé</span>
+            </div>
+            <div className="travelhub-legend-item">
+              <span className="travelhub-seat travelhub-seat-selected">✅</span>
+              <span>Sélectionné</span>
+            </div>
+            <div className="travelhub-legend-item">
+              <span className="travelhub-seat travelhub-seat-unavailable">❌</span>
+              <span>Indisponible</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sièges sélectionnés */}
+      {selectedSeats.length > 0 && (
+        <div className="travelhub-selected-seats">
+          <h4>Sièges sélectionnés :</h4>
+          <div className="travelhub-selected-list">
+            {selectedSeats.map(seatNum => (
+              <span key={seatNum} className="travelhub-selected-seat-tag">
+                Siège {seatNum}
+              </span>
+            ))}
           </div>
         </div>
       )}

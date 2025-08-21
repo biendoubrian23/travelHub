@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import TripSeatMap from '../Bus/TripSeatMap';
 import './BookingForm.css';
 
 const BookingForm = ({ booking, trips, onSave, onCancel }) => {
@@ -329,9 +330,41 @@ const BookingForm = ({ booking, trips, onSave, onCancel }) => {
           <div className="section-title">
             💺 Sélection du siège
           </div>
-          <div className="form-group">
+          
+          {/* Plan de sièges interactif */}
+          <div className="seat-selection-container">
+            <TripSeatMap 
+              tripId={selectedTrip.id}
+              busCapacity={selectedTrip.total_seats || 50}
+              onSeatSelect={(selectedSeats) => {
+                if (selectedSeats.length > 0) {
+                  setFormData(prev => ({
+                    ...prev,
+                    seat_number: selectedSeats[0].toString()
+                  }));
+                  // Effacer l'erreur si un siège est sélectionné
+                  if (errors.seat_number) {
+                    setErrors(prev => ({
+                      ...prev,
+                      seat_number: ''
+                    }));
+                  }
+                } else {
+                  setFormData(prev => ({
+                    ...prev,
+                    seat_number: ''
+                  }));
+                }
+              }}
+              readOnly={false}
+              showLegend={true}
+            />
+          </div>
+
+          {/* Sélection manuelle alternative */}
+          <div className="manual-seat-selection">
             <label className="form-label">
-              Numéro de siège <span className="required">*</span>
+              Ou sélection manuelle <span className="required">*</span>
             </label>
             <select
               name="seat_number"

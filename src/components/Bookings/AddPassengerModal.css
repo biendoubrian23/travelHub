@@ -47,6 +47,48 @@
   }
 }
 
+/* Section du plan de sièges */
+.bookings-seat-map-section {
+  margin: 20px 0;
+  padding: 15px;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.bookings-seat-map-section h4 {
+  margin: 0 0 15px 0;
+  color: #1e293b;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bookings-seat-map-section h4::before {
+  content: "🚌";
+  font-size: 18px;
+}
+
+.bookings-seat-selection-info {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 8px;
+  color: #1e40af;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bookings-seat-selection-info::before {
+  content: "ℹ️";
+  font-size: 16px;
+}
+
 /* Header du modal */
 .bookings-modal-header {
   background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);

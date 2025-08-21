@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
+import { createBookingWithSeatSync } from '../../utils/seatMapUtils';
+import TripSeatMap from '../Bus/TripSeatMap';
 import SeatSelector from './SeatSelector';
 import './AddPassengerModal.css';
 
@@ -136,18 +138,10 @@ const AddPassengerModal = ({ isOpen, onClose, selectedTrip, onPassengerAdded }) 
 
       console.log('📋 Création de la réservation:', bookingData);
 
-      const { data, error } = await supabase
-        .from('bookings')
-        .insert([bookingData])
-        .select()
-        .single();
+      // Utiliser la fonction avec synchronisation seat_maps
+      const data = await createBookingWithSeatSync(bookingData);
 
-      if (error) {
-        console.error('❌ Erreur lors de la création de la réservation:', error);
-        throw error;
-      }
-
-      console.log('✅ Réservation créée avec succès:', data);
+      console.log('✅ Réservation créée avec succès et siège synchronisé:', data);
 
       // Réinitialiser le formulaire
       setFormData({
@@ -250,22 +244,33 @@ const AddPassengerModal = ({ isOpen, onClose, selectedTrip, onPassengerAdded }) 
             </div>
           </div>
 
-          {/* Sélecteur visuel de sièges */}
-          <SeatSelector
-            totalSeats={selectedTrip?.bus?.totalSeats || 50}
-            occupiedSeats={occupiedSeats}
-            selectedSeat={formData.seatNumber ? parseInt(formData.seatNumber) : null}
-            onSeatSelect={(seatNumber) => {
-              setFormData(prev => ({
-                ...prev,
-                seatNumber: seatNumber ? seatNumber.toString() : ''
-              }));
-              // Effacer l'erreur si un siège valide est sélectionné
-              if (seatNumber && errors.seatNumber) {
-                setErrors(prev => ({ ...prev, seatNumber: '' }));
-              }
-            }}
-          />
+          {/* Plan de sièges interactif avec table seat_maps */}
+          <div className="bookings-seat-map-section">
+            <h4>🚌 Plan des sièges</h4>
+            <TripSeatMap 
+              tripId={selectedTrip.id}
+              busCapacity={selectedTrip?.bus?.totalSeats || 50}
+              onSeatSelect={(selectedSeats) => {
+                if (selectedSeats.length > 0) {
+                  setFormData(prev => ({
+                    ...prev,
+                    seatNumber: selectedSeats[0].toString()
+                  }));
+                  // Effacer l'erreur si un siège valide est sélectionné
+                  if (errors.seatNumber) {
+                    setErrors(prev => ({ ...prev, seatNumber: '' }));
+                  }
+                } else {
+                  setFormData(prev => ({
+                    ...prev,
+                    seatNumber: ''
+                  }));
+                }
+              }}
+              readOnly={false}
+              showLegend={true}
+            />
+          </div>
 
           <div className="bookings-form-row">
             <div className="bookings-form-group">

@@ -1,0 +1,485 @@
+/* ===== STYLES POUR LE PLAN DE SIÈGES TRAVELHUB ===== */
+
+/* Container principal */
+.travelhub-seat-map-container {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* En-tête avec statistiques */
+.travelhub-seat-map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.travelhub-seat-map-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.travelhub-seat-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.travelhub-stat-item {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.travelhub-stat-item.travelhub-occupied {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+}
+
+.travelhub-stat-item.travelhub-available {
+  background: linear-gradient(135deg, #51cf66, #40c057);
+}
+
+.travelhub-stat-item.travelhub-total {
+  background: linear-gradient(135deg, #74c0fc, #339af0);
+}
+
+/* Plan de siège principal */
+.travelhub-seat-map {
+  background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 3px solid #dee2e6;
+  border-radius: 20px;
+  padding: 20px;
+  margin: 20px 0;
+  position: relative;
+}
+
+/* Avant du bus */
+.travelhub-bus-front {
+  text-align: center;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: linear-gradient(135deg, #495057, #343a40);
+  border-radius: 12px 12px 0 0;
+  color: white;
+}
+
+.travelhub-driver-area {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* Rangées de sièges */
+.travelhub-seat-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.travelhub-seat-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.travelhub-row-number {
+  width: 30px;
+  text-align: center;
+  font-weight: 700;
+  color: #495057;
+  font-size: 14px;
+}
+
+.travelhub-seats-left,
+.travelhub-seats-right {
+  display: flex;
+  gap: 8px;
+}
+
+.travelhub-aisle {
+  width: 40px;
+  height: 2px;
+  background: repeating-linear-gradient(
+    to right,
+    #adb5bd 0px,
+    #adb5bd 4px,
+    transparent 4px,
+    transparent 8px
+  );
+  align-self: center;
+}
+
+/* Styles des sièges */
+.travelhub-seat {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  position: relative;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.travelhub-seat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* États des sièges */
+.travelhub-seat-available {
+  background: linear-gradient(135deg, #d4edda, #c3e6cb);
+  border-color: #28a745;
+  color: #155724;
+}
+
+.travelhub-seat-available:hover {
+  background: linear-gradient(135deg, #c3e6cb, #b1dfbb);
+  border-color: #1e7e34;
+}
+
+.travelhub-seat-occupied {
+  background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+  border-color: #dc3545;
+  color: #721c24;
+  cursor: not-allowed;
+}
+
+.travelhub-seat-occupied:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.travelhub-seat-selected {
+  background: linear-gradient(135deg, #cce5ff, #b3d9ff);
+  border-color: #007bff;
+  color: #004085;
+  animation: travelhub-seat-pulse 1s infinite;
+}
+
+.travelhub-seat-unavailable {
+  background: linear-gradient(135deg, #e2e3e5, #d6d8db);
+  border-color: #6c757d;
+  color: #495057;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.travelhub-seat-unavailable:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Animation de pulsation pour les sièges sélectionnés */
+@keyframes travelhub-seat-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(0, 123, 255, 0);
+  }
+}
+
+/* Icônes et numéros des sièges */
+.travelhub-seat-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.travelhub-seat-number {
+  font-size: 10px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+/* Arrière du bus */
+.travelhub-bus-back {
+  text-align: center;
+  margin-top: 16px;
+  padding: 12px;
+  background: linear-gradient(135deg, #6f42c1, #5a32a3);
+  border-radius: 0 0 12px 12px;
+  color: white;
+}
+
+.travelhub-emergency-exit {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Légende */
+.travelhub-seat-legend {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 20px;
+}
+
+.travelhub-seat-legend h4 {
+  margin: 0 0 12px 0;
+  color: #495057;
+  font-size: 16px;
+}
+
+.travelhub-legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.travelhub-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #495057;
+}
+
+.travelhub-legend-item .travelhub-seat {
+  width: 32px;
+  height: 32px;
+  font-size: 10px;
+  cursor: default;
+}
+
+.travelhub-legend-item .travelhub-seat:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Sièges sélectionnés */
+.travelhub-selected-seats {
+  background: #e7f3ff;
+  border: 2px solid #007bff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 20px;
+}
+
+.travelhub-selected-seats h4 {
+  margin: 0 0 12px 0;
+  color: #004085;
+  font-size: 16px;
+}
+
+.travelhub-selected-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.travelhub-selected-seat-tag {
+  background: #007bff;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* États de chargement et d'erreur */
+.travelhub-seat-map-loading,
+.travelhub-seat-map-error {
+  text-align: center;
+  padding: 40px 20px;
+  border-radius: 16px;
+  background: #f8f9fa;
+}
+
+.travelhub-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e9ecef;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  animation: travelhub-spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes travelhub-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.travelhub-retry-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 12px;
+  transition: background 0.3s ease;
+}
+
+.travelhub-retry-btn:hover {
+  background: #0056b3;
+}
+
+/* Styles responsives */
+@media (max-width: 768px) {
+  .travelhub-seat-map-container {
+    padding: 16px;
+  }
+
+  .travelhub-seat-map-header {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .travelhub-seat-stats {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .travelhub-seat {
+    width: 40px;
+    height: 40px;
+    font-size: 10px;
+  }
+
+  .travelhub-seat-icon {
+    font-size: 14px;
+  }
+
+  .travelhub-seat-number {
+    font-size: 8px;
+  }
+
+  .travelhub-row-number {
+    width: 24px;
+    font-size: 12px;
+  }
+
+  .travelhub-aisle {
+    width: 30px;
+  }
+
+  .travelhub-legend-items {
+    justify-content: center;
+  }
+
+  .travelhub-selected-list {
+    justify-content: center;
+  }
+}
+
+/* Animation d'entrée pour les sièges */
+.travelhub-seat {
+  animation: travelhub-seat-fade-in 0.3s ease-out;
+}
+
+@keyframes travelhub-seat-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Styles pour les tooltips de siège */
+.travelhub-seat[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-bottom: 4px;
+}
+
+.travelhub-seat[title]:hover::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+}
+
+/* Amélioration pour les appareils tactiles */
+@media (hover: none) {
+  .travelhub-seat:hover {
+    transform: none;
+    box-shadow: none;
+  }
+  
+  .travelhub-seat:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Accessibilité */
+.travelhub-seat:focus {
+  outline: 3px solid #007bff;
+  outline-offset: 2px;
+}
+
+.travelhub-seat[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Préfixage supplémentaire pour éviter les conflits */
+.travelhub-seat-map-container * {
+  box-sizing: border-box;
+}
+
+.travelhub-seat-map-container button {
+  font-family: inherit;
+}
+
+.travelhub-seat-map-container input,
+.travelhub-seat-map-container select,
+.travelhub-seat-map-container textarea {
+  font-family: inherit;
+}
+
+/* Support pour les thèmes sombres */
+@media (prefers-color-scheme: dark) {
+  .travelhub-seat-map-container {
+    background: #2d3748;
+    color: #e2e8f0;
+  }
+  
+  .travelhub-seat-map {
+    background: linear-gradient(180deg, #4a5568 0%, #2d3748 100%);
+    border-color: #4a5568;
+  }
+  
+  .travelhub-seat-legend {
+    background: #4a5568;
+  }
+  
+  .travelhub-selected-seats {
+    background: #2b6cb0;
+    border-color: #3182ce;
+  }
+}
