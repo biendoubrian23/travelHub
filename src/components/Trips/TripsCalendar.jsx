@@ -350,36 +350,68 @@ const TripsCalendar = () => {
     }
   };
 
-  // Fonction pour supprimer un trajet de la base de données
+  // Fonction pour supprimer un trajet de manière sécurisée
   const handleDeleteTrip = async (trip) => {
-    console.log('Suppression du trajet:', trip.id);
+    console.log('🗑️ Demande de suppression sécurisée du trajet:', trip.id);
+    
     try {
-      // Supprimer le trajet de la base de données
-      const { error } = await supabase
-        .from('trips')
-        .delete()
-        .eq('id', trip.id);
+      // Import dynamique pour éviter les problèmes de dépendances
+      const { requestTripDeletion } = await import('../../utils/tripDeletionUtils');
+      
+      // Utiliser la suppression sécurisée avec confirmation
+      const result = await requestTripDeletion(trip.id, (message) => {
+        return window.confirm(message);
+      });
 
-      if (error) {
-        console.error('Erreur lors de la suppression du trajet:', error);
-        alert('Erreur lors de la suppression du trajet: ' + error.message);
-        return;
+      if (result.success) {
+        console.log('✅ Trajet supprimé avec succès:', result.deletionLog);
+        
+        // Recharger les données pour rafraîchir l'affichage
+        await fetchTripsFromDatabase();
+        
+        // Fermer les détails si le trajet supprimé était sélectionné
+        if (selectedTrip?.id === trip.id) {
+          setSelectedTrip(null);
+        }
+
+        // Message de succès détaillé
+        alert(`✅ ${result.message}\n\nActions effectuées: ${result.deletionLog.actions.length}`);
+        
+      } else if (result.requiresSpecialConfirmation) {
+        // Cas critique nécessitant une confirmation spéciale
+        const specialConfirm = prompt(result.message);
+        
+        if (specialConfirm === 'SUPPRIMER') {
+          const { safeTripDeletion } = await import('../../utils/tripDeletionUtils');
+          const criticalResult = await safeTripDeletion(trip.id, { 
+            forceDelete: true,
+            reason: 'Suppression critique confirmée par admin'
+          });
+          
+          if (criticalResult.success) {
+            await fetchTripsFromDatabase();
+            if (selectedTrip?.id === trip.id) {
+              setSelectedTrip(null);
+            }
+            alert(`✅ ${criticalResult.message}`);
+          } else {
+            alert(`❌ Erreur suppression critique: ${criticalResult.error}`);
+          }
+        } else {
+          console.log('Suppression critique annulée');
+        }
+        
+      } else if (result.cancelled) {
+        console.log('Suppression annulée par l\'utilisateur');
+        
+      } else {
+        console.error('Erreur suppression:', result.error);
+        alert(`❌ Erreur lors de la suppression: ${result.error}`);
       }
 
-      console.log('Trajet supprimé avec succès');
-      
-      // Recharger les données pour rafraîchir l'affichage
-      await fetchTripsFromDatabase();
-      
-      // Fermer les détails si le trajet supprimé était sélectionné
-      if (selectedTrip?.id === trip.id) {
-        setSelectedTrip(null);
-      }
-
-      alert('Trajet supprimé avec succès !');
     } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-      alert('Erreur inattendue lors de la suppression');
+      console.error('❌ Erreur critique lors de la suppression:', error);
+      alert(`💥 Erreur système: ${error.message}\n\nVeuillez contacter l'administrateur.`);
     }
   };
 

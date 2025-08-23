@@ -1,0 +1,261 @@
+/* Styles pour l'affichage des détails des sièges VIP/Standard */
+
+.seats-details {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.seats-summary h4 {
+  margin: 0 0 16px 0;
+  color: #333;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.seats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* Cartes de type de siège */
+.seat-type-card {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  border: 2px solid #e9ecef;
+  transition: all 0.2s;
+}
+
+.seat-type-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.seat-type-card.vip {
+  border-color: #ffd700;
+  background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+}
+
+.seat-type-card.standard {
+  border-color: #007bff;
+  background: linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%);
+}
+
+/* En-tête de carte */
+.seat-type-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.seat-type-icon {
+  font-size: 1.2rem;
+}
+
+.seat-type-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #333;
+  flex-grow: 1;
+  margin-left: 8px;
+}
+
+.seat-type-price {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #28a745;
+}
+
+/* Statistiques des sièges */
+.seat-type-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.stat {
+  text-align: center;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 4px;
+}
+
+.stat-number {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.75rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Numéros de sièges */
+.seat-numbers {
+  font-size: 0.85rem;
+  color: #666;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 6px 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+/* Supplément de prix */
+.price-supplement {
+  font-size: 0.8rem;
+  color: #ffc107;
+  font-weight: 600;
+  text-align: center;
+  background: rgba(255, 193, 7, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+/* Section revenue */
+.revenue-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e9ecef;
+}
+
+.revenue-section h5 {
+  margin: 0 0 12px 0;
+  color: #333;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.revenue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.revenue-item {
+  background: white;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  text-align: center;
+}
+
+.revenue-label {
+  display: block;
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.revenue-value {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #28a745;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .seats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .seat-type-stats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  
+  .revenue-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .seat-type-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .seat-type-name {
+    margin-left: 0;
+  }
+}
+
+/* États des sièges pour visualisation */
+.seat-status-available {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.seat-status-occupied {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.seat-status-maintenance {
+  color: #ffc107;
+  font-weight: 600;
+}
+
+/* Indicateurs visuels pour les types de sièges */
+.seat-type-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.seat-type-indicator.vip {
+  background: linear-gradient(45deg, #ffd700, #ffed4e);
+  border: 1px solid #e6c200;
+}
+
+.seat-type-indicator.standard {
+  background: linear-gradient(45deg, #007bff, #4dabf7);
+  border: 1px solid #0056b3;
+}
+
+/* Animation pour les chargements */
+.seats-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: #666;
+}
+
+.seats-loading::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

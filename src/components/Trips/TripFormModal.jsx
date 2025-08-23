@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
+import { initializeSeatMapForTrip } from '../../utils/seatMapUtils';
 import './TripFormModal.css';
 
 const TripFormModal = ({ 
@@ -599,9 +600,11 @@ const TripFormModal = ({
         // Mode création : INSERT
         console.log('Création du trajet avec les données:', tripData);
         
-        const { error: insertError } = await supabase
+        const { data: newTrip, error: insertError } = await supabase
           .from('trips')
-          .insert([tripData]);
+          .insert([tripData])
+          .select()
+          .single();
 
         if (insertError) {
           console.error('Erreur lors de la création du trajet:', insertError);
@@ -609,7 +612,49 @@ const TripFormModal = ({
           return;
         }
 
-        console.log('Trajet créé avec succès');
+        console.log('Trajet créé avec succès:', newTrip);
+
+        // 🎯 NOUVEAU : Initialiser automatiquement les places selon le TYPE DE BUS
+        try {
+          console.log('🚌 Initialisation des places pour le trajet:', newTrip.id);
+          console.log('🚌 Bus sélectionné:', selectedBus);
+          
+          // Vérifier que la fonction est importée
+          if (typeof initializeSeatMapForTrip !== 'function') {
+            console.error('❌ ERREUR: initializeSeatMapForTrip n\'est pas une fonction');
+            throw new Error('Fonction initializeSeatMapForTrip non disponible');
+          }
+          
+          // Passer les données du trajet ET du bus pour configuration VIP/Standard
+          const tripDataForSeats = {
+            price_fcfa: formData.price ? parseInt(formData.price) : 0,
+            departure_city: formData.departureCity,
+            arrival_city: formData.arrivalCity,
+            created_by: user?.id,
+            bus_is_vip: selectedBus?.is_vip || false, // 🎯 INFO CRUCIALE : Type de bus
+            bus_name: selectedBus?.name || 'Bus inconnu'
+          };
+          
+          console.log('📊 Données pour initialisation des sièges:', tripDataForSeats);
+          console.log(`🎯 Appel initializeSeatMapForTrip(${newTrip.id}, ${selectedBus?.total_seats || 40}, tripDataForSeats)`);
+          
+          const seatResult = await initializeSeatMapForTrip(
+            newTrip.id, 
+            selectedBus?.total_seats || 40,
+            tripDataForSeats
+          );
+          
+          console.log('🎯 Résultat initialisation sièges:', seatResult);
+          
+          const busType = selectedBus?.is_vip ? 'VIP' : 'Standard';
+          console.log(`✅ Places initialisées pour bus ${busType}: ${selectedBus?.total_seats} sièges`);
+        } catch (seatError) {
+          console.error('❌ Erreur lors de l\'initialisation des places:', seatError);
+          console.error('❌ Stack trace:', seatError.stack);
+          // Ne pas faire échouer la création du trajet pour autant
+          alert('⚠️ Trajet créé mais erreur lors de l\'initialisation des sièges. Vérifiez la console.');
+        }
+
         alert('Trajet créé avec succès !');
       }
       

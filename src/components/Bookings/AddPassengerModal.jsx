@@ -19,11 +19,46 @@ const AddPassengerModal = ({ isOpen, onClose, selectedTrip, onPassengerAdded }) 
   const [errors, setErrors] = useState({});
   const [occupiedSeats, setOccupiedSeats] = useState([]);
 
-  // Récupérer les sièges occupés pour ce voyage
+  // Récupérer les sièges occupés pour ce voyage depuis seat_maps
   React.useEffect(() => {
     const getOccupiedSeats = async () => {
       if (!selectedTrip?.id) return;
       
+      try {
+        // 🎯 NOUVEAU : Récupérer depuis seat_maps en priorité
+        const { data: seatMaps, error: seatMapsError } = await supabase
+          .from('seat_maps')
+          .select('seat_number, is_available')
+          .eq('trip_id', selectedTrip.id);
+
+        if (seatMapsError) {
+          console.error('Erreur lors de la récupération des seat_maps:', seatMapsError);
+          // Fallback sur bookings si seat_maps n'est pas disponible
+          return getOccupiedSeatsFromBookings();
+        }
+
+        if (seatMaps && seatMaps.length > 0) {
+          // Utiliser les données de seat_maps
+          const occupiedFromSeatMaps = seatMaps
+            .filter(seat => !seat.is_available)
+            .map(seat => parseInt(seat.seat_number))
+            .filter(seat => !isNaN(seat));
+          
+          setOccupiedSeats(occupiedFromSeatMaps);
+          console.log('🪑 Sièges occupés depuis seat_maps:', occupiedFromSeatMaps);
+        } else {
+          // Si seat_maps est vide, initialiser avec les données de bookings
+          console.log('📝 seat_maps vide, fallback sur bookings...');
+          await getOccupiedSeatsFromBookings();
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        await getOccupiedSeatsFromBookings();
+      }
+    };
+
+    // Fonction fallback pour récupérer depuis bookings
+    const getOccupiedSeatsFromBookings = async () => {
       try {
         const { data: bookings, error } = await supabase
           .from('bookings')
@@ -41,9 +76,9 @@ const AddPassengerModal = ({ isOpen, onClose, selectedTrip, onPassengerAdded }) 
           .filter(seat => !isNaN(seat));
         
         setOccupiedSeats(occupied);
-        console.log('🪑 Sièges occupés pour ce voyage:', occupied);
+        console.log('🪑 Sièges occupés depuis bookings (fallback):', occupied);
       } catch (error) {
-        console.error('Erreur:', error);
+        console.error('Erreur fallback:', error);
       }
     };
 
