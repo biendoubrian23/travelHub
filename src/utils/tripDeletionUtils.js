@@ -27,10 +27,13 @@ export const checkTripDeletionSafety = async (tripId) => {
         id, 
         departure_city, 
         arrival_city, 
-        departure_date, 
         departure_time,
+        arrival_time,
         price_fcfa,
-        status
+        total_seats,
+        available_seats,
+        bus_type,
+        is_active
       `)
       .eq('id', tripId)
       .single();
@@ -43,13 +46,15 @@ export const checkTripDeletionSafety = async (tripId) => {
       .from('bookings')
       .select(`
         id, 
+        user_id,
         passenger_name, 
         passenger_phone, 
-        passenger_email,
         seat_number, 
-        status,
+        booking_status,
+        payment_status,
+        total_price_fcfa,
         created_at,
-        paid_amount
+        users(email)
       `)
       .eq('trip_id', tripId);
 
@@ -64,9 +69,9 @@ export const checkTripDeletionSafety = async (tripId) => {
     if (seatMapsError) throw seatMapsError;
 
     // 4. Calculer les impacts
-    const confirmedBookings = bookings.filter(b => b.status === 'confirmed');
-    const totalRevenue = confirmedBookings.reduce((sum, b) => sum + (b.paid_amount || 0), 0);
-    const departureDateTime = new Date(`${trip.departure_date}T${trip.departure_time}`);
+    const confirmedBookings = bookings.filter(b => b.booking_status === 'confirmed');
+    const totalRevenue = confirmedBookings.reduce((sum, b) => sum + (b.total_price_fcfa || 0), 0);
+    const departureDateTime = new Date(trip.departure_time); // departure_time contient déjà la date complète
     const now = new Date();
     const hoursToDeparture = (departureDateTime - now) / (1000 * 60 * 60);
 
@@ -192,9 +197,7 @@ export const safeTripDeletion = async (tripId, options = {}) => {
           const { error: cancelError } = await supabase
             .from('bookings')
             .update({
-              status: 'cancelled_trip_deleted',
-              cancellation_reason: reason,
-              cancelled_at: new Date().toISOString()
+              booking_status: 'cancelled'
             })
             .eq('id', booking.id);
 
@@ -218,11 +221,11 @@ export const safeTripDeletion = async (tripId, options = {}) => {
           }
 
           // Gestion remboursement (simulation - à implémenter selon votre système)
-          if (processRefunds && booking.paid_amount > 0) {
-            console.log(`💰 Remboursement ${booking.paid_amount} FCFA pour ${booking.passenger_name}`);
+          if (processRefunds && booking.payment_status === 'paid' && booking.total_price_fcfa > 0) {
+            console.log(`💰 Remboursement ${booking.total_price_fcfa} FCFA pour ${booking.passenger_name}`);
             deletionLog.actions.push({
               type: 'refund_initiated',
-              amount: booking.paid_amount,
+              amount: booking.total_price_fcfa,
               passenger: booking.passenger_name
             });
           }
@@ -321,7 +324,7 @@ export const requestTripDeletion = async (tripId, confirmCallback) => {
     // 2. Construire le message de confirmation
     let confirmMessage = `Êtes-vous sûr de vouloir supprimer le trajet ?\n\n`;
     confirmMessage += `🚌 ${trip.departure_city} → ${trip.arrival_city}\n`;
-    confirmMessage += `📅 ${trip.departure_date} à ${trip.departure_time}\n\n`;
+    confirmMessage += `📅 ${new Date(trip.departure_time).toLocaleDateString('fr-FR')} à ${new Date(trip.departure_time).toLocaleTimeString('fr-FR')}\n\n`;
 
     if (safety.warnings.length > 0) {
       confirmMessage += `⚠️ ATTENTION :\n`;
