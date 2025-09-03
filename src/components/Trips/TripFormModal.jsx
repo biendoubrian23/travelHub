@@ -32,6 +32,7 @@ const TripFormModal = ({
   const [loadingBuses, setLoadingBuses] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [conflictWarnings, setConflictWarnings] = useState({});
+  const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
 
   const cities = [
     'Douala', 'Yaoundé', 'Bafoussam', 'Bamenda', 'Garoua', 
@@ -492,19 +493,118 @@ const TripFormModal = ({
     }
   };
 
+  // Fonction pour afficher une notification centrée
+  const showNotification = (message, type = 'success') => {
+    setNotification({ show: true, message, type });
+    
+    // Auto-masquer après 3 secondes
+    setTimeout(() => {
+      setNotification({ show: false, message: '', type: 'success' });
+    }, 3000);
+  };
+
+  // Fonction pour empêcher la soumission du formulaire sur Entrée dans les champs spécifiques
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      // Empêcher la soumission automatique du formulaire
+      e.preventDefault();
+      
+      // Optionnel : faire défiler vers le champ suivant
+      const currentInput = e.target;
+      const formElements = Array.from(currentInput.form.elements);
+      const currentIndex = formElements.indexOf(currentInput);
+      const nextElement = formElements[currentIndex + 1];
+      
+      if (nextElement && nextElement.tagName === 'INPUT') {
+        nextElement.focus();
+      }
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Validation
-    if (!formData.date || !formData.departureCity || !formData.arrivalCity) {
-      alert('Veuillez remplir tous les champs obligatoires');
-      setIsSubmitting(false);
-      return;
+    // Reset previous errors
+    setErrors({});
+    
+    // Validation préventive complète
+    const validationErrors = {};
+    
+    // Vérification des champs obligatoires
+    if (!formData.date) {
+      validationErrors.date = 'La date du trajet est obligatoire';
+    }
+    
+    if (!formData.departureCity) {
+      validationErrors.departureCity = 'La ville de départ est obligatoire';
+    }
+    
+    if (!formData.arrivalCity) {
+      validationErrors.arrivalCity = 'La ville d\'arrivée est obligatoire';
+    }
+    
+    if (formData.departureCity === formData.arrivalCity) {
+      validationErrors.arrivalCity = 'La ville d\'arrivée doit être différente de la ville de départ';
+    }
+    
+    if (!formData.departureTime) {
+      validationErrors.departureTime = 'L\'heure de départ est obligatoire';
+    }
+    
+    if (!formData.arrivalTime) {
+      validationErrors.arrivalTime = 'L\'heure d\'arrivée est obligatoire';
+    }
+    
+    // Validation du prix (champ critique)
+    if (!formData.price || formData.price === '' || formData.price === '0') {
+      validationErrors.price = 'Le prix du trajet est obligatoire et doit être supérieur à 0';
+    } else if (isNaN(formData.price) || parseInt(formData.price) <= 0) {
+      validationErrors.price = 'Le prix doit être un nombre valide supérieur à 0';
+    }
+    
+    // Validation des heures (cohérence temporelle)
+    if (formData.departureTime && formData.arrivalTime && !formData.isOvernight) {
+      const depTime = new Date(`1970-01-01T${formData.departureTime}`);
+      const arrTime = new Date(`1970-01-01T${formData.arrivalTime}`);
+      
+      if (depTime >= arrTime) {
+        validationErrors.arrivalTime = 'L\'heure d\'arrivée doit être après l\'heure de départ (ou cochez "Trajet de nuit")';
+      }
+    }
+    
+    // Validation des champs optionnels mais recommandés
+    if (!formData.busId) {
+      validationErrors.busId = 'Il est recommandé de sélectionner un bus';
+    }
+    
+    if (!formData.driverId) {
+      validationErrors.driverId = 'Il est recommandé de sélectionner un conducteur';
     }
 
-    if (!formData.departureTime || !formData.arrivalTime) {
-      alert('Veuillez spécifier les heures de départ et d\'arrivée');
+    // Afficher les erreurs s'il y en a
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      
+      // Trouver le premier champ avec erreur et le mettre en focus
+      const firstErrorField = Object.keys(validationErrors)[0];
+      setTimeout(() => {
+        const errorElement = document.getElementById(firstErrorField);
+        if (errorElement) {
+          errorElement.focus();
+          errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+      
+      // Message d'erreur simplifié pour l'utilisateur
+      const criticalErrors = Object.keys(validationErrors).filter(key => 
+        ['date', 'departureCity', 'arrivalCity', 'departureTime', 'arrivalTime', 'price'].includes(key)
+      );
+      
+      if (criticalErrors.length > 0) {
+        alert(`❌ Veuillez remplir tous les champs obligatoires marqués d'un astérisque (*)\n\n${criticalErrors.length} champ(s) nécessite(nt) votre attention.`);
+      }
+      
       setIsSubmitting(false);
       return;
     }
@@ -595,7 +695,7 @@ const TripFormModal = ({
         }
 
         console.log('Trajet modifié avec succès');
-        alert('Trajet modifié avec succès !');
+        showNotification('✅ Trajet modifié avec succès !', 'success');
       } else {
         // Mode création : INSERT
         console.log('Création du trajet avec les données:', tripData);
@@ -627,7 +727,7 @@ const TripFormModal = ({
           
           // Passer les données du trajet ET du bus pour configuration VIP/Standard
           const tripDataForSeats = {
-            price_fcfa: formData.price ? parseInt(formData.price) : 0,
+            price_fcfa: parseInt(formData.price), // Prix déjà validé comme obligatoire
             departure_city: formData.departureCity,
             arrival_city: formData.arrivalCity,
             created_by: user?.id,
@@ -655,7 +755,7 @@ const TripFormModal = ({
           alert('⚠️ Trajet créé mais erreur lors de l\'initialisation des sièges. Vérifiez la console.');
         }
 
-        alert('Trajet créé avec succès !');
+        showNotification('✅ Trajet créé avec succès !', 'success');
       }
       
       // Réinitialiser le formulaire et fermer le modal
@@ -762,6 +862,7 @@ const TripFormModal = ({
                 name="departureTime"
                 value={formData.departureTime}
                 onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
                 className={errors.departureTime ? 'error' : ''}
               />
               {errors.departureTime && <span className="error-message">{errors.departureTime}</span>}
@@ -775,6 +876,7 @@ const TripFormModal = ({
                 name="arrivalTime"
                 value={formData.arrivalTime}
                 onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
                 className={errors.arrivalTime ? 'error' : ''}
               />
               {errors.arrivalTime && <span className="error-message">{errors.arrivalTime}</span>}
@@ -825,8 +927,10 @@ const TripFormModal = ({
                 placeholder="ex: 3500"
                 value={formData.price}
                 onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
                 className={errors.price ? 'error' : ''}
-                min="0"
+                min="1"
+                required
               />
               {errors.price && <span className="error-message">{errors.price}</span>}
             </div>
@@ -917,6 +1021,20 @@ const TripFormModal = ({
           </div>
         </form>
       </div>
+
+      {/* Notification de succès/erreur centrée */}
+      {notification.show && (
+        <div className={`notification-overlay ${notification.type}`}>
+          <div className="notification-content">
+            <div className="notification-icon">
+              {notification.type === 'success' ? '✅' : '❌'}
+            </div>
+            <div className="notification-message">
+              {notification.message}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
