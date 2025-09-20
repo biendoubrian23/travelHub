@@ -5,7 +5,6 @@ import './EmployeeManagement.css';
 import './EmployeeDetailsStyle.css';
 import './EmployeeDetailsEnhanced.css';
 import './EmployeePhoneStyles.css';
-import './EmployeeDetailsEnhanced.css';
 import './InvitationsTableStyles.css';
 import './UnifiedTableStyles.css';
 import './IOSModalStyles.css';
@@ -13,12 +12,7 @@ import './StatusBadgesHarmonization.css';
 import './NoHoverTableStyles.css';
 import './EmployeeOptimizations.css';
 import './TableCompactStyles.css';
-import './NewEmployeeModal.css';
-import './ModalScrollFix.css';
-import './FixedModalStructure.css'; // Structure de modal à priorité absolue
-import './FormSpacingFix.css'; // Correction d'espacement pour les formulaires
-import './FinalModalScrollbar.css'; // Solution ultime pour la barre de défilement
-import './InvitationModalFix.css'; // Correction spécifique pour les modals d'invitation
+import './SimpleEmployeeModal.css'; // CSS simple avec préfixes pour éviter les conflits
 import { 
   Users, 
   Plus, 
@@ -40,7 +34,7 @@ const EmployeeManagement = () => {
   const { userProfile, agency, isAgencyOwner } = useAuth();
   const [employees, setEmployees] = useState([]);
   const [invitations, setInvitations] = useState([]); // Nouveau state pour les invitations
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [error, setError] = useState('');
@@ -191,6 +185,14 @@ const EmployeeManagement = () => {
     return () => clearInterval(interval);
   }, [agency, refreshData]);
 
+  // Vérifier si l'agence est chargée correctement
+  useEffect(() => {
+    if (!agency || !agency.name) {
+      console.error('Erreur: Informations de l\'agence non disponibles', agency);
+      setError('Impossible de charger les informations de l\'agence. Veuillez rafraîchir la page.');
+    }
+  }, [agency]);
+
   const generateEmployeeCredentials = async (firstName, lastName) => {
     try {
       // Générer l'email via la fonction SQL
@@ -216,7 +218,7 @@ const EmployeeManagement = () => {
     } catch (error) {
       console.error('Erreur génération identifiants:', error);
       // Fallback en cas d'erreur
-      const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${agency.name.toLowerCase().replace(/\s+/g, '')}.travelhub.cm`;
+      const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${agency.name.toLowerCase().replace(/\s+/g, '')}.com`;
       const password = Math.random().toString(36).slice(-8);
       return { email, password };
     }
@@ -235,7 +237,7 @@ const EmployeeManagement = () => {
 
     try {
       // Générer l'email automatiquement
-      const email = `${newEmployee.firstName.toLowerCase()}.${newEmployee.lastName.toLowerCase()}@${agency.name.toLowerCase().replace(/\s+/g, '')}.travelhub.cm`;
+      const email = `${newEmployee.firstName.toLowerCase()}.${newEmployee.lastName.toLowerCase()}@${agency.name.toLowerCase().replace(/\s+/g, '')}.com`;
       
       console.log('📧 Email généré:', email);
       console.log('� Création de l\'invitation...');
@@ -476,6 +478,8 @@ const EmployeeManagement = () => {
     );
   }
 
+
+  
   return (
     <div className="employee-management">
       <div className="page-header">
@@ -484,11 +488,11 @@ const EmployeeManagement = () => {
             <Users size={28} />
             <div>
               <h1>Gestion des Employés</h1>
-              <p>{employees.length + invitations.length} employé(s) dans votre agence</p>
+              <p>{employees.length + invitations.length} employé(s) dans votre agence {agency?.name ? `(${agency.name})` : ''}</p>
             </div>
           </div>
           <button 
-            className="btn btn-primary"
+            className="em-btn em-btn-primary"
             onClick={() => setShowAddModal(true)}
           >
             <Plus size={20} />
@@ -568,9 +572,9 @@ const EmployeeManagement = () => {
 
       {/* Popup des identifiants générés - Version originale pour les comptes directs */}
       {generatedCredentials && !generatedCredentials.isInvitation && (
-        <div className="modal-overlay">
+        <div className="em-modal-overlay">
           <div className="modal credentials-modal">
-            <div className="modal-header">
+            <div className="em-modal-header">
               <h2>Employé créé avec succès!</h2>
               <button 
                 onClick={() => setGeneratedCredentials(null)}
@@ -580,7 +584,7 @@ const EmployeeManagement = () => {
               </button>
             </div>
             
-            <div className="modal-content">
+            <div className="em-modal-content">
               <div className="employee-success-icon">✅</div>
               
               <div className="employee-info-summary">
@@ -632,10 +636,10 @@ const EmployeeManagement = () => {
                 Il devra changer son mot de passe lors de sa première connexion.
               </div>
               
-              <div className="modal-actions">
+              <div className="em-modal-actions">
                 <button 
                   onClick={() => setGeneratedCredentials(null)}
-                  className="btn btn-primary"
+                  className="em-btn em-btn-primary"
                 >
                   Fermer et continuer
                 </button>
@@ -872,18 +876,18 @@ const EmployeeManagement = () => {
         )}
       </div>
 
-      {/* Modal d'ajout d'employé */}
+      {/* Modal d'ajout d'employé avec classes simples préfixées */}
       {showAddModal && (
-        <div className="new-employee-overlay" onClick={(e) => {
+        <div className="em-overlay" onClick={(e) => {
           if (e.target === e.currentTarget) setShowAddModal(false);
         }}>
-          <div className="new-employee-modal">
+          <div className="em-modal">
             {/* En-tête du modal */}
-            <div className="new-employee-header">
-              <h2 className="new-employee-title">Ajouter un employé</h2>
+            <div className="em-header">
+              <h2 className="em-title">Ajouter un employé</h2>
               <button 
                 onClick={() => setShowAddModal(false)}
-                className="new-employee-close"
+                className="em-close"
                 type="button"
               >
                 ×
@@ -891,65 +895,65 @@ const EmployeeManagement = () => {
             </div>
 
             {/* Contenu scrollable */}
-            <div className="new-employee-content">
-              <form className="new-employee-form" onSubmit={handleAddEmployee}>
+            <div className="em-content">
+              <form className="em-form" onSubmit={handleAddEmployee}>
                 
-                {/* Grille des champs principaux */}
-                <div className="form-grid">
-                  <div className="form-field">
-                    <label className="field-label field-required">Prénom</label>
+                {/* Grille des champs principaux avec classes simplifiées */}
+                <div className="em-form-grid">
+                  <div className="em-form-field">
+                    <label className="em-field-label em-field-required">Prénom</label>
                     <input
                       type="text"
                       value={newEmployee.firstName}
                       onChange={(e) => setNewEmployee({...newEmployee, firstName: e.target.value})}
-                      className="field-input"
+                      className="em-field-input"
                       placeholder="Entrez le prénom"
                       required
                     />
                   </div>
                   
-                  <div className="form-field">
-                    <label className="field-label field-required">Nom de famille</label>
+                  <div className="em-form-field">
+                    <label className="em-field-label em-field-required">Nom de famille</label>
                     <input
                       type="text"
                       value={newEmployee.lastName}
                       onChange={(e) => setNewEmployee({...newEmployee, lastName: e.target.value})}
-                      className="field-input"
+                      className="em-field-input"
                       placeholder="Entrez le nom de famille"
                       required
                     />
                   </div>
                   
-                  <div className="form-field">
-                    <label className="field-label field-required">Téléphone</label>
+                  <div className="em-form-field">
+                    <label className="em-field-label em-field-required">Téléphone</label>
                     <input
                       type="tel"
                       value={newEmployee.phone}
                       onChange={(e) => setNewEmployee({...newEmployee, phone: e.target.value})}
-                      className="field-input"
+                      className="em-field-input"
                       placeholder="+237 6XX XXX XXX"
                       required
                     />
                   </div>
                   
-                  <div className="form-field">
-                    <label className="field-label">Date de naissance</label>
+                  <div className="em-form-field">
+                    <label className="em-field-label">Date de naissance</label>
                     <input
                       type="date"
                       value={newEmployee.dateOfBirth}
                       onChange={(e) => setNewEmployee({...newEmployee, dateOfBirth: e.target.value})}
-                      className="field-input"
+                      className="em-field-input"
                     />
                   </div>
                 </div>
 
                 {/* Rôle - pleine largeur */}
-                <div className="form-field full-width">
-                  <label className="field-label field-required">Rôle dans l'agence</label>
+                <div className="em-form-field em-full-width">
+                  <label className="em-field-label em-field-required">Rôle dans l'agence</label>
                   <select
                     value={newEmployee.role}
                     onChange={(e) => setNewEmployee({...newEmployee, role: e.target.value})}
-                    className="field-select"
+                    className="em-field-select"
                     required
                   >
                     {roles.map(role => (
@@ -961,12 +965,12 @@ const EmployeeManagement = () => {
                 </div>
 
                 {/* Notes - pleine largeur */}
-                <div className="form-field full-width">
-                  <label className="field-label">Notes internes</label>
+                <div className="em-form-field em-full-width">
+                  <label className="em-field-label">Notes internes</label>
                   <textarea
                     value={newEmployee.notes}
                     onChange={(e) => setNewEmployee({...newEmployee, notes: e.target.value})}
-                    className="field-textarea"
+                    className="em-field-textarea"
                     placeholder="Ajoutez des notes optionnelles..."
                   />
                 </div>
@@ -981,8 +985,8 @@ const EmployeeManagement = () => {
                       <div className="preview-label" style={{fontWeight:600, color:'#007AFF', marginBottom:'6px'}}>Email :</div>
                       <div className="preview-details">
                         <div className="preview-item" style={{wordBreak:'break-all', overflowWrap:'break-word', fontSize:'15px'}}>
-                          {newEmployee.firstName && newEmployee.lastName 
-                            ? `${newEmployee.firstName.toLowerCase()}.${newEmployee.lastName.toLowerCase()}@${agency?.name?.toLowerCase().replace(/\s+/g, '')}.travelhub.cm`
+                          {newEmployee.firstName && newEmployee.lastName && agency?.name
+                            ? `${newEmployee.firstName.toLowerCase()}.${newEmployee.lastName.toLowerCase()}@${agency.name.toLowerCase().replace(/\s+/g, '')}.com`
                             : 'Sera généré automatiquement'}
                         </div>
                       </div>
@@ -992,23 +996,23 @@ const EmployeeManagement = () => {
               </form>
             </div>
 
-            {/* Actions */}
-            <div className="new-employee-actions">
+            {/* Actions avec classes préfixées */}
+            <div className="emp-modal-actions">
               <button 
                 type="button"
                 onClick={() => setShowAddModal(false)}
-                className="action-button cancel-button"
+                className="em-button-secondary"
               >
                 Annuler
               </button>
               <button 
                 onClick={handleAddEmployee}
-                className="action-button create-button"
+                className="em-button-primary"
                 disabled={loading || !newEmployee.firstName || !newEmployee.lastName || !newEmployee.phone || !newEmployee.role}
               >
                 {loading ? (
-                  <span className="button-loading">
-                    <span className="loading-spinner"></span>
+                  <span className="em-loading">
+                    <span className="em-loading-spinner"></span>
                     Création...
                   </span>
                 ) : (
@@ -1020,12 +1024,12 @@ const EmployeeManagement = () => {
         </div>
       )}
 
-      {/* Modal de détails de l'employé ou invitation */}
+      {/* Modal de détails de l'employé ou invitation avec classes préfixées */}
       {selectedEmployee && !showAddModal && !generatedCredentials && (
-        <div className="new-employee-overlay" onClick={e => {if (e.target === e.currentTarget) setSelectedEmployee(null);}}>
-          <div className="new-employee-modal" style={{maxWidth:'520px',padding:'0',display:'flex',flexDirection:'column',height:'90vh'}}>
+        <div className="emp-modal-overlay" onClick={e => {if (e.target === e.currentTarget) setSelectedEmployee(null);}}>
+          <div className="emp-modal" style={{maxWidth:'520px',padding:'0',display:'flex',flexDirection:'column',height:'90vh'}}>
             <div style={{padding:'32px 32px 0',textAlign:'center',position:'relative'}}>
-              <button onClick={()=>setSelectedEmployee(null)} className="new-employee-close" style={{position:'absolute',top:'18px',right:'18px',zIndex:2}}>×</button>
+              <button onClick={()=>setSelectedEmployee(null)} className="emp-modal-close" style={{position:'absolute',top:'18px',right:'18px',zIndex:2}}>×</button>
               <div style={{marginBottom:'18px'}}>
                 <div style={{width:'62px',height:'62px',borderRadius:'50%',background:'linear-gradient(135deg,#f3f3fa,#e8e8f8)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto'}}>
                   {selectedEmployee.user?.full_name || selectedEmployee.full_name ? <Users size={38} color="#b3b3b3" /> : <Mail size={38} color="#b3b3b3" />}

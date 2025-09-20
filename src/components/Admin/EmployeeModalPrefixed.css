@@ -1,0 +1,456 @@
+/* ===============================================
+   MODAL EMPLOYÉ REFAIT - DESIGN IOS PREMIUM - PRÉFIXÉ
+   =============================================== */
+
+/* Variables CSS pour le nouveau modal */
+:root {
+  --modal-bg: #FFFFFF;
+  --modal-overlay: rgba(17, 17, 17, 0.6);
+  --modal-border: rgba(0, 0, 0, 0.06);
+  --modal-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
+  --primary-blue: #007AFF;
+  --primary-blue-hover: #0056D6;
+  --text-primary: #1D1D1F;
+  --text-secondary: #8E8E93;
+  --bg-light: #F2F2F7;
+  --success: #34C759;
+  --danger: #FF3B30;
+  --border-radius: 20px;
+  --input-radius: 12px;
+  --button-radius: 16px;
+}
+
+/* Overlay avec effet de flou - spécifique à employee */
+.emp-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--modal-overlay);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: emp-overlayIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes emp-overlayIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+  }
+}
+
+/* Modal principal */
+.emp-modal {
+  background: var(--modal-bg);
+  width: 90%;
+  max-width: 650px;
+  max-height: 90vh;
+  border-radius: var(--border-radius);
+  box-shadow: var(--modal-shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  animation: emp-modalIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--modal-border);
+  transform: translateZ(0); /* Force l'accélération matérielle */
+}
+
+@keyframes emp-modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* En-tête du modal */
+.emp-modal-header {
+  padding: 24px 24px 20px;
+  position: relative;
+  border-bottom: 1px solid var(--modal-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.emp-modal-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+  max-width: 80%;
+}
+
+/* Bouton de fermeture */
+.emp-modal-close {
+  background: var(--bg-light);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.emp-modal-close:hover {
+  background: #E5E5EA;
+  color: var(--text-primary);
+  transform: scale(1.05);
+}
+
+/* Contenu scrollable du modal */
+.emp-modal-content {
+  padding: 24px;
+  flex-grow: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Style de scrollbar custom */
+.emp-modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.emp-modal-content::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.03);
+}
+
+.emp-modal-content::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.1);
+  border-radius: 4px;
+}
+
+/* Formulaire */
+.emp-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Grille de formulaire à deux colonnes */
+.emp-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+/* Style pour les champs de formulaire */
+.emp-form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Pour les champs pleine largeur */
+.emp-form-field.full-width {
+  grid-column: span 2;
+}
+
+/* Labels des champs */
+.emp-field-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+/* Indicateur de champ requis */
+.emp-field-required::after {
+  content: '*';
+  color: var(--danger);
+  margin-left: 3px;
+}
+
+/* Inputs stylisés */
+.emp-field-input {
+  padding: 14px 16px;
+  font-size: 16px;
+  border: 1px solid #E5E5EA;
+  border-radius: var(--input-radius);
+  background: #FFFFFF;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.emp-field-input:focus {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+}
+
+/* Style d'erreur pour les inputs */
+.emp-field-input.error {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.15);
+}
+
+/* Message d'erreur */
+.emp-field-error {
+  font-size: 13px;
+  color: var(--danger);
+  margin-top: 5px;
+}
+
+/* Style pour sélecteur */
+.emp-field-select {
+  appearance: none;
+  padding: 14px 16px;
+  font-size: 16px;
+  border: 1px solid #E5E5EA;
+  border-radius: var(--input-radius);
+  background: #FFFFFF;
+  transition: all 0.2s ease;
+  outline: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238E8E93' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 6.646a.5.5 0 0 1 .708 0L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+}
+
+.emp-field-select:focus {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+}
+
+/* Groupe de boutons radio */
+.emp-radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* Conteneur pour les options radio */
+.emp-radio-option {
+  position: relative;
+}
+
+/* Style de base pour les boutons radio */
+.emp-radio-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Style pour les labels de boutons radio */
+.emp-radio-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  background: var(--bg-light);
+  border-radius: var(--input-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+  text-align: center;
+}
+
+/* Style pour les boutons radio sélectionnés */
+.emp-radio-input:checked + .emp-radio-label {
+  background: var(--primary-blue);
+  color: white;
+}
+
+/* Style pour les boutons radio hover */
+.emp-radio-input:not(:checked) + .emp-radio-label:hover {
+  background: #E5E5EA;
+}
+
+/* Boutons d'action */
+.emp-modal-actions {
+  padding: 20px 24px;
+  border-top: 1px solid var(--modal-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  background-color: #FFFFFF;
+}
+
+/* Bouton primaire */
+.emp-button-primary {
+  padding: 14px 24px;
+  background: var(--primary-blue);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--button-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.emp-button-primary:hover {
+  background: var(--primary-blue-hover);
+  transform: translateY(-1px);
+}
+
+.emp-button-primary:active {
+  transform: translateY(1px);
+}
+
+/* Bouton secondaire */
+.emp-button-secondary {
+  padding: 14px 24px;
+  background: var(--bg-light);
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--button-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.emp-button-secondary:hover {
+  background: #E5E5EA;
+  transform: translateY(-1px);
+}
+
+.emp-button-secondary:active {
+  transform: translateY(1px);
+}
+
+/* Section pour informations ou avertissements */
+.emp-info-section {
+  background: rgba(0, 122, 255, 0.08);
+  padding: 16px;
+  border-radius: var(--input-radius);
+  border-left: 4px solid var(--primary-blue);
+  margin: 20px 0;
+}
+
+.emp-info-section p {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+/* Validation en direct des champs */
+.emp-field-input:valid {
+  border-color: var(--success);
+}
+
+/* Animation de chargement */
+.emp-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 1000;
+  animation: emp-fadeIn 0.3s ease;
+}
+
+@keyframes emp-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.emp-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(0, 122, 255, 0.2);
+  border-radius: 50%;
+  border-top-color: var(--primary-blue);
+  animation: emp-spin 1s linear infinite;
+}
+
+@keyframes emp-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .emp-modal-overlay {
+    padding: 15px;
+  }
+  
+  .emp-modal {
+    width: 100%;
+    max-height: 95vh;
+    border-radius: 16px;
+  }
+  
+  .emp-modal-header {
+    padding: 20px 20px 16px;
+  }
+  
+  .emp-modal-title {
+    font-size: 20px;
+  }
+  
+  .emp-modal-close {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .emp-modal-content {
+    padding: 20px;
+  }
+}
+
+/* Ajustements pour les écrans encore plus petits */
+@media (max-width: 480px) {
+  .emp-modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  
+  .emp-modal {
+    width: 100%;
+    max-width: 100%;
+    height: 90vh;
+    border-radius: 20px 20px 0 0;
+  }
+  
+  .emp-modal-header {
+    padding: 16px;
+  }
+  
+  .emp-modal-content {
+    padding: 16px;
+  }
+  
+  .emp-form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .emp-form-field.full-width {
+    grid-column: 1;
+  }
+  
+  .emp-modal-actions {
+    padding: 16px;
+  }
+}
