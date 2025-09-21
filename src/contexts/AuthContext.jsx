@@ -48,13 +48,36 @@ export const AuthProvider = ({ children }) => {
           console.log('👤 Utilisateur non trouvé, création du profil...');
           const { data: user } = await supabase.auth.getUser();
           if (user?.user) {
+            // Détecter le rôle basé sur les métadonnées ou vérifier les invitations
+            let userRole = user.user.user_metadata?.role || 'client';
+            
+            // Si pas de rôle dans metadata, vérifier s'il y a une invitation admin d'agence
+            if (!user.user.user_metadata?.role || user.user.user_metadata?.role === 'user') {
+              console.log('🔍 Vérification invitation admin d\'agence...');
+              const { data: adminInvitation } = await supabase
+                .from('agency_admin_invitations')
+                .select('*')
+                .eq('admin_email', user.user.email)
+                .eq('status', 'accepted')
+                .single();
+                
+              if (adminInvitation) {
+                console.log('✅ Invitation admin trouvée, attribution du rôle "agence"');
+                userRole = 'agence';
+              }
+            }
+            
+            console.log('🎭 Rôle final déterminé pour création:', userRole);
+            
             const { data: newProfile, error: createError } = await supabase
               .from('users')
               .insert({
                 id: userId,
                 full_name: user.user.user_metadata?.full_name || user.user.email,
                 email: user.user.email,
-                role: 'user'
+                role: userRole,
+                phone: user.user.user_metadata?.phone || null,
+                is_active: true
               })
               .select()
               .single();
@@ -65,7 +88,7 @@ export const AuthProvider = ({ children }) => {
               return;
             }
             setUserProfile(newProfile);
-            console.log('✅ Nouveau profil créé et défini');
+            console.log('✅ Nouveau profil créé et défini avec le rôle:', userRole);
           }
         }
         console.log('✅ Fin loadUserProfile (erreur profil) après', Date.now() - startTime, 'ms');

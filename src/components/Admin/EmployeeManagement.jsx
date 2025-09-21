@@ -923,11 +923,11 @@ const EmployeeManagement = () => {
                 setError('Erreur: Aucun rôle disponible pour créer un employé');
               }
             }}
-            disabled={!availableRoles || availableRoles.length === 0}
-            title={(!availableRoles || availableRoles.length === 0) ? 'Chargement des rôles...' : 'Ajouter un employé'}
+            disabled={loading || !availableRoles || availableRoles.length === 0}
+            title={loading ? 'Chargement des employés...' : (!availableRoles || availableRoles.length === 0) ? 'Chargement des rôles...' : 'Ajouter un employé'}
           >
             <Plus size={20} />
-            {(!availableRoles || availableRoles.length === 0) ? 'Chargement...' : 'Ajouter un employé'}
+            {loading ? 'Chargement...' : (!availableRoles || availableRoles.length === 0) ? 'Chargement...' : 'Ajouter un employé'}
           </button>
         </div>
       </div>

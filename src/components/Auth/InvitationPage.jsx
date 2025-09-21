@@ -142,6 +142,7 @@ const InvitationPage = () => {
 
       console.log('🎭 Rôle système calculé:', systemRole);
       console.log('📋 Type d\'invitation:', invitationType);
+      console.log('👤 Employee role:', invitation.employee_role);
 
       // 1. Créer le compte utilisateur via Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -173,11 +174,10 @@ const InvitationPage = () => {
           .insert({
             id: authData.user.id,
             email: invitation.email,
-            first_name: invitation.first_name,
-            last_name: invitation.last_name,
+            full_name: `${invitation.first_name} ${invitation.last_name}`,
             phone: invitation.phone,
             role: systemRole, // IMPORTANT: Assurer le bon rôle
-            is_verified: true,
+            is_active: true,
             created_at: new Date().toISOString()
           });
 
@@ -200,13 +200,24 @@ const InvitationPage = () => {
 
         // 4. Marquer l'invitation comme acceptée selon le type
         const tableName = invitationType === 'admin' ? 'agency_admin_invitations' : 'agency_employee_invitations';
+        const updateData = {
+          status: 'accepted',
+          accepted_at: new Date().toISOString()
+        };
+        
+        // Pour les employés, ajouter le user_id
+        if (invitationType === 'employee') {
+          updateData.user_id = authData.user.id;
+        }
+        // Pour les admins, marquer comme utilisée
+        if (invitationType === 'admin') {
+          updateData.is_used = true;
+          updateData.used_at = new Date().toISOString();
+        }
+        
         const { error: updateError } = await supabase
           .from(tableName)
-          .update({
-            status: 'accepted',
-            accepted_at: new Date().toISOString(),
-            ...(invitationType === 'employee' ? { user_id: authData.user.id } : {})
-          })
+          .update(updateData)
           .eq('invitation_token', token);
 
         if (updateError) {

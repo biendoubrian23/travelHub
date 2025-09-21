@@ -1168,3 +1168,35 @@
     flex-direction: column;
   }
 }
+
+/* Styles pour les boutons désactivés pendant le chargement */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #e1e5e9 !important;
+  border-color: #e1e5e9 !important;
+  color: #6c757d !important;
+  pointer-events: none;
+}
+
+.btn.btn-primary:disabled {
+  background: linear-gradient(135deg, #e1e5e9, #d3d6db) !important;
+  border-color: #e1e5e9 !important;
+  color: #6c757d !important;
+}
+
+/* Animation de chargement pour le bouton */
+.loading-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #6c757d;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
