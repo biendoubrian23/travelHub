@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './SidebarElegant.css';
 import { 
   LayoutDashboard, 
@@ -15,9 +15,9 @@ import {
 } from 'lucide-react';
 import { useRolePermissions } from '../RoleBasedComponents';
 
-const Sidebar = ({ activeRoute, onRouteChange, onLogout, userProfile, agency }) => {
+const SidebarElegant = ({ activeRoute, onRouteChange, onLogout, userProfile, agency }) => {
   const { currentRole, canViewTab, roleConfig, theme, canManageEmployees } = useRolePermissions();
-  const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Définition des onglets avec leurs icônes et conditions d'affichage
   const allMenuItems = [
@@ -78,10 +78,10 @@ const Sidebar = ({ activeRoute, onRouteChange, onLogout, userProfile, agency }) 
       <div className="sidebar-header">
         <div className="sidebar-title-container">
           <div className="sidebar-logo">
-            <Bus size={20} strokeWidth={2.5} color={theme?.primary || '#3B82F6'} />
+            <span className="logo-icon">🚌</span>
             {!isCollapsed && (
-              <div style={{ width: '100%' }}>
-                <h2 className="sidebar-title">TravelHub</h2>
+              <div>
+                <h1 className="sidebar-title">TravelHub</h1>
                 <p className="sidebar-subtitle">Agence</p>
               </div>
             )}
@@ -90,20 +90,16 @@ const Sidebar = ({ activeRoute, onRouteChange, onLogout, userProfile, agency }) 
             {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </button>
         </div>
-        {!isCollapsed && agency && (
-          <div className="agency-banner">
-            <h3 className="agency-title">{agency.name}</h3>
-          </div>
-        )}
         {!isCollapsed && userProfile && (
           <div className="user-info">
-            <div className="user-role-badge">
-              {currentRole === 'patron' && <span className="role-label">Patron</span>}
-              {currentRole === 'manager' && <span className="role-label">Manager</span>}
-              {currentRole === 'employee' && <span className="role-label">Employé</span>}
-              {currentRole === 'driver' && <span className="role-label">Conducteur</span>}
+            <div className="user-role-badge" style={{ backgroundColor: theme?.primary || 'var(--primary)' }}>
+              <span className="role-icon">{getRoleIcon()}</span>
+              <span className="role-label">{getRoleLabel()}</span>
             </div>
             <p className="user-name">{userProfile.full_name}</p>
+            {agency && (
+              <p className="agency-name">{agency.name}</p>
+            )}
           </div>
         )}
       </div>
@@ -134,6 +130,11 @@ const Sidebar = ({ activeRoute, onRouteChange, onLogout, userProfile, agency }) 
                     <div className="nav-content">
                       <span className="nav-label">{item.label}</span>
                       <span className="nav-description">{item.description}</span>
+                      {item.id === 'employees' && (
+                        <span className="nav-badge">
+                          {currentRole === 'patron' ? '👑' : currentRole === 'manager' ? '👨‍💼' : ''}
+                        </span>
+                      )}
                     </div>
                   )}
                 </button>
@@ -161,4 +162,4 @@ const Sidebar = ({ activeRoute, onRouteChange, onLogout, userProfile, agency }) 
   );
 };
 
-export default Sidebar;
+export default SidebarElegant;
