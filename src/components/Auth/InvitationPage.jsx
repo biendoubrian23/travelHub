@@ -326,7 +326,7 @@ const InvitationPage = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="password-toggle"
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
           </div>
