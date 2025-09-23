@@ -90,9 +90,9 @@ const Sidebar = ({ activeRoute, onRouteChange, onLogout, userProfile, agency }) 
             {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </button>
         </div>
-        {!isCollapsed && agency && (
+        {!isCollapsed && (
           <div className="agency-banner">
-            <h3 className="agency-title">{agency.name}</h3>
+            <h3 className="agency-title">{agency?.name || 'Buca Voyage'}</h3>
           </div>
         )}
         {!isCollapsed && userProfile && (
